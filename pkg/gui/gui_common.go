@@ -120,6 +120,12 @@ func (self *guiCommon) OnUIThread(f func() error) {
 	self.gui.onUIThread(f)
 }
 
+func (self *guiCommon) OnUIThreadSync(f func() error) {
+	self.gui.g.UpdateAsync(func(*gocui.Gui) error {
+		return f()
+	})
+}
+
 func (self *guiCommon) OnWorker(f func(gocui.Task) error) {
 	self.gui.onWorker(f)
 }

@@ -614,6 +614,8 @@ type KeybindingAIConfig struct {
 	// AIAssistant opens the interactive AI git assistant where you can describe
 	// any git-related task and get expert suggestions.
 	AIAssistant string `yaml:"aiAssistant"`
+	// CodeReview triggers an AI code review for the currently selected single file.
+	CodeReview string `yaml:"codeReview"`
 }
 
 // OSConfig contains config on the level of the os
@@ -1095,6 +1097,7 @@ func GetDefaultConfig() *UserConfig {
 			},
 			AI: KeybindingAIConfig{
 				AIAssistant: "<c-y>",
+				CodeReview:  "<c-x>",
 			},
 		},
 		AI: AIConfig{

@@ -17,7 +17,14 @@
       "mcp__Playwright__browser_navigate",
       "Bash(grep:*)",
       "Bash(go build:*)",
-      "Bash(go generate:*)"
+      "Bash(go generate:*)",
+      "mcp__serena__find_symbol",
+      "mcp__serena__get_symbols_overview",
+      "Bash(dir:*)",
+      "Bash(Get-Content:*)",
+      "Bash(Measure-Object:*)",
+      "Bash(python3:*)",
+      "Bash(node:*)"
     ]
   }
 }

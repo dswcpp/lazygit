@@ -57,6 +57,11 @@ func (c *Client) Complete(ctx context.Context, prompt string) (Result, error) {
 	return c.provider.Complete(ctx, prompt)
 }
 
+// CompleteStream sends a prompt and streams the response, calling onChunk for each fragment.
+func (c *Client) CompleteStream(ctx context.Context, prompt string, onChunk func(string)) error {
+	return c.provider.CompleteStream(ctx, prompt, onChunk)
+}
+
 // resolveEndpoint returns the effective API endpoint based on provider setting.
 func resolveEndpoint(cfg config.AIConfig) string {
 	if cfg.Endpoint != "" {
