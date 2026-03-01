@@ -47,4 +47,7 @@ type Views struct {
 
 	// centered loading overlay for long-running operations
 	Loading *gocui.View
+
+	// floating popup for AI code review results
+	AICodeReview *gocui.View
 }

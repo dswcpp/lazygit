@@ -767,12 +767,12 @@ type IconProperties struct {
 type AIConfig struct {
 	// Whether AI features are enabled
 	Enabled bool `yaml:"enabled"`
-	// AI provider: "deepseek" (default), "openai", "ollama", or "custom"
-	Provider string `yaml:"provider" jsonschema:"enum=deepseek,enum=openai,enum=ollama,enum=custom"`
+	// AI provider: "deepseek" (default), "openai", "ollama", "anthropic", or "custom"
+	Provider string `yaml:"provider" jsonschema:"enum=deepseek,enum=openai,enum=ollama,enum=anthropic,enum=custom"`
 	// API key; supports env var references like ${DEEPSEEK_API_KEY} or ${OPENAI_API_KEY}
 	APIKey string `yaml:"apiKey"`
 	// Model name; deepseek-reasoner is recommended for git analysis tasks.
-	// Other options: "deepseek-chat", "gpt-4o-mini"
+	// Other options: "deepseek-chat", "gpt-4o-mini", "claude-sonnet-4-6"
 	Model string `yaml:"model"`
 	// Enable thinking mode. Automatically true for deepseek-reasoner.
 	// Set to true with deepseek-chat to enable thinking via the thinking parameter.

@@ -48,7 +48,12 @@ func NewClient(cfg config.AIConfig) (*Client, error) {
 		return nil, fmt.Errorf("ai.model must be set in config")
 	}
 
-	provider := newOpenAIProvider(endpoint, apiKey, model, maxTokens, timeout, cfg.EnableThinking)
+	var provider Provider
+	if strings.ToLower(cfg.Provider) == "anthropic" {
+		provider = newAnthropicProvider(apiKey, model, cfg.Endpoint, maxTokens, timeout)
+	} else {
+		provider = newOpenAIProvider(endpoint, apiKey, model, maxTokens, timeout, cfg.EnableThinking)
+	}
 	return &Client{provider: provider}, nil
 }
 

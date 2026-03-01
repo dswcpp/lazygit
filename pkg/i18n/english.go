@@ -435,6 +435,8 @@ type TranslationSet struct {
 	AICodeReviewConfirmPrompt             string
 	AICodeReviewStatus                    string
 	AICodeReviewNoDiff                    string
+	AICodeReviewCopiedToClipboard         string
+	AICodeReviewToggleZoom                string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -780,6 +782,8 @@ type TranslationSet struct {
 	CommandLog                               string
 	ToggleShowCommandLog                     string
 	FocusCommandLog                          string
+	CopyCommandLog                           string
+	CommandLogCopiedToClipboard             string
 	CommandLogHeader                         string
 	RandomTip                                string
 	ToggleWhitespaceInDiffView               string
@@ -1571,6 +1575,8 @@ func EnglishTranslationSet() *TranslationSet {
 		AICodeReviewConfirmPrompt:            "Start AI code review for the following file?\n\n%s",
 		AICodeReviewStatus:                   "AI reviewing, please wait...",
 		AICodeReviewNoDiff:                   "No diff to review for this file",
+		AICodeReviewCopiedToClipboard:        "AI code review copied to clipboard",
+		AICodeReviewToggleZoom:               "Toggle zoom",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",
@@ -1915,6 +1921,8 @@ func EnglishTranslationSet() *TranslationSet {
 		ErrWorktreeMovedOrRemoved:                "Cannot find worktree. It might have been moved or removed ¯\\_(ツ)_/¯",
 		ToggleShowCommandLog:                     "Toggle show/hide command log",
 		FocusCommandLog:                          "Focus command log",
+		CopyCommandLog:                           "Copy command log to clipboard",
+		CommandLogCopiedToClipboard:             "Command log copied to clipboard",
 		CommandLogHeader:                         "You can hide/focus this panel by pressing '%s'\n",
 		RandomTip:                                "Random tip",
 		ToggleWhitespaceInDiffView:               "Toggle whitespace",

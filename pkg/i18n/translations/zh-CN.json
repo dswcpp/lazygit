@@ -731,6 +731,8 @@
   "CommandLog": "命令日志",
   "ToggleShowCommandLog": "切换 显示/隐藏 命令日志",
   "FocusCommandLog": "焦点命令日志",
+  "CopyCommandLog": "复制命令日志到剪贴板",
+  "CommandLogCopiedToClipboard": "命令日志已复制到剪贴板",
   "CommandLogHeader": "您可以通过按 '%s' 隐藏或集中显示该面板，或使用 `gui.showCommandLog: false`\n将其永久隐藏在您的配置中",
   "RandomTip": "随机小提示",
   "ToggleWhitespaceInDiffView": "切换是否在差异视图中显示空白字符差异",
@@ -1080,5 +1082,7 @@
   "AICodeReviewConfirmTitle": "AI 代码审查",
   "AICodeReviewConfirmPrompt": "开始对以下文件进行 AI 代码审查？\n\n%s",
   "AICodeReviewStatus": "AI 审查中，请稍候...",
-  "AICodeReviewNoDiff": "该文件没有可供审查的差异"
+  "AICodeReviewNoDiff": "该文件没有可供审查的差异",
+  "AICodeReviewCopiedToClipboard": "AI 代码审查已复制到剪贴板",
+  "AICodeReviewToggleZoom": "切换缩放"
 }

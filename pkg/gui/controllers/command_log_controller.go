@@ -21,9 +21,24 @@ func NewCommandLogController(
 }
 
 func (self *CommandLogController) GetKeybindings(opts types.KeybindingsOpts) []*types.Binding {
-	bindings := []*types.Binding{}
+	bindings := []*types.Binding{
+		{
+			Key:         'c',
+			Handler:     self.copyToClipboard,
+			Description: self.c.Tr.CopyCommandLog,
+		},
+	}
 
 	return bindings
+}
+
+func (self *CommandLogController) copyToClipboard() error {
+	content := self.c.Views().Extras.Buffer()
+	if err := self.c.OS().CopyToClipboard(content); err != nil {
+		return err
+	}
+	self.c.Toast(self.c.Tr.CommandLogCopiedToClipboard)
+	return nil
 }
 
 func (self *CommandLogController) GetOnFocusLost() func(types.OnFocusLostOpts) {

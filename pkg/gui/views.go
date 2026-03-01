@@ -74,6 +74,9 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		// this guy will cover everything else when it appears
 		{viewPtr: &gui.Views.Limit, name: "limit"},
 
+		// AI code review floating popup
+		{viewPtr: &gui.Views.AICodeReview, name: "aiCodeReview"},
+
 		// loading overlay: renders on top of everything
 		{viewPtr: &gui.Views.Loading, name: "loading"},
 	}
@@ -156,6 +159,10 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Snake.FgColor = gocui.ColorGreen
 
 	gui.Views.Loading.Visible = false
+
+	gui.Views.AICodeReview.Visible = false
+	gui.Views.AICodeReview.Wrap = true
+	gui.Views.AICodeReview.Autoscroll = true
 
 	return nil
 }

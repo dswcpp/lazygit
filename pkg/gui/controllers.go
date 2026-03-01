@@ -197,6 +197,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 	subCommitsController := controllers.NewSubCommitsController(common)
 	statusController := controllers.NewStatusController(common)
 	commandLogController := controllers.NewCommandLogController(common)
+	aiCodeReviewController := controllers.NewAICodeReviewController(common)
 	confirmationController := controllers.NewConfirmationController(common)
 	promptController := controllers.NewPromptController(common)
 	suggestionsController := controllers.NewSuggestionsController(common)
@@ -399,6 +400,11 @@ func (gui *Gui) resetHelpersAndControllers() {
 
 	controllers.AttachControllers(gui.State.Contexts.CommandLog,
 		commandLogController,
+	)
+
+	controllers.AttachControllers(gui.State.Contexts.AICodeReview,
+		aiCodeReviewController,
+		verticalScrollControllerFactory.Create(gui.State.Contexts.AICodeReview),
 	)
 
 	controllers.AttachControllers(gui.State.Contexts.Confirmation,

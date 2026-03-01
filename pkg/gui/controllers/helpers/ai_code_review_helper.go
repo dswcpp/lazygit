@@ -48,11 +48,20 @@ func (self *AICodeReviewHelper) ReviewDiff(filePath string, diff string) error {
 	return nil
 }
 
-// startReview shows the loading overlay and launches the streaming review.
+// startReview shows the AI code review popup and launches the streaming review.
 // Must be called from the UI thread (inside a Confirm HandleConfirm callback).
 func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 	lang := detectLanguage(filePath)
 	prompt := buildCodeReviewPrompt(filePath, lang, diff)
+
+	// Prepare the popup view before pushing the context.
+	aiView := self.c.Views().AICodeReview
+	aiView.Clear()
+	aiView.Autoscroll = true
+	aiView.Title = fmt.Sprintf(" %s: %s ", self.c.Tr.AICodeReviewTitle, filePath)
+
+	// Push the AI code review context to show the floating popup.
+	self.c.Context().Push(self.c.Contexts().AICodeReview, types.OnFocusOpts{})
 
 	// WithCenteredLoadingStatus runs the callback on a worker goroutine and
 	// hides the overlay when the callback returns.
@@ -70,22 +79,10 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 		// the race condition caused by OnUIThread spawning a new goroutine per
 		// chunk which can arrive at the UI event queue out of order.
 		go func() {
-			headerWritten := false
 			err := self.c.AI.CompleteStream(context.Background(), prompt, func(chunk string) {
-				if !headerWritten {
-					headerWritten = true
-					self.c.OnUIThreadSync(func() error {
-						view := self.c.Views().Extras
-						view.Clear()
-						view.Autoscroll = true
-						fmt.Fprintf(view, "=== %s: %s ===\n\n",
-							self.c.Tr.AICodeReviewTitle, filePath)
-						return nil
-					})
-					signalFirst()
-				}
+				signalFirst()
 				self.c.OnUIThreadSync(func() error {
-					fmt.Fprint(self.c.Views().Extras, chunk)
+					fmt.Fprint(self.c.Views().AICodeReview, chunk)
 					return nil
 				})
 			})

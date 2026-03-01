@@ -48,6 +48,7 @@ const (
 	SUBMODULES_CONTEXT_KEY         types.ContextKey = "submodules"
 	SUGGESTIONS_CONTEXT_KEY        types.ContextKey = "suggestions"
 	COMMAND_LOG_CONTEXT_KEY        types.ContextKey = "cmdLog"
+	AI_CODE_REVIEW_CONTEXT_KEY     types.ContextKey = "aiCodeReview"
 )
 
 var AllContextKeys = []types.ContextKey{
@@ -80,6 +81,7 @@ var AllContextKeys = []types.ContextKey{
 	SUBMODULES_CONTEXT_KEY,
 	SUGGESTIONS_CONTEXT_KEY,
 	COMMAND_LOG_CONTEXT_KEY,
+	AI_CODE_REVIEW_CONTEXT_KEY,
 }
 
 type ContextTree struct {
@@ -112,6 +114,7 @@ type ContextTree struct {
 	CommitMessage               *CommitMessageContext
 	CommitDescription           types.Context
 	CommandLog                  types.Context
+	AICodeReview                *AICodeReviewContext
 
 	// display contexts
 	AppStatus     types.Context
@@ -147,6 +150,7 @@ func (self *ContextTree) Flatten() []types.Context {
 		self.Prompt,
 		self.CommitMessage,
 		self.CommitDescription,
+		self.AICodeReview,
 
 		self.MergeConflicts,
 		self.StagingSecondary,
