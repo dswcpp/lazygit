@@ -133,6 +133,12 @@ func (self *CommitFilesController) GetKeybindings(opts types.KeybindingsOpts) []
 			Tooltip:           self.c.Tr.ExpandAllTooltip,
 			GetDisabledReason: self.require(self.isInTreeMode),
 		},
+		{
+			Key:               opts.GetKey(opts.Config.AI.CodeReview),
+			Handler:           self.withItem(self.aiCodeReview),
+			GetDisabledReason: self.require(self.singleItemSelected()),
+			Description:       self.c.Tr.AICodeReview,
+		},
 	}
 
 	return bindings
@@ -576,4 +582,21 @@ func (self *CommitFilesController) isInTreeMode() *types.DisabledReason {
 	}
 
 	return nil
+}
+
+func (self *CommitFilesController) aiCodeReview(node *filetree.CommitFileNode) error {
+	if !node.IsFile() {
+		return errors.New(self.c.Tr.ErrCannotEditDirectory)
+	}
+
+	from, to := self.context().GetFromAndToForDiff()
+	from, reverse := self.c.Modes().Diffing.GetFromAndReverseArgsForDiff(from)
+
+	cmdObj := self.c.Git().WorkingTree.ShowFileDiffCmdObj(from, to, reverse, node.GetPath(), true)
+	diff, err := cmdObj.RunWithOutput()
+	if err != nil {
+		return err
+	}
+
+	return self.c.Helpers().AICodeReview.ReviewDiff(node.GetPath(), diff)
 }
