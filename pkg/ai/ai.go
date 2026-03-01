@@ -15,4 +15,7 @@ type Result struct {
 type Provider interface {
 	// Complete sends a prompt and returns the AI result.
 	Complete(ctx context.Context, prompt string) (Result, error)
+	// CompleteStream sends a prompt and streams the response, calling onChunk
+	// for each text fragment received. Blocks until the stream ends or ctx is done.
+	CompleteStream(ctx context.Context, prompt string, onChunk func(string)) error
 }
