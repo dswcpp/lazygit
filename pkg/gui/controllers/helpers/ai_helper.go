@@ -146,9 +146,9 @@ func (self *AIHelper) saveAndReloadAI() error {
 	return nil
 }
 
-// OpenAIAssistant opens an interactive prompt where the user can describe any
-// git task or question. The AI receives current repository context and responds
-// with actionable git advice.
+// OpenAIAssistant opens an interactive prompt where the user describes a git
+// task. The AI generates the shell/git commands needed, shows them for
+// confirmation, then executes them via a subprocess.
 func (self *AIHelper) OpenAIAssistant() error {
 	if self.c.AI == nil {
 		return errors.New(self.c.Tr.AINotEnabled)
@@ -163,10 +163,14 @@ func (self *AIHelper) OpenAIAssistant() error {
 			self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIAssistantStatus, func(_ gocui.Task) error {
 				repoCtx := self.buildGitContext()
 				prompt := fmt.Sprintf(
-					"你是一个专业的 git 助手，只处理 git 相关的问题和任务。\n\n"+
+					"你是一个 git 命令生成器。根据用户需求和仓库状态，生成需要执行的 shell/git 命令。\n\n"+
+						"规则：\n"+
+						"- 只输出可直接执行的命令，每行一条\n"+
+						"- 不输出任何解释、注释（#开头）或 markdown\n"+
+						"- 命令按执行顺序排列\n"+
+						"- 如果需求无法用 git 命令安全完成，第一行输出：CANNOT_EXECUTE: <原因>\n\n"+
 						"当前仓库状态：\n%s\n"+
-						"用户的问题/需求：%s\n\n"+
-						"请用简洁专业的中文回答，给出具体的 git 命令或操作步骤。",
+						"用户需求：%s",
 					repoCtx,
 					userQuery,
 				)
@@ -181,13 +185,62 @@ func (self *AIHelper) OpenAIAssistant() error {
 					return errors.New("AI: empty response from model")
 				}
 
-				self.c.Alert(self.c.Tr.AIAssistantTitle, response)
+				if strings.HasPrefix(response, "CANNOT_EXECUTE:") {
+					reason := strings.TrimSpace(strings.TrimPrefix(response, "CANNOT_EXECUTE:"))
+					self.c.OnUIThread(func() error {
+						self.c.Alert(self.c.Tr.AIAssistantTitle, reason)
+						return nil
+					})
+					return nil
+				}
+
+				commands := parseAICommands(response)
+				if len(commands) == 0 {
+					return errors.New(self.c.Tr.AIAssistantNoCommands)
+				}
+
+				self.c.OnUIThread(func() error {
+					return self.confirmAndExecuteCommands(commands)
+				})
 				return nil
 			})
 			return nil
 		},
 	})
 	return nil
+}
+
+// confirmAndExecuteCommands shows the AI-generated commands to the user and
+// executes them via a subprocess on confirmation.
+// Must be called on the UI thread.
+func (self *AIHelper) confirmAndExecuteCommands(commands []string) error {
+	preview := strings.Join(commands, "\n")
+	self.c.Confirm(types.ConfirmOpts{
+		Title:  self.c.Tr.AIAssistantTitle,
+		Prompt: self.c.Tr.AIAssistantConfirmExecute + "\n\n" + preview,
+		HandleConfirm: func() error {
+			cmdStr := strings.Join(commands, " && ")
+			self.c.LogAction("AI git assistant")
+			return self.c.RunSubprocessAndRefresh(
+				self.c.OS().Cmd.NewShell(cmdStr, self.c.UserConfig().OS.ShellFunctionsFile),
+			)
+		},
+	})
+	return nil
+}
+
+// parseAICommands splits the AI response into individual shell commands,
+// discarding blank lines and comment lines.
+func parseAICommands(response string) []string {
+	var cmds []string
+	for _, line := range strings.Split(response, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		cmds = append(cmds, line)
+	}
+	return cmds
 }
 
 // buildGitContext collects current repository information to include in the AI prompt.

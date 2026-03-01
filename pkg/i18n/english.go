@@ -427,6 +427,8 @@ type TranslationSet struct {
 	AIAssistantTitle                      string
 	AIAssistantPrompt                     string
 	AIAssistantStatus                     string
+	AIAssistantConfirmExecute             string
+	AIAssistantNoCommands                 string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -1553,8 +1555,10 @@ func EnglishTranslationSet() *TranslationSet {
 		AISettingsSaved:                      "AI settings saved",
 		AIAssistant:                          "Open AI git assistant",
 		AIAssistantTitle:                     "AI Git Assistant",
-		AIAssistantPrompt:                    "Describe your git task or question...",
-		AIAssistantStatus:                    "AI thinking...",
+		AIAssistantPrompt:                    "Describe your git task (e.g. 'squash last 3 commits')",
+		AIAssistantStatus:                    "AI generating commands...",
+		AIAssistantConfirmExecute:            "Execute these commands?",
+		AIAssistantNoCommands:                "AI did not generate any commands",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",
