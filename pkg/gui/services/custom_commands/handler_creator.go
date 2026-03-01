@@ -7,12 +7,12 @@ import (
 	"text/template"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
 )
 

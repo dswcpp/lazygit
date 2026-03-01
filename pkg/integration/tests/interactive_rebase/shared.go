@@ -1,7 +1,7 @@
 package interactive_rebase
 
 import (
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 func handleConflictsFromSwap(t *TestDriver, expectedCommand string) {

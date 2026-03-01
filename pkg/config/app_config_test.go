@@ -370,7 +370,7 @@ gui:
   # If true, allow scrolling past the bottom of the content in the main window
   scrollPastBottom: true
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#scroll-off-margin
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#scroll-off-margin
   scrollOffMargin: 2
 
   # One of: 'margin' (default) | 'jump'
@@ -440,7 +440,7 @@ gui:
   shortTimeFormat: 3:04PM
 
   # Config relating to colors and styles.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#color-attributes
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#color-attributes
   theme:
     # Border color of focused window
     activeBorderColor:
@@ -461,7 +461,7 @@ gui:
       - blue
 
     # Background color of selected line.
-    # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#highlighting-the-selected-line
+    # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#highlighting-the-selected-line
     selectedLineBgColor:
       - blue
 
@@ -601,7 +601,7 @@ gui:
 
 # Config relating to git
 git:
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Pagers.md
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Custom_Pagers.md
   paging:
     # Value of the --color arg in the git diff command. Some pagers want this to be set to 'always' and some want it set to 'never'
     colorArg: always
@@ -676,7 +676,7 @@ git:
   # If true, do not allow force pushes
   disableForcePushing: false
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#predefined-branch-name-prefix
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#predefined-branch-name-prefix
   branchPrefix: ""
 
   # If true, parse emoji strings in commit messages e.g. render :rocket: as 🚀
@@ -778,11 +778,11 @@ os:
   openLinkCommand: ""
 
   # CopyToClipboardCmd is the command for copying to clipboard.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
   copyToClipboardCmd: ""
 
   # ReadFromClipboardCmd is the command for reading the clipboard.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
   readFromClipboardCmd: ""
 
 # If true, don't display introductory popups upon opening Lazygit.

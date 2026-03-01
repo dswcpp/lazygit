@@ -4,14 +4,14 @@ import (
 	"strings"
 
 	"github.com/gookit/color"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/commands/patch"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/filetree"
-	"github.com/jesseduffield/lazygit/pkg/gui/presentation/icons"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/theme"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/commands/patch"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/filetree"
+	"github.com/dswcpp/lazygit/pkg/gui/presentation/icons"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 const (

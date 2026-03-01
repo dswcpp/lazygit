@@ -1,8 +1,8 @@
 package presentation
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/i18n"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 )
 
 func ItemOperationToString(itemOperation types.ItemOperation, tr *i18n.TranslationSet) string {

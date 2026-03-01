@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/jesseduffield/lazycore/pkg/boxlayout"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
 

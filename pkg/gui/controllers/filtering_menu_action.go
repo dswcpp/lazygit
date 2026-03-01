@@ -3,8 +3,8 @@ package controllers
 import (
 	"fmt"
 
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 type FilteringMenuAction struct {

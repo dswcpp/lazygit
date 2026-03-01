@@ -1,8 +1,8 @@
 package interactive_rebase
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/config"
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/config"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 // Rewording the first commit is tricky because you can't rebase from its parent commit,

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 type GitFlowController struct {

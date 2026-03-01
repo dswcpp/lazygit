@@ -5,9 +5,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
-	"github.com/jesseduffield/lazygit/pkg/common"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/oscommands"
+	"github.com/dswcpp/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
 	"github.com/sasha-s/go-deadlock"
 )

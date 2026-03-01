@@ -1,10 +1,10 @@
 package presentation
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/presentation/icons"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/presentation/icons"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/theme"
 	"github.com/samber/lo"
 )
 

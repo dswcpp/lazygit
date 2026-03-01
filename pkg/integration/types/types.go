@@ -2,9 +2,9 @@ package types
 
 import (
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 // these interfaces are used by the gui package so that it knows what it needs

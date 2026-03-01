@@ -2,8 +2,8 @@ package theme
 
 import (
 	"github.com/gookit/color"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 func GetTextStyle(keys []string, background bool) style.TextStyle {

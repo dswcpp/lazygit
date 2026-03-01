@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 type CommitMessageController struct {
@@ -53,6 +53,24 @@ func (self *CommitMessageController) GetKeybindings(opts types.KeybindingsOpts) 
 		{
 			Key:     opts.GetKey(opts.Config.CommitMessage.CommitMenu),
 			Handler: self.openCommitMenu,
+		},
+		{
+			Key:             opts.GetKey(opts.Config.CommitMessage.AIGenerateCommitMessage),
+			Handler:         self.aiGenerateCommitMessage,
+			Description:     self.c.Tr.AIGenerateCommitMessage,
+			DisplayOnScreen: true,
+			GetDisabledReason: func() *types.DisabledReason {
+				if self.c.AI == nil {
+					return &types.DisabledReason{Text: self.c.Tr.AINotEnabled}
+				}
+				return nil
+			},
+		},
+		{
+			Key:             opts.GetKey(opts.Config.CommitMessage.AISettings),
+			Handler:         self.openAISettings,
+			Description:     self.c.Tr.AISettings,
+			DisplayOnScreen: true,
 		},
 	}
 
@@ -197,4 +215,12 @@ func (self *CommitMessageController) openCommitMenu() error {
 func (self *CommitMessageController) onClick(opts gocui.ViewMouseBindingOpts) error {
 	self.c.Context().Replace(self.c.Contexts().CommitMessage)
 	return nil
+}
+
+func (self *CommitMessageController) aiGenerateCommitMessage() error {
+	return self.c.Helpers().Commits.AIGenerateCommitMessage()
+}
+
+func (self *CommitMessageController) openAISettings() error {
+	return self.c.Helpers().AI.OpenAISettingsMenu()
 }

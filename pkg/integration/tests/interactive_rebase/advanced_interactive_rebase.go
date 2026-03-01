@@ -3,8 +3,8 @@ package interactive_rebase
 import (
 	"fmt"
 
-	"github.com/jesseduffield/lazygit/pkg/config"
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/config"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 const (

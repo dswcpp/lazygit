@@ -7,12 +7,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
 

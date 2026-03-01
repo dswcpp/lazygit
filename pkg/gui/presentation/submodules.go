@@ -3,8 +3,8 @@ package presentation
 import (
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/theme"
 	"github.com/samber/lo"
 )
 

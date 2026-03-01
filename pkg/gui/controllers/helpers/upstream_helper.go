@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 type UpstreamHelper struct {

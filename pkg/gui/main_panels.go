@@ -2,7 +2,7 @@ package gui
 
 import (
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 func (gui *Gui) runTaskForView(view *gocui.View, task types.UpdateTask) error {

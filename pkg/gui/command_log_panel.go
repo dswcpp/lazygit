@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jesseduffield/lazygit/pkg/constants"
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/constants"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/theme"
 )
 
 // our UI command log looks like this:

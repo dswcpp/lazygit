@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
+	"github.com/dswcpp/lazygit/pkg/commands/oscommands"
 )
 
 type TagCommands struct {

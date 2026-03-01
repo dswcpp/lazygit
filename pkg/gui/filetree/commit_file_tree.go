@@ -1,9 +1,9 @@
 package filetree
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/common"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
 

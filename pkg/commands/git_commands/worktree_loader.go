@@ -7,8 +7,8 @@ import (
 	"sync"
 
 	"github.com/go-errors/errors"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
 )

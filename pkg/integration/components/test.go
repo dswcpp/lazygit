@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	integrationTypes "github.com/jesseduffield/lazygit/pkg/integration/types"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/config"
+	integrationTypes "github.com/dswcpp/lazygit/pkg/integration/types"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
 )
 

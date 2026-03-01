@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/jesseduffield/generics/set"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/theme"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/samber/lo"
 )

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 

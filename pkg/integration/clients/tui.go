@@ -11,10 +11,10 @@ import (
 
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazycore/pkg/utils"
-	"github.com/jesseduffield/lazygit/pkg/gui"
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/integration/components"
-	"github.com/jesseduffield/lazygit/pkg/integration/tests"
+	"github.com/dswcpp/lazygit/pkg/gui"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/integration/tests"
 	"github.com/samber/lo"
 )
 

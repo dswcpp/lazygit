@@ -1,11 +1,11 @@
 package filter_and_search
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/config"
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/config"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
-// This is a regression test to ensure https://github.com/jesseduffield/lazygit/issues/2971
+// This is a regression test to ensure https://github.com/dswcpp/lazygit/issues/2971
 // doesn't happen again
 
 var NewSearch = NewIntegrationTest(NewIntegrationTestArgs{

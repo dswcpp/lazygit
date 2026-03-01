@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/config"
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/config"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 var OpenLinkFailure = NewIntegrationTest(NewIntegrationTestArgs{
@@ -18,7 +18,7 @@ var OpenLinkFailure = NewIntegrationTest(NewIntegrationTestArgs{
 
 		t.ExpectPopup().Confirmation().
 			Title(Equals("Error")).
-			Content(Equals("Failed to open URL https://github.com/sponsors/jesseduffield\n\nError: exit status 42")).
+			Content(Equals("Failed to open URL https://github.com/sponsors/dswcpp\n\nError: exit status 42")).
 			Confirm()
 	},
 })

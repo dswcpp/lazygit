@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/theme"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )

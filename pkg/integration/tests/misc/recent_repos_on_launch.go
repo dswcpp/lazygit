@@ -1,8 +1,8 @@
 package misc
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/config"
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/config"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 // Couldn't find an easy way to actually reproduce the situation of opening outside a repo,

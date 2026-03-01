@@ -3,7 +3,7 @@ package custom_commands
 import (
 	"testing"
 
-	"github.com/jesseduffield/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/common"
 	"github.com/stretchr/testify/assert"
 )
 

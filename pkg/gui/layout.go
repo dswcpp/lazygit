@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
 

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/go-errors/errors"
-	"github.com/jesseduffield/lazygit/pkg/app/daemon"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/commands/patch"
+	"github.com/dswcpp/lazygit/pkg/app/daemon"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/commands/patch"
 	"github.com/stefanhaller/git-todo-parser/todo"
 )
 

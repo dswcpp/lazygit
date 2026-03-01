@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 type CommitDescriptionController struct {

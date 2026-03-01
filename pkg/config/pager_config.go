@@ -3,7 +3,7 @@ package config
 import (
 	"strconv"
 
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 type PagerConfig struct {

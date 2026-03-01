@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
 

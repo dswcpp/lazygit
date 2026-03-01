@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/patch"
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/gui/patch_exploring"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/patch"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/gui/patch_exploring"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 type PatchBuildingHelper struct {

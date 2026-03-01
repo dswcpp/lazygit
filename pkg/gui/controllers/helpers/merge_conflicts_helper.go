@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 type MergeConflictsHelper struct {

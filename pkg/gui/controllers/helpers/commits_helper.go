@@ -1,14 +1,16 @@
 package helpers
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
 
@@ -261,5 +263,47 @@ func (self *CommitsHelper) pasteCommitMessageFromClipboard() error {
 			self.SetMessageAndDescriptionInView(message)
 			return nil
 		},
+	})
+}
+
+func (self *CommitsHelper) AIGenerateCommitMessage() error {
+	if self.c.AI == nil {
+		return errors.New(self.c.Tr.AINotEnabled)
+	}
+
+	return self.c.WithWaitingStatus(self.c.Tr.AIGeneratingStatus, func(_ gocui.Task) error {
+		diff, err := self.c.Git().Diff.GetDiff(true)
+		if err != nil {
+			return err
+		}
+		if strings.TrimSpace(diff) == "" {
+			return errors.New(self.c.Tr.AINoStagedChanges)
+		}
+
+		prompt := fmt.Sprintf(
+			"你是一个 git 提交信息生成器。\n\n"+
+				"规则：\n"+
+				"- 格式：<类型>(<可选范围>): <简短描述>\n"+
+				"- 类型：feat、fix、refactor、docs、test、chore、perf、style、ci\n"+
+				"- subject 行：祈使句，不超过 72 个字符，句末不加句号\n"+
+				"- 若改动复杂，可在空行后添加 body 段落说明原因\n"+
+				"- 必须使用中文输出\n"+
+				"- 只输出提交信息本身，不加 markdown、代码块或任何解释\n\n"+
+				"已暂存的变更：\n%s",
+			diff,
+		)
+
+		result, err := self.c.AI.Complete(context.Background(), prompt)
+		if err != nil {
+			return fmt.Errorf(self.c.Tr.AIError, err)
+		}
+
+		message := strings.TrimSpace(result.Content)
+		if message == "" {
+			return fmt.Errorf(self.c.Tr.AIError, "empty response")
+		}
+
+		self.SetMessageAndDescriptionInView(message)
+		return nil
 	})
 }

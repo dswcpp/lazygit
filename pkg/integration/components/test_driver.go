@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	integrationTypes "github.com/jesseduffield/lazygit/pkg/integration/types"
+	"github.com/dswcpp/lazygit/pkg/config"
+	integrationTypes "github.com/dswcpp/lazygit/pkg/integration/types"
 )
 
 type TestDriver struct {

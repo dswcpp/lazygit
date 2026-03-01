@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/gui/style"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/theme"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/gui/style"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 type ConfirmationHelper struct {

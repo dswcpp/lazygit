@@ -1,8 +1,8 @@
 package branch
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/config"
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/config"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 var OpenPullRequestSelectRemoteAndTargetBranch = NewIntegrationTest(NewIntegrationTestArgs{
@@ -29,7 +29,7 @@ var OpenPullRequestSelectRemoteAndTargetBranch = NewIntegrationTest(NewIntegrati
 		shell.SetBranchUpstream("branch-2", "origin/branch-2")
 
 		shell.RunCommand([]string{"git", "remote", "set-url", "origin", "https://github.com/my-personal-fork/lazygit"})
-		shell.RunCommand([]string{"git", "remote", "set-url", "upstream", "https://github.com/jesseduffield/lazygit"})
+		shell.RunCommand([]string{"git", "remote", "set-url", "upstream", "https://github.com/dswcpp/lazygit"})
 	},
 	Run: func(t *TestDriver, keys config.KeybindingConfig) {
 		// Open a PR for the current branch (i.e. 'branch-2')

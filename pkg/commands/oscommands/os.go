@@ -12,9 +12,9 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/atotto/clipboard"
-	"github.com/jesseduffield/lazygit/pkg/common"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/utils"
 )
 
 // OSCommand holds all the os commands

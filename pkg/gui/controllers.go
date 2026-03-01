@@ -4,12 +4,12 @@ import (
 	"strings"
 
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
-	"github.com/jesseduffield/lazygit/pkg/gui/services/custom_commands"
-	"github.com/jesseduffield/lazygit/pkg/gui/status"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/gui/services/custom_commands"
+	"github.com/dswcpp/lazygit/pkg/gui/status"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 func (gui *Gui) Helpers() *helpers.Helpers {
@@ -131,6 +131,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 		Search:     searchHelper,
 		Worktree:   worktreeHelper,
 		SubCommits: helpers.NewSubCommitsHelper(helperCommon, refreshHelper),
+		AI:         helpers.NewAIHelper(helperCommon),
 	}
 
 	gui.CustomCommandsClient = custom_commands.NewClient(

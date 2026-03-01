@@ -13,18 +13,19 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 
-	appTypes "github.com/jesseduffield/lazygit/pkg/app/types"
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
-	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
-	"github.com/jesseduffield/lazygit/pkg/common"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/constants"
-	"github.com/jesseduffield/lazygit/pkg/env"
-	"github.com/jesseduffield/lazygit/pkg/gui"
-	"github.com/jesseduffield/lazygit/pkg/i18n"
-	integrationTypes "github.com/jesseduffield/lazygit/pkg/integration/types"
-	"github.com/jesseduffield/lazygit/pkg/logs"
-	"github.com/jesseduffield/lazygit/pkg/updates"
+	appTypes "github.com/dswcpp/lazygit/pkg/app/types"
+	"github.com/dswcpp/lazygit/pkg/ai"
+	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/commands/oscommands"
+	"github.com/dswcpp/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/constants"
+	"github.com/dswcpp/lazygit/pkg/env"
+	"github.com/dswcpp/lazygit/pkg/gui"
+	"github.com/dswcpp/lazygit/pkg/i18n"
+	integrationTypes "github.com/dswcpp/lazygit/pkg/integration/types"
+	"github.com/dswcpp/lazygit/pkg/logs"
+	"github.com/dswcpp/lazygit/pkg/updates"
 )
 
 // App is the struct that's instantiated from within main.go and it manages
@@ -68,12 +69,18 @@ func NewCommon(config config.AppConfigurer) (*common.Common, error) {
 	// the configured language will be read after reading the user config
 	tr := i18n.EnglishTranslationSet()
 
+	aiClient, err := ai.NewClient(userConfig.AI)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize AI client: %w", err)
+	}
+
 	cmn := &common.Common{
 		Log:      log,
 		Tr:       tr,
 		AppState: appState,
 		Debug:    config.GetDebug(),
 		Fs:       afero.NewOsFs(),
+		AI:       aiClient,
 	}
 	cmn.SetUserConfig(userConfig)
 	return cmn, nil

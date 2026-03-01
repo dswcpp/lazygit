@@ -1,6 +1,6 @@
 package helpers
 
-import "github.com/jesseduffield/lazygit/pkg/commands/git_commands"
+import "github.com/dswcpp/lazygit/pkg/commands/git_commands"
 
 type AmendHelper struct {
 	c   *HelperCommon

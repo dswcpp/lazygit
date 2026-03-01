@@ -1,8 +1,8 @@
 package custom_commands
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
 	"github.com/samber/lo"
 )
 

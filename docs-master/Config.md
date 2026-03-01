@@ -37,14 +37,14 @@ This is only meant as a reference for what config options exist, and what their 
 ```yaml
 # Config relating to the Lazygit UI
 gui:
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-author-color
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-author-color
   authorColors: {}
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-branch-color
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-branch-color
   branchColorPatterns: {}
 
   # Custom icons for filenames and file extensions
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-files-icon--color
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-files-icon--color
   customIcons:
     # Map of filenames to icon properties (icon and color)
     filenames: {}
@@ -58,7 +58,7 @@ gui:
   # If true, allow scrolling past the bottom of the content in the main window
   scrollPastBottom: true
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#scroll-off-margin
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#scroll-off-margin
   scrollOffMargin: 2
 
   # One of: 'margin' (default) | 'jump'
@@ -150,7 +150,7 @@ gui:
   shortTimeFormat: 3:04PM
 
   # Config relating to colors and styles.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#color-attributes
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#color-attributes
   theme:
     # Border color of focused window
     activeBorderColor:
@@ -171,7 +171,7 @@ gui:
       - blue
 
     # Background color of selected line.
-    # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#highlighting-the-selected-line
+    # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#highlighting-the-selected-line
     selectedLineBgColor:
       - blue
 
@@ -344,8 +344,8 @@ git:
   #   # https://git-scm.com/docs/gitattributes#_defining_an_external_diff_driver.
   #   useExternalDiffGitConfig: false
   #
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Pagers.md
-  # for more information.
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Custom_Pagers.md for
+  # more information.
   pagers: []
 
   # Config relating to committing
@@ -431,13 +431,13 @@ git:
   # If true, do not allow force pushes
   disableForcePushing: false
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#predefined-commit-message-prefix
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#predefined-commit-message-prefix
   commitPrefix: []
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#predefined-commit-message-prefix
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#predefined-commit-message-prefix
   commitPrefixes: {}
 
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#predefined-branch-name-prefix
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#predefined-branch-name-prefix
   branchPrefix: ""
 
   # If true, parse emoji strings in commit messages e.g. render :rocket: as 🚀
@@ -538,27 +538,27 @@ os:
   openLink: ""
 
   # CopyToClipboardCmd is the command for copying to clipboard.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
   copyToClipboardCmd: ""
 
   # ReadFromClipboardCmd is the command for reading the clipboard.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-command-for-copying-to-and-pasting-from-clipboard
   readFromClipboardCmd: ""
 
   # A shell startup file containing shell aliases or shell functions. This will be
   # sourced before running any shell commands, so that shell functions are
   # available in the `:` command prompt or even in custom commands.
-  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#using-aliases-or-functions-in-shell-commands
+  # See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#using-aliases-or-functions-in-shell-commands
   shellFunctionsFile: ""
 
 # If true, don't display introductory popups upon opening Lazygit.
 disableStartupPopups: false
 
 # User-configured commands that can be invoked from within Lazygit
-# See https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Command_Keybindings.md
+# See https://github.com/dswcpp/lazygit/blob/master/docs/Custom_Command_Keybindings.md
 customCommands: []
 
-# See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-pull-request-urls
+# See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#custom-pull-request-urls
 services: {}
 
 # What to do when opening Lazygit outside of a git repo.
@@ -753,6 +753,37 @@ keybinding:
     bulkMenu: b
   commitMessage:
     commitMenu: <c-o>
+    aiGenerateCommitMessage: <c-g>
+
+# AI integration settings
+ai:
+  # Whether AI features are enabled
+  enabled: false
+
+  # AI provider: "deepseek" (default), "openai", "ollama", or "custom"
+  provider: deepseek
+
+  # API key; supports env var references like ${DEEPSEEK_API_KEY} or
+  # ${OPENAI_API_KEY}
+  apiKey: ""
+
+  # Model name; deepseek-reasoner is recommended for git analysis tasks.
+  # Other options: "deepseek-chat", "gpt-4o-mini"
+  model: deepseek-reasoner
+
+  # Enable thinking mode. Automatically true for deepseek-reasoner.
+  # Set to true with deepseek-chat to enable thinking via the thinking parameter.
+  enableThinking: true
+
+  # Custom API endpoint (required for ollama and custom providers)
+  endpoint: ""
+
+  # Maximum tokens for AI response (includes reasoning chain when thinking is
+  # enabled)
+  maxTokens: 8000
+
+  # Request timeout in seconds; increase when using reasoning models
+  timeout: 60
 ```
 <!-- END CONFIG YAML -->
 

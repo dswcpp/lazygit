@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/constants"
+	"github.com/dswcpp/lazygit/pkg/constants"
 )
 
 func (config *UserConfig) Validate() error {

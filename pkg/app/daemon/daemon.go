@@ -8,8 +8,8 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/jesseduffield/lazygit/pkg/common"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
 )
 

@@ -2,16 +2,16 @@ package custom_commands
 
 import (
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/gui/controllers/helpers"
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/i18n"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 	"github.com/samber/lo"
 )
 
 // Client is the entry point to this package. It returns a list of keybindings based on the config's user-defined custom commands.
-// See https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Command_Keybindings.md for more info.
+// See https://github.com/dswcpp/lazygit/blob/master/docs/Custom_Command_Keybindings.md for more info.
 type Client struct {
 	c                 *helpers.HelperCommon
 	handlerCreator    *HandlerCreator

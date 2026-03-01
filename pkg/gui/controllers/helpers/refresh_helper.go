@@ -7,14 +7,14 @@ import (
 
 	"github.com/jesseduffield/generics/set"
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/gui/filetree"
-	"github.com/jesseduffield/lazygit/pkg/gui/mergeconflicts"
-	"github.com/jesseduffield/lazygit/pkg/gui/presentation"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
-	"github.com/jesseduffield/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/gui/filetree"
+	"github.com/dswcpp/lazygit/pkg/gui/mergeconflicts"
+	"github.com/dswcpp/lazygit/pkg/gui/presentation"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
 )
 

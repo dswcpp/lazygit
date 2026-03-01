@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__serena__list_dir",
+      "Bash(go run:*)",
+      "mcp__serena__check_onboarding_performed",
+      "mcp__serena__list_memories",
+      "mcp__serena__activate_project",
+      "Bash(xargs sed:*)",
+      "Bash(go build ./...)",
+      "Bash(go test:*)",
+      "mcp__open-websearch__fetchGithubReadme",
+      "WebFetch(domain:developers.openai.com)",
+      "mcp__open-websearch__search",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api-docs.deepseek.com)",
+      "mcp__Playwright__browser_navigate",
+      "Bash(grep:*)",
+      "Bash(go build:*)",
+      "Bash(go generate:*)"
+    ]
+  }
+}

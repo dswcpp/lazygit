@@ -407,6 +407,22 @@ type TranslationSet struct {
 	SquashingStatus                       string
 	FixingStatus                          string
 	DeletingStatus                        string
+	AIGeneratingStatus                    string
+	AIGenerateCommitMessage               string
+	AINotEnabled                          string
+	AINoStagedChanges                     string
+	AIError                               string
+	AISettings                            string
+	AISettingsEnable                      string
+	AISettingsDisable                     string
+	AISettingsSetAPIKey                   string
+	AISettingsAPIKeyPrompt                string
+	AISettingsSetProvider                 string
+	AISettingsSetModel                    string
+	AISettingsModelPrompt                 string
+	AISettingsSetEndpoint                 string
+	AISettingsEndpointPrompt              string
+	AISettingsSaved                       string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -1083,11 +1099,11 @@ Thanks for using lazygit! Seriously you rock. Three things to share with you:
       https://youtu.be/CPLdltN7wgE
 
  2) Be sure to read the latest release notes at:
-      https://github.com/jesseduffield/lazygit/releases
+      https://github.com/dswcpp/lazygit/releases
 
  3) If you're using git, that makes you a programmer! With your help we can make
     lazygit better, so consider becoming a contributor and joining the fun at
-      https://github.com/jesseduffield/lazygit
+      https://github.com/dswcpp/lazygit
     Or even just star the repo to share the love!
 
  4) If lazygit has made your life easier, you can say thanks by clicking the
@@ -1143,7 +1159,7 @@ func EnglishTranslationSet() *TranslationSet {
 		NoCommitToAmend:                      "There's no commit to amend.",
 		CommitChangesWithEditor:              "Commit changes using git editor",
 		FindBaseCommitForFixup:               "Find base commit for fixup",
-		FindBaseCommitForFixupTooltip:        "Find the commit that your current changes are building upon, for the sake of amending/fixing up the commit. This spares you from having to look through your branch's commits one-by-one to see which commit should be amended/fixed up. See docs: <https://github.com/jesseduffield/lazygit/tree/master/docs/Fixup_Commits.md>",
+		FindBaseCommitForFixupTooltip:        "Find the commit that your current changes are building upon, for the sake of amending/fixing up the commit. This spares you from having to look through your branch's commits one-by-one to see which commit should be amended/fixed up. See docs: <https://github.com/dswcpp/lazygit/tree/master/docs/Fixup_Commits.md>",
 		NoBaseCommitsFound:                   "No base commits found",
 		MultipleBaseCommitsFoundStaged:       "Multiple base commits found. (Try staging fewer changes at once)",
 		MultipleBaseCommitsFoundUnstaged:     "Multiple base commits found. (Try staging some of the changes)",
@@ -1515,6 +1531,22 @@ func EnglishTranslationSet() *TranslationSet {
 		SquashingStatus:                      "Squashing",
 		FixingStatus:                         "Fixing up",
 		DeletingStatus:                       "Deleting",
+		AIGeneratingStatus:                   "AI generating commit message...",
+		AIGenerateCommitMessage:              "Generate commit message with AI",
+		AINotEnabled:                         "AI is not enabled. Set ai.enabled: true in your config",
+		AINoStagedChanges:                    "No staged changes to generate a commit message from",
+		AIError:                              "AI error: %s",
+		AISettings:                           "AI Settings",
+		AISettingsEnable:                     "Enable AI",
+		AISettingsDisable:                    "Disable AI",
+		AISettingsSetAPIKey:                  "Set API Key",
+		AISettingsAPIKeyPrompt:               "Enter API key (or env var ref like ${DEEPSEEK_API_KEY})",
+		AISettingsSetProvider:                "Set Provider",
+		AISettingsSetModel:                   "Set Model",
+		AISettingsModelPrompt:                "Enter model name (e.g. deepseek-reasoner, gpt-4o-mini)",
+		AISettingsSetEndpoint:                "Set Endpoint",
+		AISettingsEndpointPrompt:             "Enter API endpoint URL (e.g. http://localhost:11434/v1)",
+		AISettingsSaved:                      "AI settings saved",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",
@@ -2172,7 +2204,7 @@ func EnglishTranslationSet() *TranslationSet {
 		},
 		BreakingChangesTitle: "Breaking Changes",
 		BreakingChangesMessage: `You are updating to a new version of lazygit which contains breaking changes. Please review the notes below and update your configuration if necessary.
-For more information, see the full release notes at <https://github.com/jesseduffield/lazygit/releases>.`,
+For more information, see the full release notes at <https://github.com/dswcpp/lazygit/releases>.`,
 		BreakingChangesByVersion: map[string]string{
 			"0.41.0": `- When you press 'g' to bring up the git reset menu, the 'mixed' option is now the first and default, rather than 'soft'. This is because 'mixed' is the most commonly used option.
 - The commit message panel now automatically hard-wraps by default (i.e. it adds newline characters when you reach the margin). You can adjust the config like so:
@@ -2202,7 +2234,7 @@ gui:
 `,
 			"0.44.0": `- The gui.branchColors config option is deprecated; it will be removed in a future version. Please use gui.branchColorPatterns instead.
 - The automatic coloring of branches starting with "feature/", "bugfix/", or "hotfix/" has been removed; if you want this, it's easy to set up using the new gui.branchColorPatterns option.`,
-			"0.49.0": `- Executing shell commands (with the ':' prompt) no longer uses an interactive shell, which means that if you want to use your shell aliases in this prompt, you need to do a little bit of setup work. See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#using-aliases-or-functions-in-shell-commands for details.`,
+			"0.49.0": `- Executing shell commands (with the ':' prompt) no longer uses an interactive shell, which means that if you want to use your shell aliases in this prompt, you need to do a little bit of setup work. See https://github.com/dswcpp/lazygit/blob/master/docs/Config.md#using-aliases-or-functions-in-shell-commands for details.`,
 			"0.50.0": `- After fetching, main branches now get auto-forwarded to their upstream if they fall behind. This is useful for keeping your main or master branch up to date automatically. If you don't want this, you can disable it by setting the following in your config:
 
 git:

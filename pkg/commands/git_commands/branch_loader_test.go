@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/stretchr/testify/assert"
 )
 

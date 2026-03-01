@@ -1,9 +1,9 @@
 package helpers
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/common"
-	"github.com/jesseduffield/lazygit/pkg/gui/context"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/common"
+	"github.com/dswcpp/lazygit/pkg/gui/context"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 type HelperCommon struct {
@@ -53,6 +53,7 @@ type Helpers struct {
 	Search            *SearchHelper
 	Worktree          *WorktreeHelper
 	SubCommits        *SubCommitsHelper
+	AI                *AIHelper
 }
 
 func NewStubHelpers() *Helpers {
@@ -90,5 +91,6 @@ func NewStubHelpers() *Helpers {
 		Search:            &SearchHelper{},
 		Worktree:          &WorktreeHelper{},
 		SubCommits:        &SubCommitsHelper{},
+		AI:                &AIHelper{},
 	}
 }

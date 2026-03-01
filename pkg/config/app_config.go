@@ -12,8 +12,8 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/jesseduffield/generics/orderedset"
-	"github.com/jesseduffield/lazygit/pkg/utils"
-	"github.com/jesseduffield/lazygit/pkg/utils/yaml_utils"
+	"github.com/dswcpp/lazygit/pkg/utils"
+	"github.com/dswcpp/lazygit/pkg/utils/yaml_utils"
 	"github.com/samber/lo"
 	"gopkg.in/yaml.v3"
 )
@@ -50,6 +50,7 @@ type AppConfigurer interface {
 
 	GetAppState() *AppState
 	SaveAppState() error
+	SaveUserConfig() error
 }
 
 type ConfigFilePolicy int
@@ -688,6 +689,22 @@ func (c *AppConfig) SaveGlobalUserConfig() {
 	if err != nil {
 		log.Fatalf("error saving user config: %v", err)
 	}
+}
+
+// SaveUserConfig saves the current UserConfig back to the global config file,
+// replacing its contents. Comments in the original file will be lost.
+func (c *AppConfig) SaveUserConfig() error {
+	if len(c.globalUserConfigFiles) != 1 {
+		return fmt.Errorf("expected exactly one global user config file, got %d", len(c.globalUserConfigFiles))
+	}
+	yamlContent, err := yaml.Marshal(c.userConfig)
+	if err != nil {
+		return fmt.Errorf("error marshalling user config: %w", err)
+	}
+	if err := os.WriteFile(c.globalUserConfigFiles[0].Path, yamlContent, 0o644); err != nil {
+		return fmt.Errorf("error writing user config: %w", err)
+	}
+	return nil
 }
 
 // AppState stores data between runs of the app like when the last update check

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/jesseduffield/lazygit/pkg/integration/components"
+	. "github.com/dswcpp/lazygit/pkg/integration/components"
 )
 
 type AuthorInfo struct {

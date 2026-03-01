@@ -3,8 +3,9 @@ package common
 import (
 	"sync/atomic"
 
-	"github.com/jesseduffield/lazygit/pkg/config"
-	"github.com/jesseduffield/lazygit/pkg/i18n"
+	"github.com/dswcpp/lazygit/pkg/ai"
+	"github.com/dswcpp/lazygit/pkg/config"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
@@ -19,6 +20,8 @@ type Common struct {
 	// for interacting with the filesystem. We use afero rather than the default
 	// `os` package for the sake of mocking the filesystem in tests
 	Fs afero.Fs
+	// AI is the client for AI features; nil when AI is disabled
+	AI *ai.Client
 }
 
 func (c *Common) UserConfig() *config.UserConfig {

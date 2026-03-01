@@ -3,8 +3,8 @@ package controllers
 import (
 	"path/filepath"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
 // This controller is for all contexts that contain commit files.

@@ -3,8 +3,8 @@ package context
 import (
 	"fmt"
 
-	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
-	"github.com/jesseduffield/lazygit/pkg/theme"
+	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	"github.com/dswcpp/lazygit/pkg/theme"
 )
 
 type SearchTrait struct {

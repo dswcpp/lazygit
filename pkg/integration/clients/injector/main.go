@@ -5,11 +5,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/jesseduffield/lazygit/pkg/app"
-	"github.com/jesseduffield/lazygit/pkg/app/daemon"
-	"github.com/jesseduffield/lazygit/pkg/integration/components"
-	"github.com/jesseduffield/lazygit/pkg/integration/tests"
-	integrationTypes "github.com/jesseduffield/lazygit/pkg/integration/types"
+	"github.com/dswcpp/lazygit/pkg/app"
+	"github.com/dswcpp/lazygit/pkg/app/daemon"
+	"github.com/dswcpp/lazygit/pkg/integration/components"
+	"github.com/dswcpp/lazygit/pkg/integration/tests"
+	integrationTypes "github.com/dswcpp/lazygit/pkg/integration/types"
 	"github.com/mitchellh/go-ps"
 )
 

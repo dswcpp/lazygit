@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
 )
 
 type StatusCommands struct {

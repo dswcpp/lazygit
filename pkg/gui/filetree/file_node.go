@@ -1,8 +1,8 @@
 package filetree
 
 import (
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
-	"github.com/jesseduffield/lazygit/pkg/gui/mergeconflicts"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/gui/mergeconflicts"
 )
 
 // FileNode wraps a node and provides some file-specific methods for it.

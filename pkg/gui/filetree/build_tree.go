@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jesseduffield/lazygit/pkg/commands/models"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
 )
 
 func BuildTreeFromFiles(files []*models.File, showRootItem bool) *Node[models.File] {
