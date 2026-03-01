@@ -128,6 +128,7 @@ _凡例：`＜c-b＞` はctrl+b、`＜a-b＞` はalt+b、`B` はshift+bを意味
 | `` <enter> `` | 確認 |  |
 | `` <esc> `` | 閉じる |  |
 | `` <c-g> `` | Generate commit message with AI |  |
+| `` <c-a> `` | AI Settings |  |
 
 ## サブコミット
 

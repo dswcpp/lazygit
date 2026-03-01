@@ -45,6 +45,24 @@ func (self *CommitDescriptionController) GetKeybindings(opts types.KeybindingsOp
 			Key:     opts.GetKey(opts.Config.CommitMessage.CommitMenu),
 			Handler: self.openCommitMenu,
 		},
+		{
+			Key:             opts.GetKey(opts.Config.CommitMessage.AIGenerateCommitMessage),
+			Handler:         self.aiGenerateCommitMessage,
+			Description:     self.c.Tr.AIGenerateCommitMessage,
+			DisplayOnScreen: true,
+			GetDisabledReason: func() *types.DisabledReason {
+				if self.c.AI == nil {
+					return &types.DisabledReason{Text: self.c.Tr.AINotEnabled}
+				}
+				return nil
+			},
+		},
+		{
+			Key:             opts.GetKey(opts.Config.CommitMessage.AISettings),
+			Handler:         self.openAISettings,
+			Description:     self.c.Tr.AISettings,
+			DisplayOnScreen: true,
+		},
 	}
 
 	return bindings
@@ -139,4 +157,12 @@ func (self *CommitDescriptionController) openCommitMenu() error {
 func (self *CommitDescriptionController) onClick(opts gocui.ViewMouseBindingOpts) error {
 	self.c.Context().Replace(self.c.Contexts().CommitDescription)
 	return nil
+}
+
+func (self *CommitDescriptionController) aiGenerateCommitMessage() error {
+	return self.c.Helpers().Commits.AIGenerateCommitMessage()
+}
+
+func (self *CommitDescriptionController) openAISettings() error {
+	return self.c.Helpers().AI.OpenAISettingsMenu()
 }

@@ -223,6 +223,7 @@ _說明：`<c-b>` 表示 Ctrl＋B、`<a-b>` 表示 Alt＋B，`B`表示 Shift＋B
 | `` <enter> `` | 確認 |  |
 | `` <esc> `` | 關閉 |  |
 | `` <c-g> `` | Generate commit message with AI |  |
+| `` <c-a> `` | AI Settings |  |
 
 ## 提交檔案
 

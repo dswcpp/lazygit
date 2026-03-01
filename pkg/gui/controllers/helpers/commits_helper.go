@@ -280,6 +280,15 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 			return errors.New(self.c.Tr.AINoStagedChanges)
 		}
 
+		// Truncate diff to avoid exceeding model token limits.
+		// ~120000 chars ≈ 30000 tokens, well within DeepSeek's 131072 token limit.
+		const maxDiffChars = 120_000
+		truncated := ""
+		if len(diff) > maxDiffChars {
+			diff = diff[:maxDiffChars]
+			truncated = "\n[diff 已截断，仅显示前 120000 个字符]"
+		}
+
 		prompt := fmt.Sprintf(
 			"你是一个 git 提交信息生成器。\n\n"+
 				"规则：\n"+
@@ -289,18 +298,19 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 				"- 若改动复杂，可在空行后添加 body 段落说明原因\n"+
 				"- 必须使用中文输出\n"+
 				"- 只输出提交信息本身，不加 markdown、代码块或任何解释\n\n"+
-				"已暂存的变更：\n%s",
+				"已暂存的变更：\n%s%s",
 			diff,
+			truncated,
 		)
 
 		result, err := self.c.AI.Complete(context.Background(), prompt)
 		if err != nil {
-			return fmt.Errorf(self.c.Tr.AIError, err)
+			return err
 		}
 
 		message := strings.TrimSpace(result.Content)
 		if message == "" {
-			return fmt.Errorf(self.c.Tr.AIError, "empty response")
+			return errors.New("AI: empty response from model")
 		}
 
 		self.SetMessageAndDescriptionInView(message)

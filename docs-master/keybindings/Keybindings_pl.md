@@ -288,6 +288,7 @@ _Legenda: `<c-b>` oznacza ctrl+b, `<a-b>` oznacza alt+b, `B` oznacza shift+b_
 | `` <enter> `` | Potwierdź |  |
 | `` <esc> `` | Zamknij |  |
 | `` <c-g> `` | Generate commit message with AI |  |
+| `` <c-a> `` | AI Settings |  |
 
 ## Reflog
 
