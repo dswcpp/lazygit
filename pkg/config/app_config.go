@@ -316,6 +316,11 @@ func computeMigratedConfig(path string, content []byte, changes *ChangesSet) ([]
 		return nil, false, fmt.Errorf("Couldn't migrate config file at `%s`: %w", path, err)
 	}
 
+	err = migrateAIFlatConfigToProfiles(&rootNode, changes)
+	if err != nil {
+		return nil, false, fmt.Errorf("Couldn't migrate config file at `%s`: %w", path, err)
+	}
+
 	// Add more migrations here...
 
 	if reflect.DeepEqual(rootNode, originalCopy) {
@@ -502,6 +507,82 @@ func migratePagers(rootNode *yaml.Node, changes *ChangesSet) error {
 
 		changes.Add("Moved git.paging object to git.pagers array")
 
+		return nil
+	})
+}
+
+// migrateAIFlatConfigToProfiles converts the old flat AI config format to the new
+// multi-profile format. The old format had fields like ai.provider, ai.apiKey, ai.model
+// directly under ai. The new format uses ai.profiles[].
+func migrateAIFlatConfigToProfiles(rootNode *yaml.Node, changes *ChangesSet) error {
+	return yaml_utils.TransformNode(rootNode, []string{"ai"}, func(aiNode *yaml.Node) error {
+		if aiNode.Kind != yaml.MappingNode {
+			return nil
+		}
+
+		// Skip if profiles already exist and are non-empty (new format already applied)
+		if _, profilesValueNode := yaml_utils.LookupKey(aiNode, "profiles"); profilesValueNode != nil {
+			if profilesValueNode.Kind == yaml.SequenceNode && len(profilesValueNode.Content) > 0 {
+				return nil
+			}
+		}
+
+		// Extract and remove old flat fields
+		_, providerNode := yaml_utils.RemoveKey(aiNode, "provider")
+		_, apiKeyNode := yaml_utils.RemoveKey(aiNode, "apiKey")
+		_, modelNode := yaml_utils.RemoveKey(aiNode, "model")
+		_, enableThinkingNode := yaml_utils.RemoveKey(aiNode, "enableThinking")
+		_, endpointNode := yaml_utils.RemoveKey(aiNode, "endpoint")
+		_, maxTokensNode := yaml_utils.RemoveKey(aiNode, "maxTokens")
+		_, timeoutNode := yaml_utils.RemoveKey(aiNode, "timeout")
+
+		// If none of the old flat fields were present, nothing to migrate
+		if providerNode == nil && apiKeyNode == nil && modelNode == nil {
+			return nil
+		}
+
+		// Determine a profile name: prefer the model value, fall back to "default"
+		profileName := "default"
+		if modelNode != nil && modelNode.Value != "" {
+			profileName = modelNode.Value
+		}
+
+		// Build the profile mapping
+		profileContent := []*yaml.Node{
+			{Kind: yaml.ScalarNode, Value: "name"},
+			{Kind: yaml.ScalarNode, Value: profileName},
+		}
+		addField := func(key string, valNode *yaml.Node) {
+			if valNode != nil {
+				profileContent = append(profileContent,
+					&yaml.Node{Kind: yaml.ScalarNode, Value: key},
+					valNode,
+				)
+			}
+		}
+		addField("provider", providerNode)
+		addField("apiKey", apiKeyNode)
+		addField("model", modelNode)
+		addField("enableThinking", enableThinkingNode)
+		addField("endpoint", endpointNode)
+		addField("maxTokens", maxTokensNode)
+		addField("timeout", timeoutNode)
+
+		// Append activeProfile and profiles to the ai node
+		aiNode.Content = append(aiNode.Content,
+			&yaml.Node{Kind: yaml.ScalarNode, Value: "activeProfile"},
+			&yaml.Node{Kind: yaml.ScalarNode, Value: profileName},
+			&yaml.Node{Kind: yaml.ScalarNode, Value: "profiles"},
+			&yaml.Node{
+				Kind: yaml.SequenceNode,
+				Tag:  "!!seq",
+				Content: []*yaml.Node{
+					{Kind: yaml.MappingNode, Content: profileContent},
+				},
+			},
+		)
+
+		changes.Add("Migrated ai flat config fields to ai.profiles array")
 		return nil
 	})
 }

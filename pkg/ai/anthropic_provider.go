@@ -19,10 +19,13 @@ type anthropicProvider struct {
 	timeout   time.Duration
 }
 
-func newAnthropicProvider(apiKey, model, baseURL string, maxTokens, timeoutSecs int) *anthropicProvider {
+func newAnthropicProvider(apiKey, model, baseURL string, maxTokens, timeoutSecs int, customHeaders map[string]string) *anthropicProvider {
 	opts := []option.RequestOption{option.WithAPIKey(apiKey)}
 	if baseURL != "" {
 		opts = append(opts, option.WithBaseURL(baseURL))
+	}
+	for k, v := range customHeaders {
+		opts = append(opts, option.WithHeader(k, v))
 	}
 	return &anthropicProvider{
 		client:    anthropic.NewClient(opts...),

@@ -8,6 +8,7 @@ import (
 
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/ai"
+	"github.com/dswcpp/lazygit/pkg/config"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
@@ -20,7 +21,7 @@ func NewAIHelper(c *HelperCommon, loadingHelper *LoadingHelper) *AIHelper {
 	return &AIHelper{c: c, loadingHelper: loadingHelper}
 }
 
-// OpenAISettingsMenu opens a menu to configure AI settings in-app.
+// OpenAISettingsMenu opens the top-level AI settings menu.
 // Changes take effect immediately and are persisted to the config file.
 func (self *AIHelper) OpenAISettingsMenu() error {
 	cfg := self.c.UserConfig().AI
@@ -28,6 +29,12 @@ func (self *AIHelper) OpenAISettingsMenu() error {
 	toggleLabel := self.c.Tr.AISettingsEnable
 	if cfg.Enabled {
 		toggleLabel = self.c.Tr.AISettingsDisable
+	}
+
+	activeProfile := cfg.GetActiveProfile()
+	activeProfileName := ""
+	if activeProfile != nil {
+		activeProfileName = activeProfile.Name
 	}
 
 	items := []*types.MenuItem{
@@ -40,45 +47,28 @@ func (self *AIHelper) OpenAISettingsMenu() error {
 			Key: 'e',
 		},
 		{
-			Label: self.c.Tr.AISettingsSetAPIKey,
+			Label:   fmt.Sprintf("%s: %s", self.c.Tr.AISettingsActiveProfile, activeProfileName),
+			Tooltip: self.c.Tr.AISettingsSwitchProfile,
 			OnPress: func() error {
-				return self.promptAndSave(
-					self.c.Tr.AISettingsAPIKeyPrompt,
-					self.c.UserConfig().AI.APIKey,
-					func(val string) { self.c.UserConfig().AI.APIKey = val },
-				)
-			},
-			Key: 'k',
-		},
-		{
-			Label: self.c.Tr.AISettingsSetProvider,
-			OnPress: func() error {
-				return self.openProviderMenu()
+				return self.openSwitchProfileMenu()
 			},
 			Key:       'p',
 			OpensMenu: true,
 		},
 		{
-			Label: self.c.Tr.AISettingsSetModel,
+			Label: self.c.Tr.AISettingsEditProfile,
 			OnPress: func() error {
-				return self.promptAndSave(
-					self.c.Tr.AISettingsModelPrompt,
-					self.c.UserConfig().AI.Model,
-					func(val string) { self.c.UserConfig().AI.Model = val },
-				)
+				return self.openEditActiveProfileMenu()
 			},
-			Key: 'm',
+			Key:       'f',
+			OpensMenu: true,
 		},
 		{
-			Label: self.c.Tr.AISettingsSetEndpoint,
+			Label: self.c.Tr.AISettingsAddProfile,
 			OnPress: func() error {
-				return self.promptAndSave(
-					self.c.Tr.AISettingsEndpointPrompt,
-					self.c.UserConfig().AI.Endpoint,
-					func(val string) { self.c.UserConfig().AI.Endpoint = val },
-				)
+				return self.openAddProfileMenu()
 			},
-			Key: 'u',
+			Key: 'a',
 		},
 	}
 
@@ -88,7 +78,146 @@ func (self *AIHelper) OpenAISettingsMenu() error {
 	})
 }
 
-func (self *AIHelper) openProviderMenu() error {
+// openSwitchProfileMenu shows a radio-button list of all profiles for switching.
+func (self *AIHelper) openSwitchProfileMenu() error {
+	cfg := self.c.UserConfig().AI
+	if len(cfg.Profiles) == 0 {
+		return errors.New(self.c.Tr.AISettingsNoProfiles)
+	}
+
+	items := make([]*types.MenuItem, len(cfg.Profiles))
+	for i, p := range cfg.Profiles {
+		profile := p
+		isActive := profile.Name == cfg.ActiveProfile
+		items[i] = &types.MenuItem{
+			Label: fmt.Sprintf("%s  (%s / %s)", profile.Name, profile.Provider, profile.Model),
+			OnPress: func() error {
+				self.c.UserConfig().AI.ActiveProfile = profile.Name
+				return self.saveAndReloadAI()
+			},
+			Widget: types.MakeMenuRadioButton(isActive),
+		}
+	}
+
+	return self.c.Menu(types.CreateMenuOptions{
+		Title: self.c.Tr.AISettingsSwitchProfile,
+		Items: items,
+	})
+}
+
+// openEditActiveProfileMenu opens the edit sub-menu for the currently active profile.
+func (self *AIHelper) openEditActiveProfileMenu() error {
+	cfg := self.c.UserConfig().AI
+	idx := -1
+	for i, p := range cfg.Profiles {
+		if p.Name == cfg.ActiveProfile {
+			idx = i
+			break
+		}
+	}
+	if idx == -1 && len(cfg.Profiles) > 0 {
+		idx = 0
+	}
+	if idx == -1 {
+		return errors.New(self.c.Tr.AISettingsNoProfiles)
+	}
+	return self.openEditProfileMenu(idx)
+}
+
+// openEditProfileMenu opens a sub-menu to edit a single profile at the given index.
+func (self *AIHelper) openEditProfileMenu(idx int) error {
+	profile := &self.c.UserConfig().AI.Profiles[idx]
+
+	items := []*types.MenuItem{
+		{
+			Label: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsProfileName, profile.Name),
+			OnPress: func() error {
+				return self.promptField(self.c.Tr.AISettingsProfileNamePrompt, profile.Name,
+					func(val string) { self.c.UserConfig().AI.Profiles[idx].Name = val })
+			},
+			Key: 'n',
+		},
+		{
+			Label: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsSetProvider, profile.Provider),
+			OnPress: func() error {
+				return self.openProviderMenuForProfile(idx)
+			},
+			Key:       'p',
+			OpensMenu: true,
+		},
+		{
+			Label: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsSetAPIKey, maskKey(profile.APIKey)),
+			OnPress: func() error {
+				return self.promptField(self.c.Tr.AISettingsAPIKeyPrompt, profile.APIKey,
+					func(val string) { self.c.UserConfig().AI.Profiles[idx].APIKey = val })
+			},
+			Key: 'k',
+		},
+		{
+			Label: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsSetModel, profile.Model),
+			OnPress: func() error {
+				return self.promptField(self.c.Tr.AISettingsModelPrompt, profile.Model,
+					func(val string) { self.c.UserConfig().AI.Profiles[idx].Model = val })
+			},
+			Key: 'm',
+		},
+		{
+			Label: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsSetEndpoint, profile.Endpoint),
+			OnPress: func() error {
+				return self.promptField(self.c.Tr.AISettingsEndpointPrompt, profile.Endpoint,
+					func(val string) { self.c.UserConfig().AI.Profiles[idx].Endpoint = val })
+			},
+			Key: 'u',
+		},
+		{
+			Label: fmt.Sprintf("%s: %d", self.c.Tr.AISettingsMaxTokens, profile.MaxTokens),
+			OnPress: func() error {
+				current := ""
+				if profile.MaxTokens > 0 {
+					current = fmt.Sprintf("%d", profile.MaxTokens)
+				}
+				return self.promptField(self.c.Tr.AISettingsMaxTokensPrompt, current,
+					func(val string) {
+						n := 0
+						fmt.Sscanf(val, "%d", &n)
+						self.c.UserConfig().AI.Profiles[idx].MaxTokens = n
+					})
+			},
+			Key: 't',
+		},
+		{
+			Label: fmt.Sprintf("%s: %d", self.c.Tr.AISettingsTimeout, profile.Timeout),
+			OnPress: func() error {
+				current := ""
+				if profile.Timeout > 0 {
+					current = fmt.Sprintf("%d", profile.Timeout)
+				}
+				return self.promptField(self.c.Tr.AISettingsTimeoutPrompt, current,
+					func(val string) {
+						n := 0
+						fmt.Sscanf(val, "%d", &n)
+						self.c.UserConfig().AI.Profiles[idx].Timeout = n
+					})
+			},
+			Key: 'o',
+		},
+		{
+			Label: self.c.Tr.AISettingsDeleteProfile,
+			OnPress: func() error {
+				return self.deleteProfile(idx)
+			},
+			Key: 'd',
+		},
+	}
+
+	return self.c.Menu(types.CreateMenuOptions{
+		Title: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsEditProfile, profile.Name),
+		Items: items,
+	})
+}
+
+// openProviderMenuForProfile shows a radio-button provider picker for a given profile index.
+func (self *AIHelper) openProviderMenuForProfile(idx int) error {
 	providers := []struct {
 		name string
 		key  rune
@@ -96,20 +225,22 @@ func (self *AIHelper) openProviderMenu() error {
 		{"deepseek", 'd'},
 		{"openai", 'o'},
 		{"ollama", 'l'},
+		{"anthropic", 'a'},
 		{"custom", 'c'},
 	}
 
 	items := make([]*types.MenuItem, len(providers))
 	for i, p := range providers {
-		provider := p
+		prov := p
+		isSelected := self.c.UserConfig().AI.Profiles[idx].Provider == prov.name
 		items[i] = &types.MenuItem{
-			Label: provider.name,
+			Label: prov.name,
 			OnPress: func() error {
-				self.c.UserConfig().AI.Provider = provider.name
+				self.c.UserConfig().AI.Profiles[idx].Provider = prov.name
 				return self.saveAndReloadAI()
 			},
-			Key:    provider.key,
-			Widget: types.MakeMenuRadioButton(self.c.UserConfig().AI.Provider == provider.name),
+			Key:    prov.key,
+			Widget: types.MakeMenuRadioButton(isSelected),
 		}
 	}
 
@@ -119,7 +250,55 @@ func (self *AIHelper) openProviderMenu() error {
 	})
 }
 
-func (self *AIHelper) promptAndSave(prompt, initialValue string, apply func(string)) error {
+// openAddProfileMenu prompts for a name and creates a new profile with defaults.
+func (self *AIHelper) openAddProfileMenu() error {
+	self.c.Prompt(types.PromptOpts{
+		Title: self.c.Tr.AISettingsNewProfileNamePrompt,
+		HandleConfirm: func(name string) error {
+			name = strings.TrimSpace(name)
+			if name == "" {
+				return nil
+			}
+			newProfile := config.AIProfileConfig{
+				Name:      name,
+				Provider:  "deepseek",
+				Model:     "deepseek-chat",
+				MaxTokens: 500,
+				Timeout:   60,
+			}
+			self.c.UserConfig().AI.Profiles = append(self.c.UserConfig().AI.Profiles, newProfile)
+			self.c.UserConfig().AI.ActiveProfile = name
+			return self.saveAndReloadAI()
+		},
+	})
+	return nil
+}
+
+// deleteProfile removes the profile at idx after confirmation.
+func (self *AIHelper) deleteProfile(idx int) error {
+	profiles := self.c.UserConfig().AI.Profiles
+	if len(profiles) <= 1 {
+		return errors.New(self.c.Tr.AISettingsCannotDeleteLastProfile)
+	}
+	profileName := profiles[idx].Name
+	self.c.Confirm(types.ConfirmOpts{
+		Title:  self.c.Tr.AISettingsDeleteProfileTitle,
+		Prompt: fmt.Sprintf(self.c.Tr.AISettingsDeleteProfilePrompt, profileName),
+		HandleConfirm: func() error {
+			cfg := &self.c.UserConfig().AI
+			cfg.Profiles = append(cfg.Profiles[:idx], cfg.Profiles[idx+1:]...)
+			// If we deleted the active profile, switch to first available
+			if cfg.ActiveProfile == profileName {
+				cfg.ActiveProfile = cfg.Profiles[0].Name
+			}
+			return self.saveAndReloadAI()
+		},
+	})
+	return nil
+}
+
+// promptField opens a prompt to edit a single profile field and saves on confirm.
+func (self *AIHelper) promptField(prompt, initialValue string, apply func(string)) error {
 	self.c.Prompt(types.PromptOpts{
 		Title:          prompt,
 		InitialContent: initialValue,
@@ -129,6 +308,14 @@ func (self *AIHelper) promptAndSave(prompt, initialValue string, apply func(stri
 		},
 	})
 	return nil
+}
+
+// maskKey returns a masked version of an API key for display (shows last 4 chars).
+func maskKey(key string) string {
+	if len(key) <= 4 {
+		return strings.Repeat("*", len(key))
+	}
+	return strings.Repeat("*", len(key)-4) + key[len(key)-4:]
 }
 
 // saveAndReloadAI persists config to disk and re-initialises the AI client.

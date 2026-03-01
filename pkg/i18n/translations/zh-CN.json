@@ -1084,5 +1084,21 @@
   "AICodeReviewStatus": "AI 审查中，请稍候...",
   "AICodeReviewNoDiff": "该文件没有可供审查的差异",
   "AICodeReviewCopiedToClipboard": "AI 代码审查已复制到剪贴板",
-  "AICodeReviewToggleZoom": "切换缩放"
+  "AICodeReviewToggleZoom": "切换缩放",
+  "AISettingsActiveProfile": "当前 Profile",
+  "AISettingsSwitchProfile": "切换 AI Profile",
+  "AISettingsEditProfile": "编辑当前 Profile",
+  "AISettingsAddProfile": "添加新 Profile",
+  "AISettingsNoProfiles": "未配置任何 AI Profile",
+  "AISettingsProfileName": "名称",
+  "AISettingsProfileNamePrompt": "输入 Profile 名称",
+  "AISettingsNewProfileNamePrompt": "输入新 Profile 的名称",
+  "AISettingsMaxTokens": "最大 Token 数",
+  "AISettingsMaxTokensPrompt": "输入最大 Token 数（例如 8000）",
+  "AISettingsTimeout": "超时（秒）",
+  "AISettingsTimeoutPrompt": "输入超时时间（秒，例如 60）",
+  "AISettingsDeleteProfile": "删除此 Profile",
+  "AISettingsDeleteProfileTitle": "删除 Profile",
+  "AISettingsDeleteProfilePrompt": "确定删除 Profile '%s'？",
+  "AISettingsCannotDeleteLastProfile": "不能删除最后一个 Profile"
 }

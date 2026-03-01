@@ -607,7 +607,6 @@ type KeybindingSubmodulesConfig struct {
 type KeybindingCommitMessageConfig struct {
 	CommitMenu              string `yaml:"commitMenu"`
 	AIGenerateCommitMessage string `yaml:"aiGenerateCommitMessage"`
-	AISettings              string `yaml:"aiSettings"`
 }
 
 type KeybindingAIConfig struct {
@@ -616,6 +615,8 @@ type KeybindingAIConfig struct {
 	AIAssistant string `yaml:"aiAssistant"`
 	// CodeReview triggers an AI code review for the currently selected single file.
 	CodeReview string `yaml:"codeReview"`
+	// AISettings opens the global AI settings/profile management menu.
+	AISettings string `yaml:"aiSettings"`
 }
 
 // OSConfig contains config on the level of the os
@@ -763,28 +764,52 @@ type IconProperties struct {
 	Color string `yaml:"color"`
 }
 
-// AIConfig holds configuration for AI integration.
-type AIConfig struct {
-	// Whether AI features are enabled
-	Enabled bool `yaml:"enabled"`
+// AIProfileConfig holds the settings for a single named AI provider profile.
+type AIProfileConfig struct {
+	// Display name for this profile (used in the profile switcher)
+	Name string `yaml:"name"`
 	// AI provider: "deepseek" (default), "openai", "ollama", "anthropic", or "custom"
 	Provider string `yaml:"provider" jsonschema:"enum=deepseek,enum=openai,enum=ollama,enum=anthropic,enum=custom"`
 	// API key; supports env var references like ${DEEPSEEK_API_KEY} or ${OPENAI_API_KEY}
 	APIKey string `yaml:"apiKey"`
-	// Model name; deepseek-reasoner is recommended for git analysis tasks.
-	// Other options: "deepseek-chat", "gpt-4o-mini", "claude-sonnet-4-6"
+	// Model name; e.g. "deepseek-reasoner", "gpt-4o-mini", "claude-sonnet-4-6"
 	Model string `yaml:"model"`
-	// Enable thinking mode. Automatically true for deepseek-reasoner.
-	// Set to true with deepseek-chat to enable thinking via the thinking parameter.
-	EnableThinking bool `yaml:"enableThinking"`
-	// Custom API endpoint (required for ollama and custom providers)
-	Endpoint string `yaml:"endpoint"`
+	// Enable thinking mode for supported models (e.g. deepseek-reasoner).
+	EnableThinking bool `yaml:"enableThinking,omitempty"`
+	// Custom API endpoint (required for ollama and custom providers; optional proxy override for others)
+	Endpoint string `yaml:"endpoint,omitempty"`
 	// Maximum tokens for AI response (includes reasoning chain when thinking is enabled)
-	MaxTokens int `yaml:"maxTokens"`
-	// Request timeout in seconds. Reasoning models (e.g. deepseek-reasoner)
-	// can take several minutes to think before responding; set this high enough
-	// to avoid premature cancellation. Default is 300 (5 minutes).
-	Timeout int `yaml:"timeout"`
+	MaxTokens int `yaml:"maxTokens,omitempty"`
+	// Request timeout in seconds. Reasoning models can take several minutes;
+	// set this high enough to avoid premature cancellation. Default is 300.
+	Timeout int `yaml:"timeout,omitempty"`
+	// CustomHeaders are extra HTTP headers sent with every API request.
+	// Useful for proxy authentication or to satisfy proxy-specific checks.
+	// Example: {"User-Agent": "claude-code/1.0", "X-My-Header": "value"}
+	CustomHeaders map[string]string `yaml:"customHeaders,omitempty"`
+}
+
+// AIConfig holds configuration for AI integration.
+type AIConfig struct {
+	// Whether AI features are enabled
+	Enabled bool `yaml:"enabled"`
+	// Name of the currently active profile (must match a profile Name in Profiles)
+	ActiveProfile string `yaml:"activeProfile"`
+	// Named AI provider profiles
+	Profiles []AIProfileConfig `yaml:"profiles"`
+}
+
+// GetActiveProfile returns a pointer to the active profile, or nil if not found.
+func (c AIConfig) GetActiveProfile() *AIProfileConfig {
+	for i := range c.Profiles {
+		if c.Profiles[i].Name == c.ActiveProfile {
+			return &c.Profiles[i]
+		}
+	}
+	if len(c.Profiles) > 0 {
+		return &c.Profiles[0]
+	}
+	return nil
 }
 
 func GetDefaultConfig() *UserConfig {
@@ -1093,20 +1118,26 @@ func GetDefaultConfig() *UserConfig {
 			CommitMessage: KeybindingCommitMessageConfig{
 				CommitMenu:              "<c-o>",
 				AIGenerateCommitMessage: "<c-g>",
-				AISettings:              "<c-a>",
 			},
 			AI: KeybindingAIConfig{
 				AIAssistant: "<c-y>",
 				CodeReview:  "<c-x>",
+				AISettings:  "<c-a>",
 			},
 		},
 		AI: AIConfig{
-			Enabled:        false,
-			Provider:       "deepseek",
-			Model:          "deepseek-reasoner",
-			EnableThinking: true,
-			MaxTokens:      8000,
-			Timeout:        300,
+			Enabled:       false,
+			ActiveProfile: "deepseek-reasoner",
+			Profiles: []AIProfileConfig{
+				{
+					Name:           "deepseek-reasoner",
+					Provider:       "deepseek",
+					Model:          "deepseek-reasoner",
+					EnableThinking: true,
+					MaxTokens:      8000,
+					Timeout:        300,
+				},
+			},
 		},
 	}
 }

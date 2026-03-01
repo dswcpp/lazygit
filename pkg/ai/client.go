@@ -22,22 +22,27 @@ type Client struct {
 }
 
 // NewClient creates a Client from the user configuration.
-// Returns nil, nil when AI is disabled (callers must check for nil).
+// Returns nil, nil when AI is disabled or no active profile is configured (callers must check for nil).
 func NewClient(cfg config.AIConfig) (*Client, error) {
 	if !cfg.Enabled {
 		return nil, nil
 	}
 
-	apiKey := resolveEnvVars(cfg.APIKey)
-	endpoint := resolveEndpoint(cfg)
-	model := cfg.Model
-	maxTokens := cfg.MaxTokens
+	profile := cfg.GetActiveProfile()
+	if profile == nil {
+		return nil, nil
+	}
+
+	apiKey := resolveEnvVars(profile.APIKey)
+	endpoint := resolveEndpointForProfile(*profile)
+	model := profile.Model
+	maxTokens := profile.MaxTokens
 	if maxTokens <= 0 {
 		maxTokens = 500
 	}
-	timeout := cfg.Timeout
+	timeout := profile.Timeout
 	if timeout <= 0 {
-		if cfg.EnableThinking {
+		if profile.EnableThinking {
 			timeout = 300 // thinking/reasoning models need more time
 		} else {
 			timeout = 60
@@ -45,14 +50,14 @@ func NewClient(cfg config.AIConfig) (*Client, error) {
 	}
 
 	if model == "" {
-		return nil, fmt.Errorf("ai.model must be set in config")
+		return nil, fmt.Errorf("ai model must be set in the active profile config")
 	}
 
 	var provider Provider
-	if strings.ToLower(cfg.Provider) == "anthropic" {
-		provider = newAnthropicProvider(apiKey, model, cfg.Endpoint, maxTokens, timeout)
+	if strings.ToLower(profile.Provider) == "anthropic" {
+		provider = newAnthropicProvider(apiKey, model, profile.Endpoint, maxTokens, timeout, profile.CustomHeaders)
 	} else {
-		provider = newOpenAIProvider(endpoint, apiKey, model, maxTokens, timeout, cfg.EnableThinking)
+		provider = newOpenAIProvider(endpoint, apiKey, model, maxTokens, timeout, profile.EnableThinking, profile.CustomHeaders)
 	}
 	return &Client{provider: provider}, nil
 }
@@ -67,12 +72,12 @@ func (c *Client) CompleteStream(ctx context.Context, prompt string, onChunk func
 	return c.provider.CompleteStream(ctx, prompt, onChunk)
 }
 
-// resolveEndpoint returns the effective API endpoint based on provider setting.
-func resolveEndpoint(cfg config.AIConfig) string {
-	if cfg.Endpoint != "" {
-		return cfg.Endpoint
+// resolveEndpointForProfile returns the effective API endpoint for a profile.
+func resolveEndpointForProfile(profile config.AIProfileConfig) string {
+	if profile.Endpoint != "" {
+		return profile.Endpoint
 	}
-	switch strings.ToLower(cfg.Provider) {
+	switch strings.ToLower(profile.Provider) {
 	case "deepseek":
 		return deepSeekEndpoint
 	case "ollama":

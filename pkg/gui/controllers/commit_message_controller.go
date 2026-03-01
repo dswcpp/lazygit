@@ -66,12 +66,6 @@ func (self *CommitMessageController) GetKeybindings(opts types.KeybindingsOpts) 
 				return nil
 			},
 		},
-		{
-			Key:             opts.GetKey(opts.Config.CommitMessage.AISettings),
-			Handler:         self.openAISettings,
-			Description:     self.c.Tr.AISettings,
-			DisplayOnScreen: true,
-		},
 	}
 
 	return bindings
@@ -221,6 +215,3 @@ func (self *CommitMessageController) aiGenerateCommitMessage() error {
 	return self.c.Helpers().Commits.AIGenerateCommitMessage()
 }
 
-func (self *CommitMessageController) openAISettings() error {
-	return self.c.Helpers().AI.OpenAISettingsMenu()
-}

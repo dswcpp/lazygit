@@ -163,6 +163,11 @@ func (self *GlobalController) GetKeybindings(opts types.KeybindingsOpts) []*type
 				return nil
 			},
 		},
+		{
+			Key:         opts.GetKey(opts.Config.AI.AISettings),
+			Handler:     self.openAISettings,
+			Description: self.c.Tr.AISettings,
+		},
 	}
 }
 
@@ -276,4 +281,8 @@ func (self *GlobalController) canShowRebaseOptions() *types.DisabledReason {
 
 func (self *GlobalController) openAIAssistant() error {
 	return self.c.Helpers().AI.OpenAIAssistant()
+}
+
+func (self *GlobalController) openAISettings() error {
+	return self.c.Helpers().AI.OpenAISettingsMenu()
 }

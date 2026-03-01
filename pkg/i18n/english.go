@@ -423,6 +423,22 @@ type TranslationSet struct {
 	AISettingsSetEndpoint                 string
 	AISettingsEndpointPrompt              string
 	AISettingsSaved                       string
+	AISettingsActiveProfile               string
+	AISettingsSwitchProfile               string
+	AISettingsEditProfile                 string
+	AISettingsAddProfile                  string
+	AISettingsNoProfiles                  string
+	AISettingsProfileName                 string
+	AISettingsProfileNamePrompt           string
+	AISettingsNewProfileNamePrompt        string
+	AISettingsMaxTokens                   string
+	AISettingsMaxTokensPrompt             string
+	AISettingsTimeout                     string
+	AISettingsTimeoutPrompt               string
+	AISettingsDeleteProfile               string
+	AISettingsDeleteProfileTitle          string
+	AISettingsDeleteProfilePrompt         string
+	AISettingsCannotDeleteLastProfile     string
 	AIAssistant                           string
 	AIAssistantTitle                      string
 	AIAssistantPrompt                     string
@@ -1563,6 +1579,22 @@ func EnglishTranslationSet() *TranslationSet {
 		AISettingsSetEndpoint:                "Set Endpoint",
 		AISettingsEndpointPrompt:             "Enter API endpoint URL (e.g. http://localhost:11434/v1)",
 		AISettingsSaved:                      "AI settings saved",
+		AISettingsActiveProfile:              "Active profile",
+		AISettingsSwitchProfile:              "Switch active profile",
+		AISettingsEditProfile:                "Edit active profile",
+		AISettingsAddProfile:                 "Add new profile",
+		AISettingsNoProfiles:                 "No AI profiles configured",
+		AISettingsProfileName:                "Name",
+		AISettingsProfileNamePrompt:          "Enter profile name",
+		AISettingsNewProfileNamePrompt:       "Enter name for new profile",
+		AISettingsMaxTokens:                  "Max tokens",
+		AISettingsMaxTokensPrompt:            "Enter max tokens (e.g. 8000)",
+		AISettingsTimeout:                    "Timeout (s)",
+		AISettingsTimeoutPrompt:              "Enter timeout in seconds (e.g. 60)",
+		AISettingsDeleteProfile:              "Delete this profile",
+		AISettingsDeleteProfileTitle:         "Delete profile",
+		AISettingsDeleteProfilePrompt:        "Delete profile '%s'?",
+		AISettingsCannotDeleteLastProfile:    "Cannot delete the last profile",
 		AIAssistant:                          "Open AI git assistant",
 		AIAssistantTitle:                     "AI Git Assistant",
 		AIAssistantPrompt:                    "Describe your git task (e.g. 'squash last 3 commits')",

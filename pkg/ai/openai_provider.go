@@ -20,6 +20,7 @@ type openAIProvider struct {
 	model          string
 	maxTokens      int
 	enableThinking bool
+	customHeaders  map[string]string
 	client         *http.Client
 	streamClient   *http.Client // no total timeout so SSE streams can run indefinitely
 }
@@ -75,15 +76,30 @@ type streamChunk struct {
 	} `json:"choices"`
 }
 
-func newOpenAIProvider(endpoint, apiKey, model string, maxTokens, timeoutSecs int, enableThinking bool) *openAIProvider {
+func newOpenAIProvider(endpoint, apiKey, model string, maxTokens, timeoutSecs int, enableThinking bool, customHeaders map[string]string) *openAIProvider {
 	return &openAIProvider{
 		endpoint:       strings.TrimRight(endpoint, "/"),
 		apiKey:         apiKey,
 		model:          model,
 		maxTokens:      maxTokens,
 		enableThinking: enableThinking,
+		customHeaders:  customHeaders,
 		client:         &http.Client{Timeout: time.Duration(timeoutSecs) * time.Second},
 		streamClient:   &http.Client{Timeout: 0}, // no total timeout; rely on context cancellation
+	}
+}
+
+// applyHeaders sets standard and custom HTTP headers on the request.
+func (p *openAIProvider) applyHeaders(req *http.Request, acceptSSE bool) {
+	req.Header.Set("Content-Type", "application/json")
+	if acceptSSE {
+		req.Header.Set("Accept", "text/event-stream")
+	}
+	if p.apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+p.apiKey)
+	}
+	for k, v := range p.customHeaders {
+		req.Header.Set(k, v)
 	}
 }
 
@@ -116,11 +132,7 @@ func (p *openAIProvider) Complete(ctx context.Context, prompt string) (Result, e
 	if err != nil {
 		return Result{}, fmt.Errorf("AI: failed to create request: %w", err)
 	}
-
-	httpReq.Header.Set("Content-Type", "application/json")
-	if p.apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+p.apiKey)
-	}
+	p.applyHeaders(httpReq, false)
 
 	resp, err := p.client.Do(httpReq)
 	if err != nil {
@@ -182,11 +194,7 @@ func (p *openAIProvider) CompleteStream(ctx context.Context, prompt string, onCh
 		return fmt.Errorf("AI: failed to create request: %w", err)
 	}
 
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Accept", "text/event-stream")
-	if p.apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+p.apiKey)
-	}
+	p.applyHeaders(httpReq, true)
 
 	resp, err := p.streamClient.Do(httpReq)
 	if err != nil {
