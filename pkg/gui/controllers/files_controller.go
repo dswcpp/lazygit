@@ -206,6 +206,12 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			Tooltip:           self.c.Tr.ExpandAllTooltip,
 			GetDisabledReason: self.require(self.isInTreeMode),
 		},
+		{
+			Key:               opts.GetKey(opts.Config.AI.CodeReview),
+			Handler:           self.withItem(self.aiCodeReview),
+			GetDisabledReason: self.require(self.withFileTreeViewModelMutex(self.singleItemSelected())),
+			Description:       self.c.Tr.AICodeReview,
+		},
 	}
 }
 
@@ -1483,4 +1489,24 @@ func (self *FilesController) isInTreeMode() *types.DisabledReason {
 	}
 
 	return nil
+}
+
+func (self *FilesController) aiCodeReview(node *filetree.FileNode) error {
+	if !node.GetIsFile() {
+		return errors.New(self.c.Tr.ErrCannotEditDirectory)
+	}
+
+	// Prefer staged diff; fall back to unstaged.
+	diff, err := self.c.Git().Diff.GetDiff(true, "--", node.GetPath())
+	if err != nil {
+		return err
+	}
+	if diff == "" {
+		diff, err = self.c.Git().Diff.GetDiff(false, "--", node.GetPath())
+		if err != nil {
+			return err
+		}
+	}
+
+	return self.c.Helpers().AICodeReview.ReviewDiff(node.GetPath(), diff)
 }
