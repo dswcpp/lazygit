@@ -37,7 +37,11 @@ func NewClient(cfg config.AIConfig) (*Client, error) {
 	}
 	timeout := cfg.Timeout
 	if timeout <= 0 {
-		timeout = 30
+		if cfg.EnableThinking {
+			timeout = 300 // thinking/reasoning models need more time
+		} else {
+			timeout = 60
+		}
 	}
 
 	if model == "" {

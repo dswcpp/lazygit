@@ -152,6 +152,17 @@ func (self *GlobalController) GetKeybindings(opts types.KeybindingsOpts) []*type
 			Description: self.c.Tr.ToggleWhitespaceInDiffView,
 			Tooltip:     self.c.Tr.ToggleWhitespaceInDiffViewTooltip,
 		},
+		{
+			Key:         opts.GetKey(opts.Config.AI.AIAssistant),
+			Handler:     self.openAIAssistant,
+			Description: self.c.Tr.AIAssistant,
+			GetDisabledReason: func() *types.DisabledReason {
+				if self.c.AI == nil {
+					return &types.DisabledReason{Text: self.c.Tr.AINotEnabled}
+				}
+				return nil
+			},
+		},
 	}
 }
 
@@ -261,4 +272,8 @@ func (self *GlobalController) canShowRebaseOptions() *types.DisabledReason {
 		}
 	}
 	return nil
+}
+
+func (self *GlobalController) openAIAssistant() error {
+	return self.c.Helpers().AI.OpenAIAssistant()
 }

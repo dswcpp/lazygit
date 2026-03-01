@@ -423,6 +423,10 @@ type TranslationSet struct {
 	AISettingsSetEndpoint                 string
 	AISettingsEndpointPrompt              string
 	AISettingsSaved                       string
+	AIAssistant                           string
+	AIAssistantTitle                      string
+	AIAssistantPrompt                     string
+	AIAssistantStatus                     string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -1547,6 +1551,10 @@ func EnglishTranslationSet() *TranslationSet {
 		AISettingsSetEndpoint:                "Set Endpoint",
 		AISettingsEndpointPrompt:             "Enter API endpoint URL (e.g. http://localhost:11434/v1)",
 		AISettingsSaved:                      "AI settings saved",
+		AIAssistant:                          "Open AI git assistant",
+		AIAssistantTitle:                     "AI Git Assistant",
+		AIAssistantPrompt:                    "Describe your git task or question...",
+		AIAssistantStatus:                    "AI thinking...",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",

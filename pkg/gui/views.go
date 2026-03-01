@@ -73,6 +73,9 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 
 		// this guy will cover everything else when it appears
 		{viewPtr: &gui.Views.Limit, name: "limit"},
+
+		// loading overlay: renders on top of everything
+		{viewPtr: &gui.Views.Loading, name: "loading"},
 	}
 }
 
@@ -151,6 +154,8 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Extras.AutoRenderHyperLinks = true
 
 	gui.Views.Snake.FgColor = gocui.ColorGreen
+
+	gui.Views.Loading.Visible = false
 
 	return nil
 }

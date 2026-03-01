@@ -411,6 +411,7 @@ type KeybindingConfig struct {
 	Main           KeybindingMainConfig           `yaml:"main"`
 	Submodules     KeybindingSubmodulesConfig     `yaml:"submodules"`
 	CommitMessage  KeybindingCommitMessageConfig  `yaml:"commitMessage"`
+	AI             KeybindingAIConfig             `yaml:"ai"`
 }
 
 // damn looks like we have some inconsistencies here with -alt and -alt1
@@ -609,6 +610,12 @@ type KeybindingCommitMessageConfig struct {
 	AISettings              string `yaml:"aiSettings"`
 }
 
+type KeybindingAIConfig struct {
+	// AIAssistant opens the interactive AI git assistant where you can describe
+	// any git-related task and get expert suggestions.
+	AIAssistant string `yaml:"aiAssistant"`
+}
+
 // OSConfig contains config on the level of the os
 type OSConfig struct {
 	// Command for editing a file. Should contain "{{filename}}".
@@ -772,7 +779,9 @@ type AIConfig struct {
 	Endpoint string `yaml:"endpoint"`
 	// Maximum tokens for AI response (includes reasoning chain when thinking is enabled)
 	MaxTokens int `yaml:"maxTokens"`
-	// Request timeout in seconds; increase when using reasoning models
+	// Request timeout in seconds. Reasoning models (e.g. deepseek-reasoner)
+	// can take several minutes to think before responding; set this high enough
+	// to avoid premature cancellation. Default is 300 (5 minutes).
 	Timeout int `yaml:"timeout"`
 }
 
@@ -1084,6 +1093,9 @@ func GetDefaultConfig() *UserConfig {
 				AIGenerateCommitMessage: "<c-g>",
 				AISettings:              "<c-a>",
 			},
+			AI: KeybindingAIConfig{
+				AIAssistant: "<c-y>",
+			},
 		},
 		AI: AIConfig{
 			Enabled:        false,
@@ -1091,7 +1103,7 @@ func GetDefaultConfig() *UserConfig {
 			Model:          "deepseek-reasoner",
 			EnableThinking: true,
 			MaxTokens:      8000,
-			Timeout:        60,
+			Timeout:        300,
 		},
 	}
 }

@@ -44,7 +44,9 @@ func (gui *Gui) resetHelpersAndControllers() {
 	getUnwrappedCommitDescription := func() string {
 		return strings.TrimSpace(gui.Views.CommitDescription.TextArea.GetUnwrappedContent())
 	}
+	loadingHelper := helpers.NewLoadingHelper(helperCommon)
 	commitsHelper := helpers.NewCommitsHelper(helperCommon,
+		loadingHelper,
 		getCommitSummary,
 		setCommitSummary,
 		getCommitDescription,
@@ -131,7 +133,8 @@ func (gui *Gui) resetHelpersAndControllers() {
 		Search:     searchHelper,
 		Worktree:   worktreeHelper,
 		SubCommits: helpers.NewSubCommitsHelper(helperCommon, refreshHelper),
-		AI:         helpers.NewAIHelper(helperCommon),
+		AI:      helpers.NewAIHelper(helperCommon, loadingHelper),
+		Loading: loadingHelper,
 	}
 
 	gui.CustomCommandsClient = custom_commands.NewClient(

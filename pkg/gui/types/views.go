@@ -44,4 +44,7 @@ type Views struct {
 
 	// for playing the easter egg snake game
 	Snake *gocui.View
+
+	// centered loading overlay for long-running operations
+	Loading *gocui.View
 }
