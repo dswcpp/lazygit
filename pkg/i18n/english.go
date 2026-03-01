@@ -429,6 +429,12 @@ type TranslationSet struct {
 	AIAssistantStatus                     string
 	AIAssistantConfirmExecute             string
 	AIAssistantNoCommands                 string
+	AICodeReview                          string
+	AICodeReviewTitle                     string
+	AICodeReviewConfirmTitle              string
+	AICodeReviewConfirmPrompt             string
+	AICodeReviewStatus                    string
+	AICodeReviewNoDiff                    string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -1559,6 +1565,12 @@ func EnglishTranslationSet() *TranslationSet {
 		AIAssistantStatus:                    "AI generating commands...",
 		AIAssistantConfirmExecute:            "Execute these commands?",
 		AIAssistantNoCommands:                "AI did not generate any commands",
+		AICodeReview:                         "AI code review",
+		AICodeReviewTitle:                    "AI Code Review",
+		AICodeReviewConfirmTitle:             "AI Code Review",
+		AICodeReviewConfirmPrompt:            "Start AI code review for the following file?\n\n%s",
+		AICodeReviewStatus:                   "AI reviewing, please wait...",
+		AICodeReviewNoDiff:                   "No diff to review for this file",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",
