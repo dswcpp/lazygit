@@ -17,6 +17,8 @@ import (
 type CommitsHelper struct {
 	c *HelperCommon
 
+	loadingHelper *LoadingHelper
+
 	getCommitSummary              func() string
 	setCommitSummary              func(string)
 	getCommitDescription          func() string
@@ -26,6 +28,7 @@ type CommitsHelper struct {
 
 func NewCommitsHelper(
 	c *HelperCommon,
+	loadingHelper *LoadingHelper,
 	getCommitSummary func() string,
 	setCommitSummary func(string),
 	getCommitDescription func() string,
@@ -34,6 +37,7 @@ func NewCommitsHelper(
 ) *CommitsHelper {
 	return &CommitsHelper{
 		c:                             c,
+		loadingHelper:                 loadingHelper,
 		getCommitSummary:              getCommitSummary,
 		setCommitSummary:              setCommitSummary,
 		getCommitDescription:          getCommitDescription,
@@ -271,22 +275,26 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 		return errors.New(self.c.Tr.AINotEnabled)
 	}
 
-	return self.c.WithWaitingStatus(self.c.Tr.AIGeneratingStatus, func(_ gocui.Task) error {
-		diff, err := self.c.Git().Diff.GetDiff(true)
+	self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIGeneratingStatus, func(_ gocui.Task) error {
+		rawDiff, err := self.c.Git().Diff.GetDiff(true)
 		if err != nil {
 			return err
 		}
-		if strings.TrimSpace(diff) == "" {
+		if strings.TrimSpace(rawDiff) == "" {
 			return errors.New(self.c.Tr.AINoStagedChanges)
 		}
 
-		// Truncate diff to avoid exceeding model token limits.
-		// ~120000 chars ≈ 30000 tokens, well within DeepSeek's 131072 token limit.
+		// Filter out lock files, binary files, generated code and truncate
+		// oversized per-file hunks before sending to the model.
+		diff := FilterDiffForAI(rawDiff)
+
+		// Safety-net: cap total prompt size to avoid exceeding token limits.
+		// FilterDiffForAI handles most cases; this catches extreme edge cases.
 		const maxDiffChars = 120_000
-		truncated := ""
+		safetyNote := ""
 		if len(diff) > maxDiffChars {
 			diff = diff[:maxDiffChars]
-			truncated = "\n[diff 已截断，仅显示前 120000 个字符]"
+			safetyNote = "\n[内容过大，已在 120000 字符处截断]"
 		}
 
 		prompt := fmt.Sprintf(
@@ -300,7 +308,7 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 				"- 只输出提交信息本身，不加 markdown、代码块或任何解释\n\n"+
 				"已暂存的变更：\n%s%s",
 			diff,
-			truncated,
+			safetyNote,
 		)
 
 		result, err := self.c.AI.Complete(context.Background(), prompt)
@@ -316,4 +324,5 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 		self.SetMessageAndDescriptionInView(message)
 		return nil
 	})
+	return nil
 }
