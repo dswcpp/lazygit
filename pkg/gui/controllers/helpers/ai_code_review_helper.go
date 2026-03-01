@@ -65,14 +65,16 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 		signalFirst := func() { once.Do(func() { close(firstChunk) }) }
 
 		// Streaming goroutine: runs independently after the overlay closes.
+		// All UI writes use OnUIThreadSync (gocui.UpdateAsync) so that events
+		// are enqueued directly from this single goroutine in order, avoiding
+		// the race condition caused by OnUIThread spawning a new goroutine per
+		// chunk which can arrive at the UI event queue out of order.
 		go func() {
 			headerWritten := false
 			err := self.c.AI.CompleteStream(context.Background(), prompt, func(chunk string) {
-				// On the very first chunk: write the Extras panel header and
-				// signal the loading overlay to close.
 				if !headerWritten {
 					headerWritten = true
-					self.c.OnUIThread(func() error {
+					self.c.OnUIThreadSync(func() error {
 						view := self.c.Views().Extras
 						view.Clear()
 						view.Autoscroll = true
@@ -82,14 +84,13 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 					})
 					signalFirst()
 				}
-				self.c.OnUIThread(func() error {
+				self.c.OnUIThreadSync(func() error {
 					fmt.Fprint(self.c.Views().Extras, chunk)
 					return nil
 				})
 			})
 
 			if err != nil {
-				// Unblock loading overlay on error so the UI doesn't hang.
 				signalFirst()
 				self.c.OnUIThread(func() error {
 					self.c.Toast("AI code review failed: " + err.Error())
