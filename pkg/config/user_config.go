@@ -146,6 +146,8 @@ type GuiConfig struct {
 	ShowCommandLog bool `yaml:"showCommandLog"`
 	// If true, show the bottom line that contains keybinding info and useful buttons. If false, this line will be hidden except to display a loader for an in-progress action.
 	ShowBottomLine bool `yaml:"showBottomLine"`
+	// Activity bar configuration (VSCode-style icon bar on the left)
+	ActivityBar ActivityBarConfig `yaml:"activityBar"`
 	// If true, show jump-to-window keybindings in window titles.
 	ShowPanelJumps bool `yaml:"showPanelJumps"`
 	// Deprecated: use nerdFontsVersion instead
@@ -202,6 +204,13 @@ type GuiConfig struct {
 
 func (c *GuiConfig) UseFuzzySearch() bool {
 	return c.FilterMode == "fuzzy"
+}
+
+type ActivityBarConfig struct {
+	// If true, show the activity bar (VSCode-style icon bar on the left)
+	Show bool `yaml:"show"`
+	// Width of the activity bar in characters
+	Width int `yaml:"width" jsonschema:"minimum=2,maximum=10"`
 }
 
 type ThemeConfig struct {
@@ -883,6 +892,10 @@ func GetDefaultConfig() *UserConfig {
 			SwitchToFilesAfterStashPop:   true,
 			SwitchToFilesAfterStashApply: true,
 			SwitchTabsWithPanelJumpKeys:  false,
+			ActivityBar: ActivityBarConfig{
+				Show:  false, // 默认关闭，不影响现有用户
+				Width: 3,
+			},
 		},
 		Git: GitConfig{
 			Commit: CommitConfig{

@@ -26,6 +26,7 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 	return []viewNameMapping{
 		// first layer. Ordering within this layer does not matter because there are
 		// no overlapping views
+		{viewPtr: &gui.Views.ActivityBar, name: "activityBar"}, // 🆕 活动栏
 		{viewPtr: &gui.Views.Status, name: "status"},
 		{viewPtr: &gui.Views.Snake, name: "snake"},
 		{viewPtr: &gui.Views.Submodules, name: "submodules"},

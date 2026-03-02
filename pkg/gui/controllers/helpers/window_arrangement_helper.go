@@ -72,6 +72,10 @@ type WindowArrangementArgs struct {
 	InSearchPrompt bool
 	// One of '' (not searching), 'Search: ', and 'Filter: '
 	SearchPrefix string
+	// Whether to show the activity bar (VSCode-style icon bar)
+	ShowActivityBar bool
+	// Width of the activity bar in characters
+	ActivityBarWidth int
 }
 
 func (self *WindowArrangementHelper) GetWindowDimensions(informationStr string, appStatus string) map[string]boxlayout.Dimensions {
@@ -100,6 +104,8 @@ func (self *WindowArrangementHelper) GetWindowDimensions(informationStr string, 
 		IsAnyModeActive:   self.modeHelper.IsAnyModeActive(),
 		InSearchPrompt:    repoState.InSearchPrompt(),
 		SearchPrefix:      searchPrefix,
+		ShowActivityBar:   self.c.UserConfig().Gui.ActivityBar.Show,
+		ActivityBarWidth:  self.c.UserConfig().Gui.ActivityBar.Width,
 	}
 
 	return GetWindowDimensions(args)
@@ -137,31 +143,65 @@ func GetWindowDimensions(args WindowArrangementArgs) map[string]boxlayout.Dimens
 		infoSectionSize = 1
 	}
 
-	root := &boxlayout.Box{
-		Direction: boxlayout.ROW,
+	// 构建核心布局（原有逻辑）
+	coreLayout := &boxlayout.Box{
+		Direction: sidePanelsDirection,
+		Weight:    1,
 		Children: []*boxlayout.Box{
 			{
-				Direction: sidePanelsDirection,
-				Weight:    1,
-				Children: []*boxlayout.Box{
-					{
-						Direction:           boxlayout.ROW,
-						Weight:              sideSectionWeight,
-						ConditionalChildren: sidePanelChildren(args),
-					},
-					{
-						Direction: boxlayout.ROW,
-						Weight:    mainSectionWeight,
-						Children:  mainPanelChildren(args),
-					},
-				},
+				Direction:           boxlayout.ROW,
+				Weight:              sideSectionWeight,
+				ConditionalChildren: sidePanelChildren(args),
 			},
 			{
-				Direction: boxlayout.COLUMN,
-				Size:      infoSectionSize,
-				Children:  infoSectionChildren(args),
+				Direction: boxlayout.ROW,
+				Weight:    mainSectionWeight,
+				Children:  mainPanelChildren(args),
 			},
 		},
+	}
+
+	// 根据配置决定是否添加活动栏
+	var root *boxlayout.Box
+	if args.ShowActivityBar {
+		// 启用活动栏：需要重新组织布局
+		// 创建一个包含活动栏和核心内容的水平布局
+		mainContent := &boxlayout.Box{
+			Direction: boxlayout.COLUMN,
+			Weight:    1,
+			Children: []*boxlayout.Box{
+				{
+					Direction: boxlayout.ROW,
+					Weight:    1,
+					Children: []*boxlayout.Box{
+						{
+							Window: "activityBar",
+							Size:   args.ActivityBarWidth,
+						},
+						coreLayout,
+					},
+				},
+				{
+					Direction: boxlayout.COLUMN,
+					Size:      infoSectionSize,
+					Children:  infoSectionChildren(args),
+				},
+			},
+		}
+		root = mainContent
+	} else {
+		// 不启用活动栏：使用原有布局
+		root = &boxlayout.Box{
+			Direction: boxlayout.ROW,
+			Children: []*boxlayout.Box{
+				coreLayout,
+				{
+					Direction: boxlayout.COLUMN,
+					Size:      infoSectionSize,
+					Children:  infoSectionChildren(args),
+				},
+			},
+		}
 	}
 
 	layerOneWindows := boxlayout.ArrangeWindows(root, 0, 0, args.Width, args.Height)

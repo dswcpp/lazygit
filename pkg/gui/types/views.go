@@ -50,4 +50,7 @@ type Views struct {
 
 	// floating popup for AI code review results
 	AICodeReview *gocui.View
+
+	// VSCode-style activity bar on the left
+	ActivityBar *gocui.View
 }

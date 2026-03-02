@@ -256,6 +256,13 @@ type GuiRepoState struct {
 	CurrentPopupOpts *types.CreatePopupPanelOpts
 
 	LastBackgroundFetchTime time.Time
+
+	// Activity bar state
+	Panels struct {
+		ActivityBar struct {
+			SelectedLine int
+		}
+	}
 }
 
 var _ types.IRepoStateAccessor = new(GuiRepoState)

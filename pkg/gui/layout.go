@@ -142,6 +142,32 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		view.Visible = gui.helpers.Window.GetViewNameForWindow(context.GetWindowName()) == context.GetViewName()
 	}
 
+	// 🆕 手动处理活动栏视图（因为它不是 context）
+	if gui.c.UserConfig().Gui.ActivityBar.Show {
+		if dimensionsObj, ok := viewDimensions["activityBar"]; ok {
+			activityBarView, err := gui.g.View("activityBar")
+			if err == nil {
+				frameOffset := 1
+				if activityBarView.Frame {
+					frameOffset = 0
+				}
+				_, err = gui.g.SetView(
+					"activityBar",
+					dimensionsObj.X0-frameOffset,
+					dimensionsObj.Y0-frameOffset,
+					dimensionsObj.X1+frameOffset,
+					dimensionsObj.Y1+frameOffset,
+					0,
+				)
+				if err == nil {
+					activityBarView.Visible = true
+					// 渲染活动栏内容
+					gui.renderActivityBar()
+				}
+			}
+		}
+	}
+
 	if gui.PrevLayout.Information != informationStr {
 		gui.c.SetViewContent(gui.Views.Information, informationStr)
 		gui.PrevLayout.Information = informationStr
