@@ -148,6 +148,8 @@ type GuiConfig struct {
 	ShowBottomLine bool `yaml:"showBottomLine"`
 	// Activity bar configuration (VSCode-style icon bar on the left)
 	ActivityBar ActivityBarConfig `yaml:"activityBar"`
+	// Progress bar configuration
+	ProgressBar ProgressBarConfig `yaml:"progressBar"`
 	// If true, show jump-to-window keybindings in window titles.
 	ShowPanelJumps bool `yaml:"showPanelJumps"`
 	// Deprecated: use nerdFontsVersion instead
@@ -211,6 +213,19 @@ type ActivityBarConfig struct {
 	Show bool `yaml:"show"`
 	// Width of the activity bar in characters
 	Width int `yaml:"width" jsonschema:"minimum=2,maximum=10"`
+}
+
+type ProgressBarConfig struct {
+	// Progress bar style: "block", "dot", "arrow", "gradient", "ascii"
+	Style string `yaml:"style" jsonschema:"enum=block,enum=dot,enum=arrow,enum=gradient,enum=ascii"`
+	// Spinner style: "braille", "line", "arrow", "dot", "circle"
+	SpinnerStyle string `yaml:"spinnerStyle" jsonschema:"enum=braille,enum=line,enum=arrow,enum=dot,enum=circle"`
+	// Progress bar width in characters
+	Width int `yaml:"width" jsonschema:"minimum=10,maximum=50"`
+	// Show percentage
+	ShowPercentage bool `yaml:"showPercentage"`
+	// Show statistics (speed, remaining time, etc.)
+	ShowStats bool `yaml:"showStats"`
 }
 
 type ThemeConfig struct {
@@ -895,6 +910,13 @@ func GetDefaultConfig() *UserConfig {
 			ActivityBar: ActivityBarConfig{
 				Show:  false, // 默认关闭，不影响现有用户
 				Width: 3,
+			},
+			ProgressBar: ProgressBarConfig{
+				Style:          "block",
+				SpinnerStyle:   "braille",
+				Width:          30,
+				ShowPercentage: true,
+				ShowStats:      true,
 			},
 		},
 		Git: GitConfig{
