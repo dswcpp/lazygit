@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
@@ -15,10 +16,11 @@ import (
 type AICodeReviewHelper struct {
 	c             *HelperCommon
 	loadingHelper *LoadingHelper
+	aiHelper      *AIHelper
 }
 
-func NewAICodeReviewHelper(c *HelperCommon, loadingHelper *LoadingHelper) *AICodeReviewHelper {
-	return &AICodeReviewHelper{c: c, loadingHelper: loadingHelper}
+func NewAICodeReviewHelper(c *HelperCommon, loadingHelper *LoadingHelper, aiHelper *AIHelper) *AICodeReviewHelper {
+	return &AICodeReviewHelper{c: c, loadingHelper: loadingHelper, aiHelper: aiHelper}
 }
 
 // ReviewDiff asks the user to confirm, then streams an AI code review for the
@@ -31,7 +33,8 @@ func NewAICodeReviewHelper(c *HelperCommon, loadingHelper *LoadingHelper) *AICod
 //  4. Error before first chunk → overlay closes; error toast is shown.
 func (self *AICodeReviewHelper) ReviewDiff(filePath string, diff string) error {
 	if self.c.AI == nil {
-		return errors.New(self.c.Tr.AINotEnabled)
+		// Show first-time wizard instead of error
+		return self.aiHelper.ShowFirstTimeWizard()
 	}
 
 	if diff == "" {
@@ -58,7 +61,17 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 	aiView := self.c.Views().AICodeReview
 	aiView.Clear()
 	aiView.Autoscroll = true
-	aiView.Title = fmt.Sprintf(" %s: %s ", self.c.Tr.AICodeReviewTitle, filePath)
+
+	// Spinner frames for progress indicator
+	spinner := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+	spinnerFrame := 0
+	aiView.Title = fmt.Sprintf(" %s %s: %s ", spinner[0], self.c.Tr.AICodeReviewTitle, filePath)
+
+	// Create cancellable context for the AI request
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// Store cancel function in the context so it can be called by Esc key handler
+	self.c.Contexts().AICodeReview.CancelFunc = cancel
 
 	// Push the AI code review context to show the floating popup.
 	self.c.Context().Push(self.c.Contexts().AICodeReview, types.OnFocusOpts{})
@@ -73,13 +86,44 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 		var once sync.Once
 		signalFirst := func() { once.Do(func() { close(firstChunk) }) }
 
+		// Start spinner animation in background
+		spinnerDone := make(chan struct{})
+		go func() {
+			ticker := time.NewTicker(100 * time.Millisecond)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-spinnerDone:
+					return
+				case <-ticker.C:
+					spinnerFrame = (spinnerFrame + 1) % len(spinner)
+					self.c.OnUIThreadSync(func() error {
+						aiView.Title = fmt.Sprintf(" %s %s: %s ", spinner[spinnerFrame], self.c.Tr.AICodeReviewTitle, filePath)
+						return nil
+					})
+				}
+			}
+		}()
+
 		// Streaming goroutine: runs independently after the overlay closes.
 		// All UI writes use OnUIThreadSync (gocui.UpdateAsync) so that events
 		// are enqueued directly from this single goroutine in order, avoiding
 		// the race condition caused by OnUIThread spawning a new goroutine per
 		// chunk which can arrive at the UI event queue out of order.
 		go func() {
-			err := self.c.AI.CompleteStream(context.Background(), prompt, func(chunk string) {
+			defer func() {
+				// Stop spinner
+				close(spinnerDone)
+				// Clear cancel function when stream completes
+				self.c.Contexts().AICodeReview.CancelFunc = nil
+				// Update title to show completion
+				self.c.OnUIThreadSync(func() error {
+					aiView.Title = fmt.Sprintf(" %s: %s ", self.c.Tr.AICodeReviewTitle, filePath)
+					return nil
+				})
+			}()
+
+			err := self.c.AI.CompleteStream(ctx, prompt, func(chunk string) {
 				signalFirst()
 				self.c.OnUIThreadSync(func() error {
 					fmt.Fprint(self.c.Views().AICodeReview, chunk)
@@ -90,7 +134,14 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 			if err != nil {
 				signalFirst()
 				self.c.OnUIThread(func() error {
-					self.c.Toast("AI code review failed: " + err.Error())
+					// Check if the error is due to cancellation
+					if errors.Is(err, context.Canceled) {
+						self.c.Toast("AI 代码审查已取消")
+						return nil
+					}
+					// Use friendly error handling from AIHelper
+					friendlyErr := self.aiHelper.HandleAIError(err)
+					self.c.Toast(friendlyErr.Error())
 					return nil
 				})
 			}

@@ -577,6 +577,7 @@ type KeybindingBranchesConfig struct {
 	RenameBranch           string `yaml:"renameBranch"`
 	MergeIntoCurrentBranch string `yaml:"mergeIntoCurrentBranch"`
 	MoveCommitsToNewBranch string `yaml:"moveCommitsToNewBranch"`
+	NewBranchWithAI        string `yaml:"newBranchWithAI"`
 	ViewGitFlowOptions     string `yaml:"viewGitFlowOptions"`
 	FastForward            string `yaml:"fastForward"`
 	CreateTag              string `yaml:"createTag"`
@@ -1109,6 +1110,7 @@ func GetDefaultConfig() *UserConfig {
 				RenameBranch:           "R",
 				MergeIntoCurrentBranch: "M",
 				MoveCommitsToNewBranch: "N",
+				NewBranchWithAI:        "A",
 				ViewGitFlowOptions:     "i",
 				FastForward:            "f",
 				CreateTag:              "T",

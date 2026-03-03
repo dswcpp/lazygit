@@ -453,6 +453,14 @@ type TranslationSet struct {
 	AICodeReviewNoDiff                    string
 	AICodeReviewCopiedToClipboard         string
 	AICodeReviewToggleZoom                string
+	NewBranchWithAI                       string
+	NewBranchWithAITooltip                string
+	AIGeneratingBranchNameStatus          string
+	CreatePRWithAIDescription             string
+	CreatePRWithAIDescriptionTooltip      string
+	CreatePRDirectly                      string
+	AIGeneratingPRDescriptionStatus       string
+	PRDescriptionCopiedToClipboard        string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -1609,6 +1617,14 @@ func EnglishTranslationSet() *TranslationSet {
 		AICodeReviewNoDiff:                   "No diff to review for this file",
 		AICodeReviewCopiedToClipboard:        "AI code review copied to clipboard",
 		AICodeReviewToggleZoom:               "Toggle zoom",
+		NewBranchWithAI:                      "New branch with AI suggestion",
+		NewBranchWithAITooltip:               "Use AI to suggest branch name based on working tree changes (format: feature/add-user-auth)",
+		AIGeneratingBranchNameStatus:         "AI generating branch name...",
+		CreatePRWithAIDescription:            "Generate AI PR description",
+		CreatePRWithAIDescriptionTooltip:     "Use AI to generate a professional PR description based on commit history and code changes, copied to clipboard",
+		CreatePRDirectly:                     "Open PR directly",
+		AIGeneratingPRDescriptionStatus:      "AI generating PR description...",
+		PRDescriptionCopiedToClipboard:       "PR description copied to clipboard! You can paste it when the PR page opens.",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",

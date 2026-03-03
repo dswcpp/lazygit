@@ -18,6 +18,7 @@ type CommitsHelper struct {
 	c *HelperCommon
 
 	loadingHelper *LoadingHelper
+	aiHelper      *AIHelper
 
 	getCommitSummary              func() string
 	setCommitSummary              func(string)
@@ -29,6 +30,7 @@ type CommitsHelper struct {
 func NewCommitsHelper(
 	c *HelperCommon,
 	loadingHelper *LoadingHelper,
+	aiHelper *AIHelper,
 	getCommitSummary func() string,
 	setCommitSummary func(string),
 	getCommitDescription func() string,
@@ -38,12 +40,18 @@ func NewCommitsHelper(
 	return &CommitsHelper{
 		c:                             c,
 		loadingHelper:                 loadingHelper,
+		aiHelper:                      aiHelper,
 		getCommitSummary:              getCommitSummary,
 		setCommitSummary:              setCommitSummary,
 		getCommitDescription:          getCommitDescription,
 		getUnwrappedCommitDescription: getUnwrappedCommitDescription,
 		setCommitDescription:          setCommitDescription,
 	}
+}
+
+// SetAIHelper sets the AI helper after initialization
+func (self *CommitsHelper) SetAIHelper(aiHelper *AIHelper) {
+	self.aiHelper = aiHelper
 }
 
 func (self *CommitsHelper) SplitCommitMessageAndDescription(message string) (string, string) {
@@ -272,10 +280,14 @@ func (self *CommitsHelper) pasteCommitMessageFromClipboard() error {
 
 func (self *CommitsHelper) AIGenerateCommitMessage() error {
 	if self.c.AI == nil {
-		return errors.New(self.c.Tr.AINotEnabled)
+		// Show first-time wizard instead of error
+		return self.aiHelper.ShowFirstTimeWizard()
 	}
 
 	self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIGeneratingStatus, func(_ gocui.Task) error {
+		// Create cancellable context within the worker goroutine
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 		rawDiff, err := self.c.Git().Diff.GetDiff(true)
 		if err != nil {
 			return err
@@ -311,14 +323,19 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 			safetyNote,
 		)
 
-		result, err := self.c.AI.Complete(context.Background(), prompt)
+		result, err := self.c.AI.Complete(ctx, prompt)
 		if err != nil {
-			return err
+			// Check if cancelled
+			if errors.Is(err, context.Canceled) {
+				return errors.New("AI 生成提交信息已取消")
+			}
+			// Use friendly error handling from AIHelper
+			return self.aiHelper.HandleAIError(err)
 		}
 
 		message := strings.TrimSpace(result.Content)
 		if message == "" {
-			return errors.New("AI: empty response from model")
+			return errors.New("AI 返回了空响应。请稍后重试或检查 AI 设置（Ctrl+A）")
 		}
 
 		self.SetMessageAndDescriptionInView(message)

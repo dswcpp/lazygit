@@ -26,6 +26,11 @@ func (self *AICodeReviewController) GetKeybindings(opts types.KeybindingsOpts) [
 			Description: self.c.Tr.Close,
 		},
 		{
+			Key:         opts.GetKey(opts.Config.Universal.Return),
+			Handler:     self.cancel,
+			Description: "取消 AI 请求",
+		},
+		{
 			Key:         'c',
 			Handler:     self.copyToClipboard,
 			Description: self.c.Tr.CopyToClipboardMenu,
@@ -60,4 +65,13 @@ func (self *AICodeReviewController) toggleZoom() error {
 
 func (self *AICodeReviewController) Context() types.Context {
 	return self.c.Contexts().AICodeReview
+}
+
+func (self *AICodeReviewController) cancel() error {
+	ctx := self.c.Contexts().AICodeReview
+	if ctx.CancelFunc != nil {
+		ctx.CancelFunc()
+		self.c.Toast("正在取消 AI 请求...")
+	}
+	return nil
 }

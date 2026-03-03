@@ -47,6 +47,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 	loadingHelper := helpers.NewLoadingHelper(helperCommon)
 	commitsHelper := helpers.NewCommitsHelper(helperCommon,
 		loadingHelper,
+		nil, // aiHelper will be set later
 		getCommitSummary,
 		setCommitSummary,
 		getCommitDescription,
@@ -133,10 +134,13 @@ func (gui *Gui) resetHelpersAndControllers() {
 		Search:     searchHelper,
 		Worktree:   worktreeHelper,
 		SubCommits: helpers.NewSubCommitsHelper(helperCommon, refreshHelper),
-		AI:           helpers.NewAIHelper(helperCommon, loadingHelper),
-		AICodeReview: helpers.NewAICodeReviewHelper(helperCommon, loadingHelper),
-		Loading:      loadingHelper,
+		Loading:    loadingHelper,
 	}
+
+	aiHelper := helpers.NewAIHelper(helperCommon, loadingHelper)
+	gui.helpers.AI = aiHelper
+	gui.helpers.AICodeReview = helpers.NewAICodeReviewHelper(helperCommon, loadingHelper, aiHelper)
+	commitsHelper.SetAIHelper(aiHelper)
 
 	gui.CustomCommandsClient = custom_commands.NewClient(
 		helperCommon,

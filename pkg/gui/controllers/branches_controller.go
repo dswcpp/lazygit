@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
@@ -56,6 +57,13 @@ func (self *BranchesController) GetKeybindings(opts types.KeybindingsOpts) []*ty
 			GetDisabledReason: self.require(self.singleItemSelected()),
 			Description:       self.c.Tr.NewBranch,
 			DisplayOnScreen:   true,
+		},
+		{
+			Key:               opts.GetKey(opts.Config.Branches.NewBranchWithAI),
+			Handler:           self.withItem(self.newBranchWithAI),
+			GetDisabledReason: self.require(self.singleItemSelected()),
+			Description:       self.c.Tr.NewBranchWithAI,
+			Tooltip:           self.c.Tr.NewBranchWithAITooltip,
 		},
 		{
 			Key:               opts.GetKey(opts.Config.Branches.MoveCommitsToNewBranch),
@@ -746,6 +754,28 @@ func (self *BranchesController) newBranch(selectedBranch *models.Branch) error {
 	return self.c.Helpers().Refs.NewBranch(selectedBranch.FullRefName(), selectedBranch.RefName(), "")
 }
 
+func (self *BranchesController) newBranchWithAI(selectedBranch *models.Branch) error {
+	// Check if AI is enabled
+	if self.c.AI == nil {
+		return self.c.Helpers().AI.ShowFirstTimeWizard()
+	}
+
+	// Show loading status while AI generates suggestion
+	var suggestedName string
+	err := self.c.WithWaitingStatus(self.c.Tr.AIGeneratingBranchNameStatus, func(gocui.Task) error {
+		var err error
+		suggestedName, err = self.c.Helpers().AI.SuggestBranchName()
+		return err
+	})
+
+	if err != nil {
+		return err
+	}
+
+	// Call NewBranch with the AI-suggested name
+	return self.c.Helpers().Refs.NewBranch(selectedBranch.FullRefName(), selectedBranch.RefName(), suggestedName)
+}
+
 func (self *BranchesController) createPullRequestMenu(selectedBranch *models.Branch, checkedOutBranch *models.Branch) error {
 	menuItems := make([]*types.MenuItem, 0, 4)
 
@@ -836,13 +866,69 @@ func (self *BranchesController) createPullRequest(from string, to string) error 
 		return err
 	}
 
-	self.c.LogAction(self.c.Tr.Actions.OpenPullRequest)
+	// If AI is enabled, offer to generate PR description
+	if self.c.AI != nil {
+		return self.c.Menu(types.CreateMenuOptions{
+			Title: self.c.Tr.CreatePullRequestOptions,
+			Items: []*types.MenuItem{
+				{
+					Label: self.c.Tr.CreatePRWithAIDescription,
+					Key:   'a',
+					OnPress: func() error {
+						return self.createPullRequestWithAI(from, to, url)
+					},
+					Tooltip: self.c.Tr.CreatePRWithAIDescriptionTooltip,
+				},
+				{
+					Label: self.c.Tr.CreatePRDirectly,
+					Key:   'o',
+					OnPress: func() error {
+						return self.openPullRequestURL(url)
+					},
+				},
+			},
+		})
+	}
 
-	if err := self.c.OS().OpenLink(url); err != nil {
+	// If AI is not enabled, just open the URL directly
+	return self.openPullRequestURL(url)
+}
+
+func (self *BranchesController) openPullRequestURL(url string) error {
+	self.c.LogAction(self.c.Tr.Actions.OpenPullRequest)
+	return self.c.OS().OpenLink(url)
+}
+
+func (self *BranchesController) createPullRequestWithAI(from string, to string, url string) error {
+	var description string
+	err := self.c.WithWaitingStatus(self.c.Tr.AIGeneratingPRDescriptionStatus, func(gocui.Task) error {
+		var err error
+		description, err = self.c.Helpers().AI.GeneratePRDescription(from, to)
+		return err
+	})
+
+	if err != nil {
 		return err
 	}
 
-	return nil
+	// Copy description to clipboard
+	if err := self.c.OS().CopyToClipboard(description); err != nil {
+		return err
+	}
+
+	// Show success toast with preview
+	previewLines := strings.Split(description, "\n")
+	previewLineCount := lo.Ternary(len(previewLines) < 3, len(previewLines), 3)
+	preview := strings.Join(previewLines[:previewLineCount], "\n")
+	if len(previewLines) > 3 {
+		preview += "\n..."
+	}
+
+	self.c.Toast(fmt.Sprintf("%s\n\n预览：\n%s", self.c.Tr.PRDescriptionCopiedToClipboard, preview))
+
+	// Open PR URL
+	self.c.LogAction(self.c.Tr.Actions.OpenPullRequest)
+	return self.c.OS().OpenLink(url)
 }
 
 func (self *BranchesController) branchIsReal(branch *models.Branch) *types.DisabledReason {
