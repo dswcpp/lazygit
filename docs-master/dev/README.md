@@ -1,8 +1,8 @@
-# Dev Documentation Overview
+# 开发文档概览
 
-* [Codebase Guide](./Codebase_Guide.md)
-* [Busy/Idle Tracking](./Busy.md)
-* [Integration Tests](../../pkg/integration/README.md)
-* [Demo Recordings](./Demo_Recordings.md)
-* [Find base commit for fixup design](Find_Base_Commit_For_Fixup_Design.md)
-* [Profiling](Profiling.md)
+* [代码库指南](./Codebase_Guide.md)
+* [忙碌/空闲跟踪](./Busy.md)
+* [集成测试](../../pkg/integration/README.md)
+* [演示录制](./Demo_Recordings.md)
+* [查找 fixup 基础提交设计](Find_Base_Commit_For_Fixup_Design.md)
+* [性能分析](Profiling.md)

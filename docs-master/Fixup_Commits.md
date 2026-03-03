@@ -1,65 +1,27 @@
-# Fixup Commits
+# Fixup 提交
 
-## Background
+## 背景
 
-There's this common scenario that you have a PR in review, the reviewer is
-requesting some changes, and you make those changes and would normally simply
-squash them into the original commit that they came from. If you do that,
-however, there's no way for the reviewer to see what you changed. You could just
-make a separate commit with those changes at the end of the branch, but this is
-not ideal because it results in a git history that is not very clean.
+有一个常见的场景：你有一个正在审查的 PR，审查者要求进行一些更改，你进行了这些更改，通常会简单地将它们压缩到它们来自的原始提交中。但是，如果你这样做，审查者就无法看到你更改了什么。你可以在分支末尾单独提交这些更改，但这并不理想，因为它会导致 git 历史不太干净。
 
-To help with this, git has a concept of fixup commits: you do make a separate
-commit, but the subject of this commit is the string "fixup! " followed by the
-original commit subject. This both tells the reviewer what's going on (you are
-making a change that you later will squash into the designated commit), and it
-provides an easy way to actually perform this squash operation when you are
-ready to do that (before merging).
+为了帮助解决这个问题，git 有一个 fixup 提交的概念：你确实会创建一个单独的提交，但这个提交的主题是字符串 "fixup! " 后跟原始提交主题。这既告诉审查者发生了什么（你正在进行一个稍后将压缩到指定提交中的更改），又提供了一种简单的方法来在你准备好时实际执行这个压缩操作（在合并之前）。
 
-## Creating fixup commits
+## 创建 fixup 提交
 
-You could of course create fixup commits manually by typing in the commit
-message with the prefix yourself. But lazygit has an easier way to do that:
-in the Commits view, select the commit that you want to create a fixup for, and
-press shift-F (for "Create fixup commit for this commit"). This automatically
-creates a commit with the appropriate subject line.
+你当然可以通过自己输入带有前缀的提交消息来手动创建 fixup 提交。但 lazygit 有一种更简单的方法：在提交视图中，选择你想要为其创建 fixup 的提交，然后按 shift-F（表示"为此提交创建 fixup 提交"）。这会自动创建一个具有适当主题行的提交。
 
-Don't confuse this with the lowercase "f" command ("Fixup commit"); that one
-squashes the selected commit into its parent, this is not what we want here.
+不要将此与小写的 "f" 命令（"Fixup commit"）混淆；那个命令将选定的提交压缩到其父提交中，这不是我们这里想要的。
 
-## Creating amend commits
+## 创建 amend 提交
 
-There's a special type of fixup commit that uses "amend!" instead of "fixup!" in
-the commit message subject; in addition to fixing up the original commit with
-changes it allows you to also (or only) change the commit message of the
-original commit. The menu that appears when pressing shift-F has options for
-both of these; they bring up a commit message panel similar to when you reword a
-commit, but then create the "amend!" commit containing the new message. Note
-that in that panel you only type the new message as you want it to be
-eventually; lazygit then takes care of formatting the "amend!" commit
-appropriately for you (with the subject of your new message moving into the body
-of the "amend!" commit).
+有一种特殊类型的 fixup 提交，在提交消息主题中使用 "amend!" 而不是 "fixup!"；除了用更改修复原始提交外，它还允许你更改（或仅更改）原始提交的提交消息。按 shift-F 时出现的菜单有这两个选项；它们会弹出一个类似于重写提交时的提交消息面板，但然后创建包含新消息的 "amend!" 提交。请注意，在该面板中，你只需输入你最终想要的新消息；然后 lazygit 会为你适当地格式化 "amend!" 提交（将新消息的主题移动到 "amend!" 提交的正文中）。
 
-## Squashing fixup commits
+## 压缩 fixup 提交
 
-When you're ready to merge the branch and want to squash all these fixup commits
-that you created, that's very easy to do: select the first commit of your branch
-and hit shift-S (for "Squash all 'fixup!' commits above selected commit
-(autosquash)"). Boom, done.
+当你准备合并分支并想要压缩你创建的所有这些 fixup 提交时，这很容易做到：选择分支的第一个提交并按 shift-S（表示"压缩所选提交上方的所有 'fixup!' 提交（autosquash）"）。完成！
 
-## Finding the commit to create a fixup for
+## 查找要为其创建 fixup 的提交
 
-When you are making changes to code that you changed earlier in a long branch,
-it can be tedious to find the commit to squash it into. Lazygit has a command to
-help you with this, too: in the Files view, press ctrl-f to select the right
-base commit in the Commits view automatically. From there, you can either press
-shift-F to create a fixup commit for it, or shift-A to amend your changes into
-the commit if you haven't published your branch yet.
+当你在一个长分支中对之前更改的代码进行更改时，找到要将其压缩到的提交可能很繁琐。Lazygit 也有一个命令来帮助你：在文件视图中，按 ctrl-f 自动在提交视图中选择正确的基础提交。从那里，你可以按 shift-F 为其创建 fixup 提交，或者如果你还没有发布分支，可以按 shift-A 将更改修改到提交中。
 
-If you have many modifications in your working copy, it is a good idea to stage
-related changes that are meant to go into the same fixup commit; if no changes
-are staged, ctrl-f works on all unstaged modifications, and then it might show
-an error if it finds multiple different base commits. If you are interested in
-what the command does to do its magic, and how you can help it work better, you
-may want to read the [design document](dev/Find_Base_Commit_For_Fixup_Design.md)
-that describes this.
+如果你的工作副本中有许多修改，最好暂存打算放入同一个 fixup 提交的相关更改；如果没有暂存任何更改，ctrl-f 会处理所有未暂存的修改，然后如果它找到多个不同的基础提交，它可能会显示错误。如果你对该命令如何施展魔法以及如何帮助它更好地工作感兴趣，你可能想阅读描述此内容的[设计文档](dev/Find_Base_Commit_For_Fixup_Design.md)。

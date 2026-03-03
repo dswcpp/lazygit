@@ -1,69 +1,53 @@
-# Profiling Lazygit
+# 性能分析 Lazygit
 
-If you want to investigate what's contributing to CPU or memory usage, start
-lazygit with the `-profile` command line flag. This tells it to start an
-integrated web server that listens for profiling requests.
+如果你想调查是什么导致了 CPU 或内存使用，请使用 `-profile` 命令行标志启动 lazygit。这告诉它启动一个集成的 Web 服务器来监听性能分析请求。
 
-## Save profile data
+## 保存性能分析数据
 
 ### CPU
 
-While lazygit is running with the `-profile` flag, perform a CPU profile and
-save it to a file by running this command in another terminal window:
+当 lazygit 使用 `-profile` 标志运行时，在另一个终端窗口中运行此命令来执行 CPU 性能分析并将其保存到文件：
 
 ```sh
 curl -o cpu.out http://127.0.0.1:6060/debug/pprof/profile
 ```
 
-By default, it profiles for 30 seconds. To change the duration, use
+默认情况下，它分析 30 秒。要更改持续时间，使用
 
 ```sh
 curl -o cpu.out 'http://127.0.0.1:6060/debug/pprof/profile?seconds=60'
 ```
 
-### Memory
+### 内存
 
-To save a heap profile (containing information about all memory allocated so
-far since startup), use
+要保存堆性能分析（包含自启动以来分配的所有内存的信息），使用
 
 ```sh
 curl -o mem.out http://127.0.0.1:6060/debug/pprof/heap
 ```
 
-Sometimes it can be useful to get a delta log, i.e. to see how memory usage
-developed from one point in time to another. For that, use
+有时获取增量日志会很有用，即查看内存使用情况从一个时间点到另一个时间点的发展情况。为此，使用
 
 ```sh
 curl -o mem.out 'http://127.0.0.1:6060/debug/pprof/heap?seconds=20'
 ```
 
-This will log the memory usage difference between now and 20 seconds later, so
-it gives you 20 seconds to perform the action in lazygit that you are interested
-in measuring.
+这将记录现在和 20 秒后之间的内存使用差异，因此它给你 20 秒的时间在 lazygit 中执行你感兴趣测量的操作。
 
-## View profile data
+## 查看性能分析数据
 
-To display the profile data, you can either use speedscope.app, or the pprof
-tool that comes with go. I prefer the former because it has a nicer UI and is a
-little more powerful; however, I have seen cases where it wasn't able to load a
-profile for some reason, in which case it's good to have the pprof tool as a
-fallback.
+要显示性能分析数据，你可以使用 speedscope.app 或 go 附带的 pprof 工具。我更喜欢前者，因为它有更好的 UI 并且功能更强大；但是，我见过一些情况下它由于某种原因无法加载性能分析，在这种情况下，最好有 pprof 工具作为后备。
 
 ### Speedscope.app
 
-Go to https://www.speedscope.app/ in your browser, and drag the saved profile
-onto the browser window. Refer to [the
-documentation](https://github.com/jlfwong/speedscope?tab=readme-ov-file#usage)
-for how to navigate the data.
+在浏览器中访问 https://www.speedscope.app/，并将保存的性能分析拖到浏览器窗口上。有关如何导航数据，请参阅[文档](https://github.com/jlfwong/speedscope?tab=readme-ov-file#usage)。
 
-### Pprof tool
+### Pprof 工具
 
-To view a profile that you saved as `cpu.out`, use
+要查看你保存为 `cpu.out` 的性能分析，使用
 
 ```sh
 go tool pprof -http=:8080 cpu.out
 ```
 
-By default this shows the graph view, which I don't find very useful myself.
-Choose "Flame Graph" from the View menu to show a much more useful
-representation of the data.
+默认情况下，这会显示图形视图，我个人觉得不是很有用。从视图菜单中选择"Flame Graph"以显示数据的更有用的表示。
