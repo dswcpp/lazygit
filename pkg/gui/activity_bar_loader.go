@@ -189,9 +189,38 @@ func parseActivityItemType(typeStr string) models.ActivityItemType {
 	}
 }
 
-// getTooltip retrieves translation or returns the default value
+// getTooltip retrieves translation based on key
 func getTooltip(tr *i18n.TranslationSet, key string) string {
-	// 尝试从翻译中获取，如果不存在则返回 key 本身
-	// 这里简化处理，实际应该有更复杂的翻译逻辑
-	return key
+	// Map activity bar tooltip keys to TranslationSet fields
+	switch key {
+	case "Status":
+		return tr.StatusTitle
+	case "Files":
+		return tr.FilesTitle
+	case "Branches":
+		return tr.BranchesTitle
+	case "Commits":
+		return tr.CommitsTitle
+	case "Stash":
+		return tr.StashTitle
+	case "Pull":
+		return tr.Pull
+	case "Push":
+		return tr.Push
+	case "Fetch":
+		return tr.FetchTooltip
+	case "Stash changes":
+		return tr.StashAllChanges
+	case "Merge":
+		return tr.Merge
+	case "Rebase":
+		return tr.RebaseBranch
+	case "Settings":
+		return tr.EditConfig
+	case "Help":
+		return tr.OpenKeybindingsMenu
+	default:
+		// Return key itself as fallback
+		return key
+	}
 }

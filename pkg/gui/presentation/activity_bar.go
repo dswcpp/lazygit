@@ -3,7 +3,6 @@ package presentation
 import (
 	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/config"
-	guiModels "github.com/dswcpp/lazygit/pkg/gui/models"
 	"github.com/dswcpp/lazygit/pkg/gui/presentation/icons"
 	"github.com/dswcpp/lazygit/pkg/gui/style"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
@@ -15,7 +14,7 @@ func GetActivityBarDisplayStrings(
 	activityBarConfig config.ActivityBarConfig,
 	currentContext types.Context,
 	userConfig *config.UserConfig,
-	activityBarStatus *guiModels.ActivityBarStatus,
+	activityBarStatus types.IActivityBarStatus,
 ) [][]string {
 	result := make([][]string, len(items))
 

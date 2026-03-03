@@ -1149,6 +1149,6 @@ func (gui *Gui) afterLayout(f func() error) {
 	}
 }
 
-func (gui *Gui) GetActivityBarStatus() interface{} {
+func (gui *Gui) GetActivityBarStatus() types.IActivityBarStatus {
 	return gui.activityBarStatus
 }

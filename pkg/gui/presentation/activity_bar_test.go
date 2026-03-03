@@ -17,7 +17,7 @@ func TestGetActivityBarDisplayStrings(t *testing.T) {
 		items             []*models.ActivityBarItem
 		activityBarConfig config.ActivityBarConfig
 		currentContext    types.Context
-		activityBarStatus *guiModels.ActivityBarStatus
+		activityBarStatus types.IActivityBarStatus
 		expected          [][]string
 	}{
 		{
@@ -58,7 +58,6 @@ func TestGetActivityBarDisplayStrings(t *testing.T) {
 			activityBarConfig: config.ActivityBarConfig{IconStyle: "ascii"},
 			currentContext:    &mockContext{key: "status"},
 			activityBarStatus: nil,
-			repoState:         nil,
 			// 注意：实际输出会包含 ANSI 颜色码，这里简化测试
 			expected: [][]string{{"●[S]"}},
 		},
@@ -75,26 +74,8 @@ func TestGetActivityBarDisplayStrings(t *testing.T) {
 			activityBarConfig: config.ActivityBarConfig{IconStyle: "ascii"},
 			currentContext:    nil,
 			activityBarStatus: mockActivityBarStatus("pull"),
-			repoState:         nil,
 			// spinner 字符后跟图标
 			expected: [][]string{{" ⠋ [v]"}},
-		},
-		{
-			name: "禁用的操作显示为灰色",
-			items: []*models.ActivityBarItem{
-				{
-					Name:   "merge",
-					Type:   models.ActivityTypeAction,
-					Action: "merge",
-					Icon:   icons.ActivityBarIcons["merge"],
-				},
-			},
-			activityBarConfig: config.ActivityBarConfig{IconStyle: "ascii"},
-			currentContext:    nil,
-			activityBarStatus: nil,
-			repoState:         &mockRepoState{diffingActive: true},
-			// 灰色显示（实际会包含 ANSI 码）
-			expected: [][]string{{" [m]"}},
 		},
 	}
 
@@ -234,7 +215,7 @@ func (m *mockContext) ClearSearchResultsCache()                           {}
 func (m *mockContext) IsFiltered() bool                                   { return false }
 func (m *mockContext) SetHasUncontrolledBounds(hasUncontrolledBounds bool) {}
 
-func mockActivityBarStatus(operationInProgress string) *guiModels.ActivityBarStatus {
+func mockActivityBarStatus(operationInProgress string) types.IActivityBarStatus {
 	s := guiModels.NewActivityBarStatus()
 	if operationInProgress != "" {
 		s.SetOperationInProgress(operationInProgress, true)

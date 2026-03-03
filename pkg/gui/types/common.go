@@ -107,7 +107,7 @@ type IGuiCommon interface {
 	State() IStateAccessor
 
 	// Returns the activity bar status for tracking ongoing operations and animations
-	GetActivityBarStatus() interface{}
+	GetActivityBarStatus() IActivityBarStatus
 
 	KeybindingsOpts() KeybindingsOpts
 	CallKeybindingHandler(binding *Binding) error
@@ -122,6 +122,15 @@ type IGuiCommon interface {
 
 	// Returns true if we're in a demo recording/playback
 	InDemo() bool
+}
+
+type IActivityBarStatus interface {
+	SetOperationInProgress(action string, inProgress bool)
+	IsOperationInProgress(action string) bool
+	GetSpinnerFrame() int
+	AdvanceSpinner()
+	GetSpinnerChar() string
+	Reset()
 }
 
 type IModeMgr interface {

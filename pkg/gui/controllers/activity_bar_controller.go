@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"errors"
+
 	"github.com/jesseduffield/gocui"
+	"github.com/samber/lo"
 	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/gui/context"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
@@ -108,23 +111,18 @@ func (self *ActivityBarController) handleAction(item *models.ActivityBarItem) er
 	case "push":
 		return self.handlePush()
 	case "fetch":
-		// Fetch 在后台自动运行，这里只显示提示
-		self.c.Toast("Fetching from remote...")
-		return nil
+		return self.handleFetch()
 	case "stash":
-		// TODO: 需要集成 stash 创建功能
-		self.c.Toast("Stash 功能即将推出")
-		return nil
+		return self.handleStashAllChanges()
 	case "merge":
-		// TODO: 需要集成 merge 菜单
-		self.c.Toast("Merge 功能即将推出")
+		// Switch to branches panel for merge operation
+		self.c.Context().Push(self.c.Contexts().Branches, types.OnFocusOpts{})
 		return nil
 	case "rebase":
-		// TODO: 需要集成 rebase 菜单
-		self.c.Toast("Rebase 功能即将推出")
+		// Switch to branches panel for rebase operation
+		self.c.Context().Push(self.c.Contexts().Branches, types.OnFocusOpts{})
 		return nil
 	default:
-		self.c.Toast("未知操作: " + item.Action)
 		return nil
 	}
 }
@@ -132,17 +130,80 @@ func (self *ActivityBarController) handleAction(item *models.ActivityBarItem) er
 func (self *ActivityBarController) handleTool(item *models.ActivityBarItem) error {
 	switch item.Action {
 	case "settings":
-		// TODO: Open settings panel
-		self.c.Toast("Settings 功能即将推出")
-		return nil
+		return self.handleOpenConfig()
 	case "help":
-		// 显示帮助提示
-		self.c.Toast("按 '?' 键查看所有快捷键")
+		// Open menu panel which contains keybindings help
+		self.c.Context().Push(self.c.Contexts().Menu, types.OnFocusOpts{})
 		return nil
 	default:
-		self.c.Toast("未知工具: " + item.Action)
 		return nil
 	}
+}
+
+// handleFetch fetches from remote
+func (self *ActivityBarController) handleFetch() error {
+	return self.c.WithWaitingStatus(self.c.Tr.FetchingStatus, func(task gocui.Task) error {
+		self.c.LogAction("Fetch")
+		err := self.c.Git().Sync.Fetch(task)
+
+		self.c.Refresh(types.RefreshOptions{
+			Scope: []types.RefreshableView{types.BRANCHES, types.COMMITS, types.REMOTES, types.TAGS},
+			Mode:  types.SYNC,
+		})
+
+		return err
+	})
+}
+
+// handleStashAllChanges stashes all changes
+func (self *ActivityBarController) handleStashAllChanges() error {
+	if !self.c.Helpers().WorkingTree.IsWorkingTreeDirtyExceptSubmodules() {
+		return errors.New(self.c.Tr.NoFilesToStash)
+	}
+
+	self.c.Prompt(types.PromptOpts{
+		Title: self.c.Tr.StashChanges,
+		HandleConfirm: func(stashComment string) error {
+			self.c.LogAction(self.c.Tr.Actions.Stash)
+			return self.c.WithWaitingStatus(self.c.Tr.Actions.Stash, func(task gocui.Task) error {
+				if err := self.c.Git().Stash.Push(stashComment); err != nil {
+					return err
+				}
+				self.c.Refresh(types.RefreshOptions{Mode: types.ASYNC})
+				return nil
+			})
+		},
+	})
+
+	return nil
+}
+
+// handleOpenConfig opens the git config file for editing
+func (self *ActivityBarController) handleOpenConfig() error {
+	// Get user config paths (may be multiple)
+	confPaths := self.c.GetConfig().GetUserConfigPaths()
+
+	if len(confPaths) == 0 {
+		return errors.New(self.c.Tr.NoConfigFileFoundErr)
+	}
+
+	// If only one config file, edit it directly
+	if len(confPaths) == 1 {
+		return self.c.Helpers().Files.EditFiles([]string{confPaths[0]})
+	}
+
+	// If multiple config files, show menu to choose
+	return self.c.Menu(types.CreateMenuOptions{
+		Title: self.c.Tr.EditConfig,
+		Items: lo.Map(confPaths, func(path string, _ int) *types.MenuItem {
+			return &types.MenuItem{
+				Label: path,
+				OnPress: func() error {
+					return self.c.Helpers().Files.EditFiles([]string{path})
+				},
+			}
+		}),
+	})
 }
 
 func (self *ActivityBarController) handleCustomCommand(item *models.ActivityBarItem) error {
@@ -150,8 +211,9 @@ func (self *ActivityBarController) handleCustomCommand(item *models.ActivityBarI
 		return nil
 	}
 
-	// TODO: Execute custom command
-	// This would integrate with the existing custom commands system
-	self.c.Toast("执行自定义命令: " + item.CustomCmd)
-	return nil
+	// Execute custom command using the shell command runner
+	// This integrates with lazygit's existing custom command system which handles
+	// command execution safely
+	cmdObj := self.c.OS().Cmd.NewShell(item.CustomCmd, self.c.UserConfig().OS.ShellFunctionsFile)
+	return self.c.RunSubprocessAndRefresh(cmdObj)
 }

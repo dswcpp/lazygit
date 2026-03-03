@@ -2,7 +2,6 @@ package context
 
 import (
 	"github.com/dswcpp/lazygit/pkg/commands/models"
-	guiModels "github.com/dswcpp/lazygit/pkg/gui/models"
 	"github.com/dswcpp/lazygit/pkg/gui/presentation"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
@@ -23,11 +22,8 @@ func NewActivityBarContext(c *ContextCommon) *ActivityBarContext {
 	)
 
 	getDisplayStrings := func(startIdx int, endIdx int) [][]string {
-		// 获取 activityBarStatus（需要类型断言）
-		var activityBarStatus *guiModels.ActivityBarStatus
-		if statusInterface := c.GetActivityBarStatus(); statusInterface != nil {
-			activityBarStatus, _ = statusInterface.(*guiModels.ActivityBarStatus)
-		}
+		// 直接获取 activityBarStatus（现在返回接口类型）
+		activityBarStatus := c.GetActivityBarStatus()
 
 		return presentation.GetActivityBarDisplayStrings(
 			viewModel.GetItems(),

@@ -1,6 +1,8 @@
 package icons
 
 import (
+	"sync"
+
 	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/config"
 )
@@ -92,20 +94,27 @@ var ActivityBarIcons = map[string]models.IconConfig{
 	},
 }
 
+var (
+	patchOnce sync.Once // 确保只执行一次补丁
+)
+
 // PatchActivityBarIconsForNerdFontsV2 patches icons for Nerd Fonts v2 compatibility
+// This function is safe to call multiple times; the patch will only be applied once
 func PatchActivityBarIconsForNerdFontsV2() {
-	// 分支图标 v2 补丁 (已在 git_icons.go 中处理)
-	branchIcon := ActivityBarIcons["branches"]
-	branchIcon.NerdFont = "\ue725" // v2 分支图标
-	ActivityBarIcons["branches"] = branchIcon
+	patchOnce.Do(func() {
+		// 分支图标 v2 补丁 (已在 git_icons.go 中处理)
+		branchIcon := ActivityBarIcons["branches"]
+		branchIcon.NerdFont = "\ue725" // v2 分支图标
+		ActivityBarIcons["branches"] = branchIcon
 
-	commitIcon := ActivityBarIcons["commits"]
-	commitIcon.NerdFont = "\ufc16" // ﰖ v2 提交图标
-	ActivityBarIcons["commits"] = commitIcon
+		commitIcon := ActivityBarIcons["commits"]
+		commitIcon.NerdFont = "\ufc16" // ﰖ v2 提交图标
+		ActivityBarIcons["commits"] = commitIcon
 
-	mergeIcon := ActivityBarIcons["merge"]
-	mergeIcon.NerdFont = "\ufb2c" // שּׁ v2 合并图标
-	ActivityBarIcons["merge"] = mergeIcon
+		mergeIcon := ActivityBarIcons["merge"]
+		mergeIcon.NerdFont = "\ufb2c" // שּׁ v2 合并图标
+		ActivityBarIcons["merge"] = mergeIcon
+	})
 }
 
 // GetActivityBarIcon returns the appropriate icon based on configuration

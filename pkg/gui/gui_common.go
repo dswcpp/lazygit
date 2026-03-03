@@ -188,6 +188,6 @@ func (self *guiCommon) WithInlineStatus(item types.HasUrn, operation types.ItemO
 	return nil
 }
 
-func (self *guiCommon) GetActivityBarStatus() interface{} {
+func (self *guiCommon) GetActivityBarStatus() types.IActivityBarStatus {
 	return self.gui.GetActivityBarStatus()
 }
