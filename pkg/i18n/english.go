@@ -543,6 +543,8 @@ type TranslationSet struct {
 	ExecuteShellCommand                   string
 	ExecuteShellCommandTooltip            string
 	ShellCommand                          string
+	ShellCommandAIMode                    string
+	ShellCommandDangerousWarning          string
 	CommitChangesWithoutHook              string
 	ResetTo                               string
 	ResetSoftTooltip                      string
@@ -1712,6 +1714,8 @@ func EnglishTranslationSet() *TranslationSet {
 		ExecuteShellCommand:                  "Execute shell command",
 		ExecuteShellCommandTooltip:           "Bring up a prompt where you can enter a shell command to execute.",
 		ShellCommand:                         "Shell command:",
+		ShellCommandAIMode:                   "Shell command (AI mode):",
+		ShellCommandDangerousWarning:         "Dangerous Command Warning",
 		CommitChangesWithoutHook:             "Commit changes without pre-commit hook",
 		ResetTo:                              `Reset to`,
 		PressEnterToReturn:                   "Press enter to return to lazygit",

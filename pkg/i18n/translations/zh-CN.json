@@ -469,6 +469,8 @@
   "ExecuteShellCommand": "执行 Shell 命令",
   "ExecuteShellCommandTooltip": "调出可输入shell命令执行的提示符。",
   "ShellCommand": "Shell 命令：",
+  "ShellCommandAIMode": "Shell 命令（AI 模式）：",
+  "ShellCommandDangerousWarning": "危险命令警告",
   "CommitChangesWithoutHook": "提交变更而无需预先提交钩子",
   "ResetTo": "重置为",
   "ResetSoftTooltip": "将 HEAD 重置为所选提交，并将当前提交和所选提交之间的更改保留为已暂存更改。",
