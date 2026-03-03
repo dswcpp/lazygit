@@ -136,7 +136,7 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 				self.c.OnUIThread(func() error {
 					// Check if the error is due to cancellation
 					if errors.Is(err, context.Canceled) {
-						self.c.Toast("AI 代码审查已取消")
+						self.c.Toast(self.c.Tr.AICodeReviewCancelled)
 						return nil
 					}
 					// Use friendly error handling from AIHelper
@@ -159,43 +159,49 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 func buildCodeReviewPrompt(filePath, lang, diff string) string {
 	langHint := ""
 	if lang != "" {
-		langHint = "（" + lang + "）"
+		langHint = fmt.Sprintf(" (%s)", lang)
 	}
 
 	langSection := ""
 	if guidelines := languageGuidelines(lang); guidelines != "" {
-		langSection = "\n## 语言特定检查要点" + langHint + "\n" + guidelines + "\n"
+		langSection = fmt.Sprintf("\n## Language-Specific Checks%s\n%s\n", langHint, guidelines)
 	}
 
-	return "你是一名资深软件工程师，正在对以下 git diff 进行代码评审。\n\n" +
-		"**文件：** " + filePath + "\n\n" +
-		"## 核心原则\n" +
-		"- **保守评审**：只报告你**确定**存在问题的地方。不确定时，宁可不报，不要猜测。\n" +
-		"- **尊重上下文限制**：你只能看到 diff，看不到完整文件。如果某个问题需要全文上下文才能判断（如某个错误是否已在别处处理），请跳过，不要假设。\n" +
-		"- **聚焦新增行**：重点审查以 `+` 开头的新增行；`-` 删除行和上下文行仅用于理解意图，不要对其发表意见。\n" +
-		"- **拒绝假阳性**：不要把正确的惯用写法当成问题；不要因为代码\"不是你会写的方式\"就标记为问题。\n" +
-		langSection +
-		"\n## 严重等级（仅在确认存在时使用）\n" +
-		"- **CRITICAL**：会导致崩溃、数据损坏、安全漏洞或明确错误逻辑的 bug。\n" +
-		"- **MAJOR**：资源泄漏、明确的错误处理缺失（diff 中可见）、API 使用错误。\n" +
-		"- **MINOR**：可能出问题的边界情况、可以更健壮但当前仍能工作的代码。\n" +
-		"- **NIT**：纯风格问题，只在确实影响可读性时才报告。\n" +
-		"\n## 输出格式（用简体中文输出，代码片段保持原语言）\n\n" +
-		"### 摘要\n" +
-		"一句话说明本次改动的目的，以及整体是否正确。\n\n" +
-		"### 问题列表\n" +
-		"每个问题使用以下格式，问题之间空一行：\n\n" +
-		"**[等级] 类别 — 标题**\n" +
-		"代码：`<有问题的代码片段>`\n" +
-		"问题：<问题描述及影响>\n" +
-		"建议：<具体修正方案或代码>\n\n" +
-		"若无问题，直接写：无问题\n\n" +
-		"### 结论\n" +
-		"无问题时：LGTM，一句话说明可以合入。\n" +
-		"有问题时：列出必须修复的 CRITICAL/MAJOR 项；MINOR/NIT 可一句话汇总。\n\n" +
-		"---\n\n" +
-		"## Diff\n" +
-		"```diff\n" + diff + "\n```"
+	return fmt.Sprintf(
+		"%s"+
+			"**File:** %s\n\n"+
+			"## Core Principles\n"+
+			"- **Conservative review**: Only report issues you are **certain** exist. When uncertain, prefer not to report rather than guess.\n"+
+			"- **Respect context limitations**: You can only see the diff, not the complete file. If an issue requires full file context to judge (such as whether an error is already handled elsewhere), skip it and do not assume.\n"+
+			"- **Focus on new lines**: Focus on reviewing new lines starting with `+`; `-` deleted lines and context lines are only for understanding intent, do not comment on them.\n"+
+			"- **Reject false positives**: Do not flag correct idiomatic code as issues; do not mark code as problematic just because it's \"not how you would write it\".\n"+
+			"%s"+
+			"\n## Severity Levels (only use when confirmed)\n"+
+			"- **CRITICAL**: Bugs that will cause crashes, data corruption, security vulnerabilities, or clear logic errors.\n"+
+			"- **MAJOR**: Resource leaks, clear missing error handling (visible in diff), API usage errors.\n"+
+			"- **MINOR**: Edge cases that might cause problems, code that could be more robust but currently works.\n"+
+			"- **NIT**: Pure style issues, only report when it truly affects readability.\n"+
+			"\n## Output Format (output in Simplified Chinese, keep code snippets in original language)\n\n"+
+			"### Summary\n"+
+			"One sentence explaining the purpose of this change and whether it is overall correct.\n\n"+
+			"### Issue List\n"+
+			"Use the following format for each issue, with blank lines between issues:\n\n"+
+			"**[Level] Category — Title**\n"+
+			"Code: `<problematic code snippet>`\n"+
+			"Issue: <issue description and impact>\n"+
+			"Suggestion: <specific fix or code>\n\n"+
+			"If no issues, write directly: No issues\n\n"+
+			"### Conclusion\n"+
+			"No issues: LGTM, one sentence explaining it can be merged.\n"+
+			"Has issues: List CRITICAL/MAJOR items that must be fixed; MINOR/NIT can be summarized in one sentence.\n\n"+
+			"---\n\n"+
+			"## Diff\n"+
+			"```diff\n%s\n```",
+		"You are a senior software engineer conducting a code review on the following git diff.\n\n",
+		filePath,
+		langSection,
+		diff,
+	)
 }
 
 // detectLanguage infers a human-readable language name from the file extension.

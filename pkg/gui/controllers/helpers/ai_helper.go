@@ -204,7 +204,7 @@ func (self *AIHelper) openEditProfileMenu(idx int) error {
 			Key: 'o',
 		},
 		{
-			Label: "测试当前 Profile 连接",
+			Label: self.c.Tr.TestCurrentProfile,
 			OnPress: func() error {
 				return self.testCurrentProfile()
 			},
@@ -360,14 +360,10 @@ func (self *AIHelper) OpenAIAssistant() error {
 			self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIAssistantStatus, func(_ gocui.Task) error {
 				repoCtx := self.buildGitContext()
 				prompt := fmt.Sprintf(
-					"你是一个 git 命令生成器。根据用户需求和仓库状态，生成需要执行的 shell/git 命令。\n\n"+
-						"规则：\n"+
-						"- 只输出可直接执行的命令，每行一条\n"+
-						"- 不输出任何解释、注释（#开头）或 markdown\n"+
-						"- 命令按执行顺序排列\n"+
-						"- 如果需求无法用 git 命令安全完成，第一行输出：CANNOT_EXECUTE: <原因>\n\n"+
-						"当前仓库状态：\n%s\n"+
-						"用户需求：%s",
+					self.c.Tr.AIAssistantSystemPrompt+
+						self.c.Tr.AIAssistantRules+
+						self.c.Tr.AIAssistantRepoState+
+						self.c.Tr.AIAssistantUserRequest,
 					repoCtx,
 					userQuery,
 				)
@@ -379,7 +375,7 @@ func (self *AIHelper) OpenAIAssistant() error {
 
 				response := strings.TrimSpace(result.Content)
 				if response == "" {
-					return errors.New("AI 返回了空响应。请稍后重试或检查 AI 设置（Ctrl+A）")
+					return errors.New(self.c.Tr.AIEmptyResponse)
 				}
 
 				if strings.HasPrefix(response, "CANNOT_EXECUTE:") {
@@ -451,7 +447,7 @@ func (self *AIHelper) buildGitContext() string {
 		currentBranch = self.c.Model().Branches[0]
 	}
 	if currentBranch != nil {
-		sb.WriteString(fmt.Sprintf("当前分支: %s\n", currentBranch.Name))
+		sb.WriteString(fmt.Sprintf(self.c.Tr.CurrentBranch+"\n", currentBranch.Name))
 
 		// Branch tracking status (ahead/behind remote)
 		if currentBranch.IsTrackingRemote() {
@@ -461,26 +457,26 @@ func (self *AIHelper) buildGitContext() string {
 
 			if ahead != "" || behind != "" {
 				if ahead != "" && behind != "" {
-					sb.WriteString(fmt.Sprintf("  跟踪远程分支: %s（本地领先 %s 个提交，落后 %s 个提交）\n", currentBranch.UpstreamRemote, ahead, behind))
+					sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchAheadBehind+"\n", currentBranch.UpstreamRemote, ahead, behind))
 				} else if ahead != "" {
-					sb.WriteString(fmt.Sprintf("  跟踪远程分支: %s（本地领先 %s 个提交，未推送）\n", currentBranch.UpstreamRemote, ahead))
+					sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchAhead+"\n", currentBranch.UpstreamRemote, ahead))
 				} else if behind != "" {
-					sb.WriteString(fmt.Sprintf("  跟踪远程分支: %s（本地落后 %s 个提交，需要拉取）\n", currentBranch.UpstreamRemote, behind))
+					sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchBehind+"\n", currentBranch.UpstreamRemote, behind))
 				}
 			} else {
-				sb.WriteString(fmt.Sprintf("  跟踪远程分支: %s（已同步）\n", currentBranch.UpstreamRemote))
+				sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchSynced+"\n", currentBranch.UpstreamRemote))
 			}
 		} else {
-			sb.WriteString("  未跟踪远程分支（本地分支）\n")
+			sb.WriteString(self.c.Tr.NotTrackingRemoteBranch + "\n")
 		}
 	} else {
-		sb.WriteString("当前分支: " + self.c.Model().CheckedOutBranch + "\n")
+		sb.WriteString(fmt.Sprintf(self.c.Tr.CurrentBranch+"\n", self.c.Model().CheckedOutBranch))
 	}
 
 	// Working tree state (merge/rebase/cherry-pick in progress)
 	workingTreeState := self.c.Git().Status.WorkingTreeState()
 	if workingTreeState.Any() {
-		sb.WriteString(fmt.Sprintf("\n工作树状态: %s\n", workingTreeState.Title(self.c.Tr)))
+		sb.WriteString(fmt.Sprintf(self.c.Tr.WorkingTreeState+"\n", workingTreeState.Title(self.c.Tr)))
 	}
 
 	// Staged and unstaged changes count
@@ -500,7 +496,7 @@ func (self *AIHelper) buildGitContext() string {
 		}
 	}
 	if stagedCount > 0 || unstagedCount > 0 || untrackedCount > 0 {
-		sb.WriteString(fmt.Sprintf("\n变更统计: 已暂存 %d，未暂存 %d，未跟踪 %d\n", stagedCount, unstagedCount, untrackedCount))
+		sb.WriteString(fmt.Sprintf(self.c.Tr.ChangeStats+"\n", stagedCount, unstagedCount, untrackedCount))
 	}
 
 	// Recent commits (up to 10)
@@ -510,7 +506,7 @@ func (self *AIHelper) buildGitContext() string {
 		limit = len(commits)
 	}
 	if limit > 0 {
-		sb.WriteString("\n最近提交:\n")
+		sb.WriteString(self.c.Tr.RecentCommits + "\n")
 		for _, commit := range commits[:limit] {
 			sb.WriteString(fmt.Sprintf("  %s %s\n", commit.ShortHash(), commit.Name))
 		}
@@ -518,7 +514,7 @@ func (self *AIHelper) buildGitContext() string {
 
 	// Working tree files (detailed, limited to first 20)
 	if len(files) > 0 {
-		sb.WriteString("\n变更文件:\n")
+		sb.WriteString(self.c.Tr.ChangedFiles + "\n")
 		displayLimit := 20
 		if len(files) < displayLimit {
 			displayLimit = len(files)
@@ -528,14 +524,14 @@ func (self *AIHelper) buildGitContext() string {
 			sb.WriteString(fmt.Sprintf("  %s %s\n", f.ShortStatus, f.Path))
 		}
 		if len(files) > displayLimit {
-			sb.WriteString(fmt.Sprintf("  ...（还有 %d 个文件）\n", len(files)-displayLimit))
+			sb.WriteString(fmt.Sprintf(self.c.Tr.MoreFiles+"\n", len(files)-displayLimit))
 		}
 	}
 
 	// Stash list (if any)
 	stashEntries := self.c.Model().StashEntries
 	if len(stashEntries) > 0 {
-		sb.WriteString(fmt.Sprintf("\n贮藏列表: %d 个贮藏\n", len(stashEntries)))
+		sb.WriteString(fmt.Sprintf(self.c.Tr.StashList+"\n", len(stashEntries)))
 		stashLimit := 5
 		if len(stashEntries) < stashLimit {
 			stashLimit = len(stashEntries)
@@ -544,7 +540,7 @@ func (self *AIHelper) buildGitContext() string {
 			sb.WriteString(fmt.Sprintf("  %s\n", stashEntries[i].Name))
 		}
 		if len(stashEntries) > stashLimit {
-			sb.WriteString(fmt.Sprintf("  ...（还有 %d 个贮藏）\n", len(stashEntries)-stashLimit))
+			sb.WriteString(fmt.Sprintf(self.c.Tr.MoreStashes+"\n", len(stashEntries)-stashLimit))
 		}
 	}
 
@@ -555,45 +551,45 @@ func (self *AIHelper) buildGitContext() string {
 // This improves the onboarding experience by making configuration more discoverable.
 func (self *AIHelper) ShowFirstTimeWizard() error {
 	return self.c.Menu(types.CreateMenuOptions{
-		Title: "欢迎使用 AI 功能 - 首次配置向导",
+		Title: self.c.Tr.AIWelcomeWizardTitle,
 		Items: []*types.MenuItem{
 			{
-				Label: "使用 DeepSeek（推荐）",
+				Label: self.c.Tr.UseDeepSeekRecommended,
 				OnPress: func() error {
 					return self.setupProvider("deepseek", "deepseek-reasoner", "https://api.deepseek.com/v1")
 				},
 				Key: 'd',
 			},
 			{
-				Label: "使用 OpenAI",
+				Label: self.c.Tr.UseOpenAI,
 				OnPress: func() error {
 					return self.setupProvider("openai", "gpt-4o-mini", "https://api.openai.com/v1")
 				},
 				Key: 'o',
 			},
 			{
-				Label: "使用 Anthropic Claude",
+				Label: self.c.Tr.UseAnthropicClaude,
 				OnPress: func() error {
 					return self.setupProvider("anthropic", "claude-sonnet-4-6", "https://api.anthropic.com/v1")
 				},
 				Key: 'a',
 			},
 			{
-				Label: "使用 Ollama（本地模型）",
+				Label: self.c.Tr.UseOllamaLocal,
 				OnPress: func() error {
 					return self.setupProvider("ollama", "llama3", "http://localhost:11434/v1")
 				},
 				Key: 'l',
 			},
 			{
-				Label: "稍后配置（进入 AI 设置）",
+				Label: self.c.Tr.ConfigureLater,
 				OnPress: func() error {
 					return self.OpenAISettingsMenu()
 				},
 				Key: 's',
 			},
 			{
-				Label: "取消",
+				Label: self.c.Tr.Cancel,
 				OnPress: func() error {
 					return nil
 				},
@@ -607,19 +603,19 @@ func (self *AIHelper) ShowFirstTimeWizard() error {
 func (self *AIHelper) setupProvider(provider, defaultModel, defaultEndpoint string) error {
 	// Prompt for API key
 	self.c.Prompt(types.PromptOpts{
-		Title: fmt.Sprintf("设置 %s API Key", provider),
+		Title: fmt.Sprintf(self.c.Tr.SetupProviderAPIKey, provider),
 		FindSuggestionsFunc: func(currentText string) []*types.Suggestion {
 			// Suggest environment variable references
 			return []*types.Suggestion{
-				{Value: "${DEEPSEEK_API_KEY}", Label: "使用环境变量: DEEPSEEK_API_KEY"},
-				{Value: "${OPENAI_API_KEY}", Label: "使用环境变量: OPENAI_API_KEY"},
-				{Value: "${ANTHROPIC_API_KEY}", Label: "使用环境变量: ANTHROPIC_API_KEY"},
+				{Value: "${DEEPSEEK_API_KEY}", Label: "Use environment variable: DEEPSEEK_API_KEY"},
+				{Value: "${OPENAI_API_KEY}", Label: "Use environment variable: OPENAI_API_KEY"},
+				{Value: "${ANTHROPIC_API_KEY}", Label: "Use environment variable: ANTHROPIC_API_KEY"},
 			}
 		},
 		HandleConfirm: func(apiKey string) error {
 			apiKey = strings.TrimSpace(apiKey)
 			if apiKey == "" {
-				return errors.New("API Key 不能为空")
+				return errors.New(self.c.Tr.APIKeyCannotBeEmpty)
 			}
 
 			// Create new profile
@@ -648,8 +644,8 @@ func (self *AIHelper) setupProvider(provider, defaultModel, defaultEndpoint stri
 
 			// Offer to test the connection
 			self.c.Confirm(types.ConfirmOpts{
-				Title:  "AI 配置完成",
-				Prompt: fmt.Sprintf("✓ %s Profile 已创建并激活！\n\n是否测试连接？", profileName),
+				Title:  self.c.Tr.AIConfigComplete,
+				Prompt: fmt.Sprintf(self.c.Tr.AIConfigCompletePrompt, profileName),
 				HandleConfirm: func() error {
 					return self.testCurrentProfile()
 				},
@@ -665,22 +661,22 @@ func (self *AIHelper) setupProvider(provider, defaultModel, defaultEndpoint stri
 // This helps users verify their API configuration is correct before using AI features.
 func (self *AIHelper) testCurrentProfile() error {
 	if self.c.AI == nil {
-		return errors.New("AI 未启用。请先启用 AI 并配置 Profile")
+		return errors.New(self.c.Tr.AINotEnabledPleaseConfig)
 	}
 
-	self.loadingHelper.WithCenteredLoadingStatus("正在测试 AI 连接...", func(_ gocui.Task) error {
+	self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AITestingConnection, func(_ gocui.Task) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
 		// Send a simple test prompt
-		testPrompt := "请回复 'OK' 确认连接正常。"
+		testPrompt := "Please reply 'OK' to confirm the connection is working."
 		result, err := self.c.AI.Complete(ctx, testPrompt)
 
 		if err != nil {
 			// Use friendly error handling
 			friendlyErr := self.HandleAIError(err)
 			self.c.OnUIThread(func() error {
-				self.c.Alert("AI 连接测试失败", friendlyErr.Error())
+				self.c.Alert(self.c.Tr.AIConnectionTestFailed, friendlyErr.Error())
 				return nil
 			})
 			return friendlyErr
@@ -689,9 +685,9 @@ func (self *AIHelper) testCurrentProfile() error {
 		// Check if we got a response
 		response := strings.TrimSpace(result.Content)
 		if response == "" {
-			err := errors.New("AI 返回了空响应")
+			err := errors.New(self.c.Tr.AIEmptyResponse)
 			self.c.OnUIThread(func() error {
-				self.c.Alert("AI 连接测试失败", err.Error())
+				self.c.Alert(self.c.Tr.AIConnectionTestFailed, err.Error())
 				return nil
 			})
 			return err
@@ -700,12 +696,12 @@ func (self *AIHelper) testCurrentProfile() error {
 		// Success
 		self.c.OnUIThread(func() error {
 			profile := self.c.UserConfig().AI.GetActiveProfile()
-			profileInfo := "未知"
+			profileInfo := "Unknown"
 			if profile != nil {
 				profileInfo = fmt.Sprintf("%s / %s", profile.Provider, profile.Model)
 			}
 
-			self.c.Toast(fmt.Sprintf("✓ AI 连接测试成功！\nProfile: %s\n响应: %s", profileInfo, response))
+			self.c.Toast(fmt.Sprintf(self.c.Tr.AIConnectionTestSuccessDetail, profileInfo, response))
 			return nil
 		})
 		return nil
@@ -727,7 +723,7 @@ func (self *AIHelper) HandleAIError(err error) error {
 	// Timeout errors
 	if strings.Contains(errStr, "context deadline exceeded") ||
 		strings.Contains(errStr, "timeout") {
-		return errors.New("AI 请求超时。请稍后重试或在 AI 设置中调整超时时间（Ctrl+A → 编辑 Profile → Timeout）")
+		return errors.New(self.c.Tr.AIRequestTimeout)
 	}
 
 	// Authentication errors
@@ -735,59 +731,59 @@ func (self *AIHelper) HandleAIError(err error) error {
 		strings.Contains(errStr, "unauthorized") ||
 		strings.Contains(errStr, "API key") ||
 		strings.Contains(errStr, "Invalid API key") {
-		return errors.New("API 密钥无效。请检查 AI 设置中的密钥是否正确（Ctrl+A → 编辑 Profile → API Key）")
+		return errors.New(self.c.Tr.APIKeyInvalid)
 	}
 
 	// Rate limiting
 	if strings.Contains(errStr, "429") ||
 		strings.Contains(errStr, "rate limit") ||
 		strings.Contains(errStr, "too many requests") {
-		return errors.New("API 请求频率超限。请稍后重试或考虑更换提供商（Ctrl+A → 切换 Profile）")
+		return errors.New(self.c.Tr.APIRateLimitExceeded)
 	}
 
 	// Network errors
 	if strings.Contains(errStr, "connection refused") ||
 		strings.Contains(errStr, "no such host") ||
 		strings.Contains(errStr, "network") {
-		return errors.New("网络连接失败。请检查网络连接或 AI 设置中的 Endpoint 配置（Ctrl+A → 编辑 Profile → Endpoint）")
+		return errors.New(self.c.Tr.NetworkConnectionFailed)
 	}
 
 	// Model not found / invalid model
 	if strings.Contains(errStr, "model not found") ||
 		strings.Contains(errStr, "invalid model") ||
 		strings.Contains(errStr, "404") {
-		return errors.New("模型不可用。请在 AI 设置中选择其他模型（Ctrl+A → 编辑 Profile → Model）")
+		return errors.New(self.c.Tr.ModelNotAvailable)
 	}
 
 	// Quota exceeded
 	if strings.Contains(errStr, "quota") ||
 		strings.Contains(errStr, "insufficient_quota") ||
 		strings.Contains(errStr, "balance") {
-		return errors.New("API 配额已用尽。请检查账户余额或更换提供商（Ctrl+A → 切换 Profile）")
+		return errors.New(self.c.Tr.APIQuotaExhausted)
 	}
 
 	// Context length exceeded
 	if strings.Contains(errStr, "context length") ||
 		strings.Contains(errStr, "maximum context") ||
 		strings.Contains(errStr, "token limit") {
-		return errors.New("输入内容过长超出模型限制。请减少暂存的文件数量或在 AI 设置中增加 MaxTokens（Ctrl+A → 编辑 Profile → MaxTokens）")
+		return errors.New(self.c.Tr.InputTooLong)
 	}
 
 	// Generic error with AI prefix for clarity
-	return fmt.Errorf("AI 请求失败: %v\n\n提示：按 Ctrl+A 检查 AI 设置或切换提供商", err)
+	return fmt.Errorf(self.c.Tr.AIGenericError, err)
 }
 
 // SuggestBranchName uses AI to suggest a branch name based on working tree changes.
 // Returns a suggested branch name in kebab-case format (e.g., "feature/add-user-auth").
 func (self *AIHelper) SuggestBranchName() (string, error) {
 	if self.c.AI == nil {
-		return "", errors.New("AI 功能未启用。按 Ctrl+A 配置 AI 设置")
+		return "", errors.New(self.c.Tr.AINotEnabledConfigFirst)
 	}
 
 	// Analyze working tree changes
 	files := self.c.Model().Files
 	if len(files) == 0 {
-		return "", errors.New("工作区没有变更。请先进行一些修改后再使用 AI 建议分支名称")
+		return "", errors.New(self.c.Tr.NoChangesForBranchName)
 	}
 
 	// Build summary of changes
@@ -803,22 +799,22 @@ func (self *AIHelper) SuggestBranchName() (string, error) {
 		}
 	}
 
-	changesSummary.WriteString("变更的文件：\n")
+	changesSummary.WriteString(self.c.Tr.ChangedFilesLabel + "\n")
 	if len(stagedFiles) > 0 {
-		changesSummary.WriteString("已暂存：\n")
+		changesSummary.WriteString(self.c.Tr.StagedFilesLabel + "\n")
 		for i, file := range stagedFiles {
 			if i >= 15 { // Limit to first 15 files
-				changesSummary.WriteString(fmt.Sprintf("  ... 还有 %d 个文件\n", len(stagedFiles)-15))
+				changesSummary.WriteString(fmt.Sprintf("  ... %d more files\n", len(stagedFiles)-15))
 				break
 			}
 			changesSummary.WriteString(fmt.Sprintf("  - %s\n", file))
 		}
 	}
 	if len(unstagedFiles) > 0 {
-		changesSummary.WriteString("未暂存：\n")
+		changesSummary.WriteString(self.c.Tr.UnstagedFilesLabel + "\n")
 		for i, file := range unstagedFiles {
 			if i >= 15 { // Limit to first 15 files
-				changesSummary.WriteString(fmt.Sprintf("  ... 还有 %d 个文件\n", len(unstagedFiles)-15))
+				changesSummary.WriteString(fmt.Sprintf("  ... %d more files\n", len(unstagedFiles)-15))
 				break
 			}
 			changesSummary.WriteString(fmt.Sprintf("  - %s\n", file))
@@ -835,24 +831,17 @@ func (self *AIHelper) SuggestBranchName() (string, error) {
 	const maxDiffChars = 8000
 	diff := rawDiff
 	if len(diff) > maxDiffChars {
-		diff = diff[:maxDiffChars] + "\n[diff 已截断，仅显示前 8000 字符]"
+		diff = diff[:maxDiffChars] + self.c.Tr.DiffTruncatedNote
 	}
 
 	// Build prompt for AI
 	prompt := fmt.Sprintf(
-		"你是一个 git 分支命名助手。\n\n"+
-			"任务：根据以下变更内容，建议一个规范的 git 分支名称。\n\n"+
-			"分支命名规则：\n"+
-			"- 格式：<类型>/<简短描述>\n"+
-			"- 类型：feature（新功能）、bugfix（修复 bug）、refactor（重构）、docs（文档）、test（测试）、chore（杂项）\n"+
-			"- 描述：使用 kebab-case（小写字母和连字符），简洁明了，不超过 50 字符\n"+
-			"- 示例：feature/user-authentication、bugfix/login-crash、refactor/api-client\n\n"+
-			"变更内容：\n%s\n"+
-			"diff 摘要：\n```diff\n%s\n```\n\n"+
-			"要求：\n"+
-			"- 只输出一个分支名称（不要包含任何解释或引号）\n"+
-			"- 必须符合上述格式和规则\n"+
-			"- 使用英文命名\n",
+		self.c.Tr.AIBranchNameSystemPrompt+
+			self.c.Tr.AIBranchNameTask+
+			self.c.Tr.AIBranchNameRules+
+			self.c.Tr.AIBranchNameChanges+
+			self.c.Tr.AIBranchNameDiffSummary+
+			self.c.Tr.AIBranchNameRequirements,
 		changesSummary.String(),
 		diff,
 	)
@@ -864,7 +853,7 @@ func (self *AIHelper) SuggestBranchName() (string, error) {
 	result, err := self.c.AI.Complete(ctx, prompt)
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
-			return "", errors.New("AI 分支命名建议已取消")
+			return "", errors.New(self.c.Tr.AIBranchNameCancelled)
 		}
 		return "", self.HandleAIError(err)
 	}
@@ -895,7 +884,7 @@ func (self *AIHelper) SuggestBranchName() (string, error) {
 // Returns a formatted PR description suitable for GitHub/GitLab/etc.
 func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) (string, error) {
 	if self.c.AI == nil {
-		return "", errors.New("AI 功能未启用。按 Ctrl+A 配置 AI 设置")
+		return "", errors.New(self.c.Tr.AINotEnabledConfigFirst)
 	}
 
 	// Get commits in the current branch (commits ahead of base branch)
@@ -903,16 +892,16 @@ func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) 
 	commits := self.c.Model().Commits
 
 	if len(commits) == 0 {
-		return "", errors.New("当前分支没有提交可用于生成 PR 描述")
+		return "", errors.New(self.c.Tr.NoCommitsForPRDescription)
 	}
 
 	// Build commit history summary (limit to recent commits to avoid token overflow)
 	var commitsSummary strings.Builder
-	commitsSummary.WriteString("提交历史：\n")
+	commitsSummary.WriteString(self.c.Tr.AIPRDescCommitHistory)
 	maxCommits := 20
 	for i, commit := range commits {
 		if i >= maxCommits {
-			commitsSummary.WriteString(fmt.Sprintf("\n... 还有 %d 个提交\n", len(commits)-maxCommits))
+			commitsSummary.WriteString(fmt.Sprintf(self.c.Tr.AIPRDescMoreCommits, len(commits)-maxCommits))
 			break
 		}
 		// Format: hash - message (author)
@@ -934,26 +923,27 @@ func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) 
 	rawDiff, err := self.c.Git().Diff.GetDiff(false, baseBranchRef+"...HEAD")
 	if err != nil {
 		// If diff fails, try to get recent commits diff instead
-		rawDiff = fmt.Sprintf("[无法获取完整 diff: %v]\n提交数量: %d\n", err, len(commits))
+		rawDiff = fmt.Sprintf(self.c.Tr.AIPRDescDiffUnavailable, err, len(commits))
 	}
 
 	// Truncate diff if too large
 	const maxDiffChars = 15000
 	diff := rawDiff
 	if len(diff) > maxDiffChars {
-		diff = diff[:maxDiffChars] + "\n[diff 已截断，仅显示前 15000 字符]"
+		diff = diff[:maxDiffChars] + self.c.Tr.AIPRDescDiffTruncated
 	}
 
 	// Get branch tracking info for context
 	branchContext := ""
 	if currentBranch.IsTrackingRemote() {
-		branchContext = fmt.Sprintf("源分支: %s/%s\n目标分支: %s\n",
+		branchContext = fmt.Sprintf(self.c.Tr.AIPRDescBranchInfo,
 			currentBranch.UpstreamRemote,
 			currentBranch.UpstreamBranch,
 			toBranch,
 		)
 	} else {
-		branchContext = fmt.Sprintf("源分支: %s (本地)\n目标分支: %s\n",
+		branchContext = fmt.Sprintf(self.c.Tr.AIPRDescBranchInfo,
+			"",
 			fromBranch,
 			toBranch,
 		)
@@ -961,27 +951,17 @@ func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) 
 
 	// Build prompt for AI
 	prompt := fmt.Sprintf(
-		"你是一个 Pull Request 描述生成助手。\n\n"+
-			"任务：根据以下提交历史和代码变更，生成一个专业的 PR 描述。\n\n"+
+		self.c.Tr.AIPRDescSystemPrompt+
+			self.c.Tr.AIPRDescTask+
 			"%s\n"+
 			"%s\n"+
-			"代码变更：\n```diff\n%s\n```\n\n"+
-			"PR 描述格式要求：\n"+
-			"## 摘要\n"+
-			"一句话概括本次 PR 的主要目的和价值。\n\n"+
-			"## 变更内容\n"+
-			"- 列出主要的功能变更、bug 修复或重构（3-5 个要点）\n\n"+
-			"## 技术细节（可选）\n"+
-			"- 如有重要的技术实现细节或架构变更，简要说明\n\n"+
-			"## 测试\n"+
-			"- [ ] 单元测试已通过\n"+
-			"- [ ] 手动测试已完成\n"+
-			"- [ ] 代码审查已准备就绪\n\n"+
-			"输出要求：\n"+
-			"- 使用简体中文（代码和技术术语除外）\n"+
-			"- 使用 Markdown 格式\n"+
-			"- 简洁专业，突出重点\n"+
-			"- 不要包含标题（# Pull Request），直接从摘要开始\n",
+			self.c.Tr.AIPRDescCodeChanges+
+			self.c.Tr.AIPRDescFormatRequirements+
+			self.c.Tr.AIPRDescSummarySection+
+			self.c.Tr.AIPRDescChangesSection+
+			self.c.Tr.AIPRDescTechDetailsSection+
+			self.c.Tr.AIPRDescTestingSection+
+			self.c.Tr.AIPRDescOutputRequirements,
 		branchContext,
 		commitsSummary.String(),
 		diff,
@@ -994,7 +974,7 @@ func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) 
 	result, err := self.c.AI.Complete(ctx, prompt)
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
-			return "", errors.New("AI PR 描述生成已取消")
+			return "", errors.New(self.c.Tr.AIPRDescriptionCancelled)
 		}
 		return "", self.HandleAIError(err)
 	}
@@ -1003,7 +983,7 @@ func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) 
 	description := strings.TrimSpace(result.Content)
 
 	if description == "" {
-		return "", errors.New("AI 返回了空响应。请稍后重试或检查 AI 设置（Ctrl+A）")
+		return "", errors.New(self.c.Tr.AIEmptyResponse)
 	}
 
 	return description, nil

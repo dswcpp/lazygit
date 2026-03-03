@@ -447,6 +447,30 @@ type TranslationSet struct {
 	AIAssistantNoCommands                 string
 	AICodeReview                          string
 	AICodeReviewTitle                     string
+	AIGenerationCancelled                 string
+	AICommitPromptTruncated               string
+	AICommitEmptyResponse                 string
+	AIPromptCurrentBranch                 string
+	AIPromptRecentCommits                 string
+	AIPromptProjectType                   string
+	AIPromptRole                          string
+	AIPromptTask                          string
+	AIPromptRepoContext                   string
+	AIPromptCodeChanges                   string
+	AIPromptOutputRules                   string
+	AIPromptTypeGuide                     string
+	AIPromptScopeGuide                    string
+	AIPromptSubjectRequirements           string
+	AIPromptBodyOptional                  string
+	AIPromptScenarioGuide                 string
+	AIPromptOutputFormat                  string
+	AIPromptScenarioSmall                 string
+	AIPromptScenarioLarge                 string
+	AIPromptScenarioBugfix                string
+	AIPromptScenarioRefactor              string
+	AIPromptScenarioDocs                  string
+	AIPromptScenarioTest                  string
+	AIPromptScenarioDefault               string
 	AICodeReviewConfirmTitle              string
 	AICodeReviewConfirmPrompt             string
 	AICodeReviewStatus                    string
@@ -461,6 +485,127 @@ type TranslationSet struct {
 	CreatePRDirectly                      string
 	AIGeneratingPRDescriptionStatus       string
 	PRDescriptionCopiedToClipboard        string
+	// AI Diff Filter
+	AIDiffSkipped                         string
+	AIDiffBinaryFile                      string
+	AIDiffLockOrGeneratedFile             string
+	AIDiffChangeStats                     string
+	AIDiffFilesCount                      string
+	AIDiffFileTypes                       string
+	AIDiffChangeScale                     string
+	AIDiffMajorChanges                    string
+	AIDiffNewFile                         string
+	AIDiffDeletedFile                     string
+	AIDiffRenamedFile                     string
+	AIDiffModifiedFile                    string
+	AIDiffTruncated                       string
+	AIDiffSmartTruncated                  string
+	// AI Helper Messages
+	AICodeReviewCancelled                 string
+	AINotEnabledPleaseConfig              string
+	AITestingConnection                   string
+	AIConnectionTestFailed                string
+	AIEmptyResponse                       string
+	AIConnectionTestSuccess               string
+	AIConnectionTestSuccessDetail         string
+	APIKeyCannotBeEmpty                   string
+	AIConfigComplete                      string
+	AIConfigCompletePrompt                string
+	AIWelcomeWizardTitle                  string
+	UseDeepSeekRecommended                string
+	UseOpenAI                             string
+	UseAnthropicClaude                    string
+	UseOllamaLocal                        string
+	ConfigureLater                        string
+	TestCurrentProfile                    string
+	SetupProviderAPIKey                   string
+	// AI Diff Filter Additional
+	AIDiffSkippedFilesNote                string
+	// AI Assistant Prompts
+	AIAssistantSystemPrompt               string
+	AIAssistantRules                      string
+	AIAssistantRepoState                  string
+	AIAssistantUserRequest                string
+	// AI Branch Naming Prompts
+	AIBranchNameSystemPrompt              string
+	AIBranchNameTask                      string
+	AIBranchNameRules                     string
+	AIBranchNameChanges                   string
+	AIBranchNameDiffSummary               string
+	AIBranchNameRequirements              string
+	// AI PR Description Prompts
+	AIPRDescSystemPrompt                  string
+	AIPRDescTask                          string
+	AIPRDescCommitHistory                 string
+	AIPRDescCodeChanges                   string
+	AIPRDescFormatRequirements            string
+	AIPRDescSummarySection                string
+	AIPRDescChangesSection                string
+	AIPRDescTechDetailsSection            string
+	AIPRDescTestingSection                string
+	AIPRDescOutputRequirements            string
+	AIPRDescBranchInfo                    string
+	AIPRDescDiffUnavailable               string
+	AIPRDescDiffTruncated                 string
+	AIPRDescMoreCommits                   string
+	// AI Code Review Prompts
+	AICodeReviewSystemPrompt              string
+	AICodeReviewFile                      string
+	AICodeReviewCorePrinciples            string
+	AICodeReviewConservative              string
+	AICodeReviewRespectContext            string
+	AICodeReviewFocusNewLines             string
+	AICodeReviewRejectFalsePositives      string
+	AICodeReviewSeverityLevels            string
+	AICodeReviewCritical                  string
+	AICodeReviewMajor                     string
+	AICodeReviewMinor                     string
+	AICodeReviewNit                       string
+	AICodeReviewOutputFormat              string
+	AICodeReviewSummarySection            string
+	AICodeReviewIssuesSection            string
+	AICodeReviewIssueFormat               string
+	AICodeReviewNoIssues                  string
+	AICodeReviewConclusionSection         string
+	AICodeReviewConclusionLGTM            string
+	AICodeReviewConclusionHasIssues       string
+	AICodeReviewDiffSection               string
+	AICodeReviewLanguageHint              string
+	AICodeReviewLanguageChecks            string
+	// AI Error Messages
+	AIRequestTimeout                      string
+	APIKeyInvalid                         string
+	APIRateLimitExceeded                  string
+	NetworkConnectionFailed               string
+	ModelNotAvailable                     string
+	APIQuotaExhausted                     string
+	InputTooLong                          string
+	// AI Context Messages
+	CurrentBranch                         string
+	TrackingRemoteBranchAheadBehind       string
+	TrackingRemoteBranchAhead             string
+	TrackingRemoteBranchBehind            string
+	TrackingRemoteBranchSynced            string
+	NotTrackingRemoteBranch               string
+	WorkingTreeState                      string
+	ChangeStats                           string
+	RecentCommits                         string
+	ChangedFiles                          string
+	MoreFiles                             string
+	StashList                             string
+	MoreStashes                           string
+	// AI Branch and PR Messages
+	AINotEnabledConfigFirst               string
+	NoChangesForBranchName                string
+	AIBranchNameCancelled                 string
+	NoCommitsForPRDescription             string
+	AIPRDescriptionCancelled              string
+	AIGenericError                        string
+	ChangedFilesLabel                     string
+	StagedFilesLabel                      string
+	UnstagedFilesLabel                    string
+	DiffTruncatedNote                     string
+	AICommitMessageCancelled              string
 	DroppingStatus                        string
 	MovingStatus                          string
 	RebasingStatus                        string
@@ -1613,6 +1758,30 @@ func EnglishTranslationSet() *TranslationSet {
 		AIAssistantNoCommands:                "AI did not generate any commands",
 		AICodeReview:                         "AI code review",
 		AICodeReviewTitle:                    "AI Code Review",
+		AIGenerationCancelled:                "AI commit message generation cancelled",
+		AICommitPromptTruncated:              "\n[Content too large, truncated at 120000 characters]",
+		AICommitEmptyResponse:                "AI returned an empty response. Please try again or check AI settings (Ctrl+A)",
+		AIPromptCurrentBranch:                "Current branch: %s\n",
+		AIPromptRecentCommits:                "Recent commits:\n",
+		AIPromptProjectType:                  "Project type: %s\n\n",
+		AIPromptRole:                         "You are a professional git commit message generator, proficient in Conventional Commits specification.\n\n",
+		AIPromptTask:                         "## Task\nGenerate a standard commit message based on the following code changes.\n\n",
+		AIPromptRepoContext:                  "## Repository Context\n",
+		AIPromptCodeChanges:                  "## Code Changes\n",
+		AIPromptOutputRules:                  "## Output Rules\n1. Format: <type>(<scope>): <subject>\n\n",
+		AIPromptTypeGuide:                    "2. Type Selection Guide:\n   - feat: New feature (user-visible new functionality)\n   - fix: Bug fix (fixing user-encountered issues)\n   - refactor: Refactoring (code improvement without changing external behavior)\n   - perf: Performance optimization\n   - docs: Documentation update\n   - test: Test-related\n   - chore: Build/tool/dependency updates\n   - style: Code formatting (no logic changes)\n   - ci: CI/CD configuration\n\n",
+		AIPromptScopeGuide:                   "3. Scope Selection:\n   - Use the most relevant module/component name\n   - If multiple modules involved, use the core one\n   - Examples: (auth), (api), (ui), (db)\n\n",
+		AIPromptSubjectRequirements:          "4. Subject Requirements:\n   - Use imperative mood (\"add\" not \"added\")\n   - No more than 72 characters\n   - No period at the end\n   - Must use English\n\n",
+		AIPromptBodyOptional:                 "5. Body (optional):\n   - Add body if changes are complex or need explanation\n   - Start after a blank line\n   - Explain \"why\" not \"what\"\n\n",
+		AIPromptScenarioGuide:                "6. Scenario Guidance:\n",
+		AIPromptOutputFormat:                 "7. Output Format:\n   - Output only the commit message itself\n   - Do not add markdown code blocks (like ```)\n   - Do not add any explanatory text\n",
+		AIPromptScenarioSmall:                "   - Small change detected, generate a concise single-line commit message\n",
+		AIPromptScenarioLarge:                "   - Large-scale change detected, summarize core goal in subject\n   - List main changes in body (3-5 items)\n",
+		AIPromptScenarioBugfix:               "   - Bug fix detected, suggest explaining problem and solution in body\n",
+		AIPromptScenarioRefactor:             "   - Refactoring detected, suggest explaining refactoring purpose and improvements in body\n",
+		AIPromptScenarioDocs:                 "   - Documentation update detected, use docs type\n",
+		AIPromptScenarioTest:                 "   - Test-related detected, use test type\n",
+		AIPromptScenarioDefault:              "   - Choose appropriate type and scope based on changes\n",
 		AICodeReviewConfirmTitle:             "AI Code Review",
 		AICodeReviewConfirmPrompt:            "Start AI code review for the following file?\n\n%s",
 		AICodeReviewStatus:                   "AI reviewing, please wait...",
@@ -1627,6 +1796,126 @@ func EnglishTranslationSet() *TranslationSet {
 		CreatePRDirectly:                     "Open PR directly",
 		AIGeneratingPRDescriptionStatus:      "AI generating PR description...",
 		PRDescriptionCopiedToClipboard:       "PR description copied to clipboard! You can paste it when the PR page opens.",
+		// AI Diff Filter
+		AIDiffSkipped:                        "Skipped %s: %s",
+		AIDiffBinaryFile:                     "binary file",
+		AIDiffLockOrGeneratedFile:            "lock/generated file",
+		AIDiffChangeStats:                    "# Change Statistics",
+		AIDiffFilesCount:                     "- Files: %d",
+		AIDiffFileTypes:                      "- File types: ",
+		AIDiffChangeScale:                    "- Change scale: +%d/-%d lines",
+		AIDiffMajorChanges:                   "- Major changes: ",
+		AIDiffNewFile:                        "[New]",
+		AIDiffDeletedFile:                    "[Deleted]",
+		AIDiffRenamedFile:                    "[Renamed]",
+		AIDiffModifiedFile:                   "[Modified]",
+		AIDiffTruncated:                      "[%s diff is large, %d lines total, truncated to first %d lines]",
+		AIDiffSmartTruncated:                 "[%s smart truncated: preserved %d/%d lines of key code (function signatures, important comments, etc.)]",
+		// AI Helper Messages
+		AICodeReviewCancelled:                "AI code review cancelled",
+		AINotEnabledPleaseConfig:             "AI is not enabled. Please enable AI and configure a profile first",
+		AITestingConnection:                  "Testing AI connection...",
+		AIConnectionTestFailed:               "AI connection test failed",
+		AIEmptyResponse:                      "AI returned an empty response",
+		AIConnectionTestSuccess:              "✓ AI connection test successful!",
+		AIConnectionTestSuccessDetail:        "✓ AI connection test successful!\nProfile: %s\nResponse: %s",
+		APIKeyCannotBeEmpty:                  "API Key cannot be empty",
+		AIConfigComplete:                     "AI Configuration Complete",
+		AIConfigCompletePrompt:               "✓ %s Profile created and activated!\n\nTest connection now?",
+		AIWelcomeWizardTitle:                 "Welcome to AI Features - First Time Setup Wizard",
+		UseDeepSeekRecommended:               "Use DeepSeek (Recommended)",
+		UseOpenAI:                             "Use OpenAI",
+		UseAnthropicClaude:                   "Use Anthropic Claude",
+		UseOllamaLocal:                       "Use Ollama (Local Model)",
+		ConfigureLater:                       "Configure Later (Go to AI Settings)",
+		TestCurrentProfile:                   "Test Current Profile Connection",
+		SetupProviderAPIKey:                  "Setup %s API Key",
+		// AI Diff Filter Additional
+		AIDiffSkippedFilesNote:               " (plus %d lock/binary/generated files skipped)",
+		// AI Assistant Prompts
+		AIAssistantSystemPrompt:              "You are a git command generator. Based on user requirements and repository status, generate shell/git commands that need to be executed.\n\n",
+		AIAssistantRules:                     "Rules:\n- Output only directly executable commands, one per line\n- Do not output any explanations, comments (starting with #), or markdown\n- Commands should be in execution order\n- If the requirement cannot be safely completed with git commands, output on the first line: CANNOT_EXECUTE: <reason>\n\n",
+		AIAssistantRepoState:                 "Current repository status:\n%s\n",
+		AIAssistantUserRequest:               "User requirement: %s",
+		// AI Branch Naming Prompts
+		AIBranchNameSystemPrompt:             "You are a git branch naming assistant.\n\n",
+		AIBranchNameTask:                     "Task: Based on the following changes, suggest a standard git branch name.\n\n",
+		AIBranchNameRules:                    "Branch naming rules:\n- Format: <type>/<short-description>\n- Type: feature (new feature), bugfix (fix bug), refactor (refactoring), docs (documentation), test (testing), chore (miscellaneous)\n- Description: use kebab-case (lowercase letters and hyphens), concise and clear, no more than 50 characters\n- Examples: feature/user-authentication, bugfix/login-crash, refactor/api-client\n\n",
+		AIBranchNameChanges:                  "Changes:\n%s\n",
+		AIBranchNameDiffSummary:              "Diff summary:\n```diff\n%s\n```\n\n",
+		AIBranchNameRequirements:             "Requirements:\n- Output only one branch name (do not include any explanations or quotes)\n- Must conform to the above format and rules\n- Use English naming\n",
+		// AI PR Description Prompts
+		AIPRDescSystemPrompt:                 "You are a Pull Request description generation assistant.\n\n",
+		AIPRDescTask:                         "Task: Based on the following commit history and code changes, generate a professional PR description.\n\n",
+		AIPRDescCommitHistory:                "Commit history:\n",
+		AIPRDescCodeChanges:                  "Code changes:\n```diff\n%s\n```\n\n",
+		AIPRDescFormatRequirements:           "PR description format requirements:\n",
+		AIPRDescSummarySection:               "## Summary\nSummarize the main purpose and value of this PR in one sentence.\n\n",
+		AIPRDescChangesSection:               "## Changes\n- List main feature changes, bug fixes, or refactoring (3-5 points)\n\n",
+		AIPRDescTechDetailsSection:           "## Technical Details (optional)\n- If there are important technical implementation details or architectural changes, briefly explain\n\n",
+		AIPRDescTestingSection:               "## Testing\n- [ ] Unit tests passed\n- [ ] Manual testing completed\n- [ ] Code review ready\n\n",
+		AIPRDescOutputRequirements:           "Output requirements:\n- Use Simplified Chinese (except for code and technical terms)\n- Use Markdown format\n- Concise and professional, highlight key points\n- Do not include title (# Pull Request), start directly from summary\n",
+		AIPRDescBranchInfo:                   "Source branch: %s/%s\nTarget branch: %s\n",
+		AIPRDescDiffUnavailable:              "[Unable to get complete diff: %v]\nNumber of commits: %d\n",
+		AIPRDescDiffTruncated:                "\n[diff truncated, showing only first 15000 characters]",
+		AIPRDescMoreCommits:                  "\n... %d more commits\n",
+		// AI Code Review Prompts
+		AICodeReviewSystemPrompt:             "You are a senior software engineer conducting a code review on the following git diff.\n\n",
+		AICodeReviewFile:                     "**File:** %s\n\n",
+		AICodeReviewCorePrinciples:           "## Core Principles\n",
+		AICodeReviewConservative:             "- **Conservative review**: Only report issues you are **certain** exist. When uncertain, prefer not to report rather than guess.\n",
+		AICodeReviewRespectContext:           "- **Respect context limitations**: You can only see the diff, not the complete file. If an issue requires full file context to judge (such as whether an error is already handled elsewhere), skip it and do not assume.\n",
+		AICodeReviewFocusNewLines:            "- **Focus on new lines**: Focus on reviewing new lines starting with `+`; `-` deleted lines and context lines are only for understanding intent, do not comment on them.\n",
+		AICodeReviewRejectFalsePositives:     "- **Reject false positives**: Do not flag correct idiomatic code as issues; do not mark code as problematic just because it's \"not how you would write it\".\n",
+		AICodeReviewSeverityLevels:           "\n## Severity Levels (only use when confirmed)\n",
+		AICodeReviewCritical:                 "- **CRITICAL**: Bugs that will cause crashes, data corruption, security vulnerabilities, or clear logic errors.\n",
+		AICodeReviewMajor:                    "- **MAJOR**: Resource leaks, clear missing error handling (visible in diff), API usage errors.\n",
+		AICodeReviewMinor:                    "- **MINOR**: Edge cases that might cause problems, code that could be more robust but currently works.\n",
+		AICodeReviewNit:                      "- **NIT**: Pure style issues, only report when it truly affects readability.\n",
+		AICodeReviewOutputFormat:             "\n## Output Format (output in Simplified Chinese, keep code snippets in original language)\n\n",
+		AICodeReviewSummarySection:           "### Summary\nOne sentence explaining the purpose of this change and whether it is overall correct.\n\n",
+		AICodeReviewIssuesSection:            "### Issue List\nUse the following format for each issue, with blank lines between issues:\n\n",
+		AICodeReviewIssueFormat:              "**[Level] Category — Title**\nCode: `<problematic code snippet>`\nIssue: <issue description and impact>\nSuggestion: <specific fix or code>\n\n",
+		AICodeReviewNoIssues:                 "If no issues, write directly: No issues\n\n",
+		AICodeReviewConclusionSection:        "### Conclusion\n",
+		AICodeReviewConclusionLGTM:           "No issues: LGTM, one sentence explaining it can be merged.\n",
+		AICodeReviewConclusionHasIssues:      "Has issues: List CRITICAL/MAJOR items that must be fixed; MINOR/NIT can be summarized in one sentence.\n\n",
+		AICodeReviewDiffSection:              "---\n\n## Diff\n",
+		AICodeReviewLanguageHint:             " (%s)",
+		AICodeReviewLanguageChecks:           "\n## Language-Specific Checks%s\n%s\n",
+		// AI Error Messages
+		AIRequestTimeout:                     "AI request timed out. Please try again later or adjust timeout in AI settings (Ctrl+A → Edit Profile → Timeout)",
+		APIKeyInvalid:                        "API key is invalid. Please check the key in AI settings (Ctrl+A → Edit Profile → API Key)",
+		APIRateLimitExceeded:                 "API rate limit exceeded. Please try again later or consider switching providers (Ctrl+A → Switch Profile)",
+		NetworkConnectionFailed:              "Network connection failed. Please check your network connection or Endpoint configuration in AI settings (Ctrl+A → Edit Profile → Endpoint)",
+		ModelNotAvailable:                    "Model is not available. Please select another model in AI settings (Ctrl+A → Edit Profile → Model)",
+		APIQuotaExhausted:                    "API quota exhausted. Please check your account balance or switch providers (Ctrl+A → Switch Profile)",
+		InputTooLong:                         "Input is too long and exceeds model limits. Please reduce the number of staged files or increase MaxTokens in AI settings (Ctrl+A → Edit Profile → MaxTokens)",
+		// AI Context Messages
+		CurrentBranch:                        "Current branch: %s",
+		TrackingRemoteBranchAheadBehind:      "  Tracking remote branch: %s (local ahead %s commits, behind %s commits)",
+		TrackingRemoteBranchAhead:            "  Tracking remote branch: %s (local ahead %s commits, not pushed)",
+		TrackingRemoteBranchBehind:           "  Tracking remote branch: %s (local behind %s commits, need to pull)",
+		TrackingRemoteBranchSynced:           "  Tracking remote branch: %s (synced)",
+		NotTrackingRemoteBranch:              "  Not tracking remote branch (local branch)",
+		WorkingTreeState:                     "\nWorking tree state: %s",
+		ChangeStats:                          "\nChange stats: staged %d, unstaged %d, untracked %d",
+		RecentCommits:                        "\nRecent commits:",
+		ChangedFiles:                         "\nChanged files:",
+		MoreFiles:                            "  ... (%d more files)",
+		StashList:                            "\nStash list: %d stashes",
+		MoreStashes:                          "  ... (%d more stashes)",
+		// AI Branch and PR Messages
+		AINotEnabledConfigFirst:              "AI is not enabled. Press Ctrl+A to configure AI settings",
+		NoChangesForBranchName:               "No changes in working tree. Please make some changes before using AI branch name suggestion",
+		AIBranchNameCancelled:                "AI branch name suggestion cancelled",
+		NoCommitsForPRDescription:            "Current branch has no commits available for generating PR description",
+		AIPRDescriptionCancelled:             "AI PR description generation cancelled",
+		AIGenericError:                       "AI request failed: %v\n\nTip: Press Ctrl+A to check AI settings or switch provider",
+		ChangedFilesLabel:                    "Changed files:",
+		StagedFilesLabel:                     "Staged:",
+		UnstagedFilesLabel:                   "Unstaged:",
+		DiffTruncatedNote:                    "\n[diff truncated, showing first 8000 characters only]",
 		DroppingStatus:                       "Dropping",
 		MovingStatus:                         "Moving",
 		RebasingStatus:                       "Rebasing",

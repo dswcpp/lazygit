@@ -10,6 +10,7 @@ import (
 
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
+	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/samber/lo"
 )
@@ -298,7 +299,7 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 
 		// Filter out lock files, binary files, generated code and truncate
 		// oversized per-file hunks before sending to the model.
-		diff := FilterDiffForAI(rawDiff)
+		diff := FilterDiffForAI(rawDiff, self.c.Tr)
 
 		// Safety-net: cap total prompt size to avoid exceeding token limits.
 		// FilterDiffForAI handles most cases; this catches extreme edge cases.
@@ -306,28 +307,26 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 		safetyNote := ""
 		if len(diff) > maxDiffChars {
 			diff = diff[:maxDiffChars]
-			safetyNote = "\n[内容过大，已在 120000 字符处截断]"
+			safetyNote = self.c.Tr.AICommitPromptTruncated
 		}
 
-		prompt := fmt.Sprintf(
-			"你是一个 git 提交信息生成器。\n\n"+
-				"规则：\n"+
-				"- 格式：<类型>(<可选范围>): <简短描述>\n"+
-				"- 类型：feat、fix、refactor、docs、test、chore、perf、style、ci\n"+
-				"- subject 行：祈使句，不超过 72 个字符，句末不加句号\n"+
-				"- 若改动复杂，可在空行后添加 body 段落说明原因\n"+
-				"- 必须使用中文输出\n"+
-				"- 只输出提交信息本身，不加 markdown、代码块或任何解释\n\n"+
-				"已暂存的变更：\n%s%s",
-			diff,
-			safetyNote,
-		)
+		// Build repository context
+		repoContext := self.buildRepoContext()
+
+		// Detect project type
+		projectType := self.detectProjectType()
+
+		// Detect change scenario
+		scenario := self.detectChangeScenario(diff)
+
+		// Build enhanced prompt
+		prompt := self.buildEnhancedPrompt(diff, repoContext, projectType, scenario, safetyNote)
 
 		result, err := self.c.AI.Complete(ctx, prompt)
 		if err != nil {
 			// Check if cancelled
 			if errors.Is(err, context.Canceled) {
-				return errors.New("AI 生成提交信息已取消")
+				return errors.New(self.c.Tr.AIGenerationCancelled)
 			}
 			// Use friendly error handling from AIHelper
 			return self.aiHelper.HandleAIError(err)
@@ -335,7 +334,7 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 
 		message := strings.TrimSpace(result.Content)
 		if message == "" {
-			return errors.New("AI 返回了空响应。请稍后重试或检查 AI 设置（Ctrl+A）")
+			return errors.New(self.c.Tr.AICommitEmptyResponse)
 		}
 
 		self.SetMessageAndDescriptionInView(message)
@@ -343,3 +342,185 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 	})
 	return nil
 }
+
+// buildRepoContext builds repository context information for the AI prompt.
+func (self *CommitsHelper) buildRepoContext() string {
+	var sb strings.Builder
+
+	// Current branch
+	var currentBranch *models.Branch
+	if len(self.c.Model().Branches) > 0 {
+		currentBranch = self.c.Model().Branches[0]
+	}
+	if currentBranch != nil {
+		sb.WriteString(fmt.Sprintf(self.c.Tr.AIPromptCurrentBranch, currentBranch.Name))
+	}
+
+	// Recent 3 commits
+	commits := self.c.Model().Commits
+	if len(commits) > 0 {
+		sb.WriteString(self.c.Tr.AIPromptRecentCommits)
+		limit := 3
+		if len(commits) < limit {
+			limit = len(commits)
+		}
+		for i := 0; i < limit; i++ {
+			sb.WriteString(fmt.Sprintf("  - %s\n", commits[i].Name))
+		}
+	}
+
+	return sb.String()
+}
+
+// detectProjectType detects the project type based on file extensions.
+func (self *CommitsHelper) detectProjectType() string {
+	files := self.c.Model().Files
+
+	counts := make(map[string]int)
+	typeMap := map[string]string{
+		".go":   "Go",
+		".ts":   "TypeScript",
+		".tsx":  "TypeScript",
+		".js":   "JavaScript",
+		".jsx":  "JavaScript",
+		".py":   "Python",
+		".java": "Java",
+		".rs":   "Rust",
+		".cpp":  "C++",
+		".c":    "C",
+		".cs":   "C#",
+		".rb":   "Ruby",
+		".php":  "PHP",
+	}
+
+	for _, f := range files {
+		path := strings.ToLower(f.Path)
+		for ext, lang := range typeMap {
+			if strings.HasSuffix(path, ext) {
+				counts[lang]++
+				break
+			}
+		}
+	}
+
+	// Find the most common type
+	maxCount := 0
+	projectType := "Mixed"
+	for lang, count := range counts {
+		if count > maxCount {
+			maxCount = count
+			projectType = lang
+		}
+	}
+
+	return projectType
+}
+
+// detectChangeScenario detects the change scenario based on diff content.
+func (self *CommitsHelper) detectChangeScenario(diff string) string {
+	lowerDiff := strings.ToLower(diff)
+
+	// Check for keywords
+	isBugFix := strings.Contains(lowerDiff, "fix") ||
+		strings.Contains(lowerDiff, "bug") ||
+		strings.Contains(lowerDiff, "error")
+
+	isRefactor := strings.Contains(lowerDiff, "refactor") ||
+		strings.Contains(lowerDiff, "rename") ||
+		strings.Contains(lowerDiff, "move")
+
+	isTest := strings.Contains(diff, "_test.") ||
+		strings.Contains(diff, ".test.") ||
+		strings.Contains(diff, "/test/")
+
+	isDocs := strings.Contains(diff, ".md") ||
+		strings.Contains(diff, ".txt") ||
+		strings.Contains(diff, "README")
+
+	// Count change lines
+	lines := strings.Split(diff, "\n")
+	changeCount := 0
+	for _, line := range lines {
+		if strings.HasPrefix(line, "+") || strings.HasPrefix(line, "-") {
+			changeCount++
+		}
+	}
+
+	// Determine scenario
+	if isDocs {
+		return "docs"
+	}
+	if isTest {
+		return "test"
+	}
+	if isBugFix {
+		return "bugfix"
+	}
+	if isRefactor {
+		return "refactor"
+	}
+	if changeCount < 50 {
+		return "small"
+	}
+	if changeCount > 500 {
+		return "large"
+	}
+
+	return "normal"
+}
+
+// buildEnhancedPrompt builds an enhanced prompt with context and scenario guidance.
+func (self *CommitsHelper) buildEnhancedPrompt(diff, repoContext, projectType, scenario, safetyNote string) string {
+	var prompt strings.Builder
+
+	// Role definition
+	prompt.WriteString(self.c.Tr.AIPromptRole)
+
+	// Task description
+	prompt.WriteString(self.c.Tr.AIPromptTask)
+
+	// Repository context
+	if repoContext != "" {
+		prompt.WriteString(self.c.Tr.AIPromptRepoContext)
+		prompt.WriteString(repoContext)
+		prompt.WriteString(fmt.Sprintf(self.c.Tr.AIPromptProjectType, projectType))
+	}
+
+	// Code changes
+	prompt.WriteString(self.c.Tr.AIPromptCodeChanges)
+	prompt.WriteString(diff)
+	prompt.WriteString(safetyNote)
+	prompt.WriteString("\n\n")
+
+	// Output rules
+	prompt.WriteString(self.c.Tr.AIPromptOutputRules)
+	prompt.WriteString(self.c.Tr.AIPromptTypeGuide)
+	prompt.WriteString(self.c.Tr.AIPromptScopeGuide)
+	prompt.WriteString(self.c.Tr.AIPromptSubjectRequirements)
+	prompt.WriteString(self.c.Tr.AIPromptBodyOptional)
+
+	// Scenario-specific guidance
+	prompt.WriteString(self.c.Tr.AIPromptScenarioGuide)
+	switch scenario {
+	case "small":
+		prompt.WriteString(self.c.Tr.AIPromptScenarioSmall)
+	case "large":
+		prompt.WriteString(self.c.Tr.AIPromptScenarioLarge)
+	case "bugfix":
+		prompt.WriteString(self.c.Tr.AIPromptScenarioBugfix)
+	case "refactor":
+		prompt.WriteString(self.c.Tr.AIPromptScenarioRefactor)
+	case "docs":
+		prompt.WriteString(self.c.Tr.AIPromptScenarioDocs)
+	case "test":
+		prompt.WriteString(self.c.Tr.AIPromptScenarioTest)
+	default:
+		prompt.WriteString(self.c.Tr.AIPromptScenarioDefault)
+	}
+	prompt.WriteString("\n")
+
+	prompt.WriteString(self.c.Tr.AIPromptOutputFormat)
+
+	return prompt.String()
+}
+
