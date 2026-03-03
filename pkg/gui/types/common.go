@@ -106,6 +106,9 @@ type IGuiCommon interface {
 
 	State() IStateAccessor
 
+	// Returns the activity bar status for tracking ongoing operations and animations
+	GetActivityBarStatus() interface{}
+
 	KeybindingsOpts() KeybindingsOpts
 	CallKeybindingHandler(binding *Binding) error
 
@@ -299,8 +302,9 @@ type Model struct {
 	Commits      []*models.Commit
 	StashEntries []*models.StashEntry
 	SubCommits   []*models.Commit
-	Remotes      []*models.Remote
-	Worktrees    []*models.Worktree
+	Remotes         []*models.Remote
+	Worktrees       []*models.Worktree
+	ActivityBarItems []*models.ActivityBarItem
 
 	// FilteredReflogCommits are the ones that appear in the reflog panel.
 	// When in filtering mode we only include the ones that match the given path

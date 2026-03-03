@@ -213,6 +213,25 @@ type ActivityBarConfig struct {
 	Show bool `yaml:"show"`
 	// Width of the activity bar in characters
 	Width int `yaml:"width" jsonschema:"minimum=2,maximum=10"`
+	// Icon style: "auto" (default), "nerd", "emoji", "ascii"
+	IconStyle string `yaml:"iconStyle,omitempty" jsonschema:"enum=auto,enum=nerd,enum=emoji,enum=ascii"`
+	// Custom items list (optional, nil means use default)
+	Items []ActivityBarItemConfig `yaml:"items,omitempty"`
+}
+
+type ActivityBarItemConfig struct {
+	// Custom icon (optional, overrides default)
+	Icon string `yaml:"icon,omitempty"`
+	// Internal name/identifier
+	Name string `yaml:"name"`
+	// Item type: "navigation", "action", "tool", "separator", "custom"
+	Type string `yaml:"type" jsonschema:"enum=navigation,enum=action,enum=tool,enum=separator,enum=custom"`
+	// Tooltip text
+	Tooltip string `yaml:"tooltip,omitempty"`
+	// Action identifier (for navigation/action types)
+	Action string `yaml:"action,omitempty"`
+	// Custom command to execute (for custom type)
+	CustomCmd string `yaml:"customCmd,omitempty"`
 }
 
 type ProgressBarConfig struct {
@@ -908,8 +927,10 @@ func GetDefaultConfig() *UserConfig {
 			SwitchToFilesAfterStashApply: true,
 			SwitchTabsWithPanelJumpKeys:  false,
 			ActivityBar: ActivityBarConfig{
-				Show:  false, // 默认关闭，不影响现有用户
-				Width: 3,
+				Show:      false, // 默认关闭，不影响现有用户
+				Width:     3,
+				IconStyle: "auto", // 自动检测（优先 Nerd Fonts）
+				Items:     nil,    // nil 表示使用默认列表
 			},
 			ProgressBar: ProgressBarConfig{
 				Style:          "block",

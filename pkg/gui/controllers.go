@@ -198,6 +198,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 	statusController := controllers.NewStatusController(common)
 	commandLogController := controllers.NewCommandLogController(common)
 	aiCodeReviewController := controllers.NewAICodeReviewController(common)
+	activityBarController := controllers.NewActivityBarController(common, syncController.HandlePull, syncController.HandlePush)
 	confirmationController := controllers.NewConfirmationController(common)
 	promptController := controllers.NewPromptController(common)
 	suggestionsController := controllers.NewSuggestionsController(common)
@@ -434,6 +435,10 @@ func (gui *Gui) resetHelpersAndControllers() {
 
 	controllers.AttachControllers(gui.State.Contexts.Snake,
 		snakeController,
+	)
+
+	controllers.AttachControllers(gui.State.Contexts.ActivityBar,
+		activityBarController,
 	)
 
 	// this must come last so that we've got our click handlers defined against the context

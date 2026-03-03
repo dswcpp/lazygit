@@ -1,7 +1,0 @@
-gui:
-  activityBar:
-    show: true
-    width: 3
-  mouseEvents: true
-  showIcons: true
-  nerdFontsVersion: "3"

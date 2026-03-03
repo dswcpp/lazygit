@@ -27,6 +27,7 @@ import (
 	"github.com/dswcpp/lazygit/pkg/gui/context"
 	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
 	"github.com/dswcpp/lazygit/pkg/gui/keybindings"
+	guiModels "github.com/dswcpp/lazygit/pkg/gui/models"
 	"github.com/dswcpp/lazygit/pkg/gui/modes/cherrypicking"
 	"github.com/dswcpp/lazygit/pkg/gui/modes/diffing"
 	"github.com/dswcpp/lazygit/pkg/gui/modes/filtering"
@@ -81,6 +82,7 @@ type Gui struct {
 	Config               config.AppConfigurer
 	Updater              *updates.Updater
 	statusManager        *status.StatusManager
+	activityBarStatus    *guiModels.ActivityBarStatus
 	waitForIntro         sync.WaitGroup
 	viewBufferManagerMap map[string]*tasks.ViewBufferManager
 	// holds a mapping of view names to ptmx's. This is for rendering command outputs
@@ -487,6 +489,11 @@ func (gui *Gui) onUserConfigLoaded() error {
 		presentation.SetCustomBranches(userConfig.Gui.BranchColors, false)
 	}
 
+	// 加载 Activity Bar 项目
+	if gui.State != nil && gui.State.Model != nil {
+		gui.loadActivityBarItems()
+	}
+
 	return nil
 }
 
@@ -588,6 +595,7 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs) types.Context {
 			Authors:               map[string]*models.Author{},
 			MainBranches:          git_commands.NewMainBranches(gui.c.Common, gui.os.Cmd),
 			HashPool:              &utils.StringPool{},
+			ActivityBarItems:      make([]*models.ActivityBarItem, 0),
 		},
 		Modes: &types.Modes{
 			Filtering:        filtering.New(startArgs.FilterPath, ""),
@@ -692,6 +700,7 @@ func NewGui(
 		Config:               configurer,
 		Updater:              updater,
 		statusManager:        status.NewStatusManager(),
+		activityBarStatus:    guiModels.NewActivityBarStatus(),
 		viewBufferManagerMap: map[string]*tasks.ViewBufferManager{},
 		viewPtmxMap:          map[string]*os.File{},
 		showRecentRepos:      showRecentRepos,
@@ -1138,4 +1147,8 @@ func (gui *Gui) afterLayout(f func() error) {
 		// hopefully this never happens
 		gui.c.Log.Error("afterLayoutFuncs channel is full, skipping function")
 	}
+}
+
+func (gui *Gui) GetActivityBarStatus() interface{} {
+	return gui.activityBarStatus
 }

@@ -115,6 +115,7 @@ func NewContextTree(c *ContextCommon) *ContextTree {
 			}),
 		),
 		AICodeReview: NewAICodeReviewContext(c),
+		ActivityBar:  NewActivityBarContext(c),
 		Snake: NewSimpleContext(
 			NewBaseContext(NewBaseContextOpts{
 				Kind:       types.SIDE_CONTEXT,

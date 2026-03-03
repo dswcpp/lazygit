@@ -187,3 +187,7 @@ func (self *guiCommon) WithInlineStatus(item types.HasUrn, operation types.ItemO
 	self.gui.helpers.InlineStatus.WithInlineStatus(helpers.InlineStatusOpts{Item: item, Operation: operation, ContextKey: contextKey}, f)
 	return nil
 }
+
+func (self *guiCommon) GetActivityBarStatus() interface{} {
+	return self.gui.GetActivityBarStatus()
+}

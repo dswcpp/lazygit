@@ -161,8 +161,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 				)
 				if err == nil {
 					activityBarView.Visible = true
-					// 渲染活动栏内容
-					gui.renderActivityBar()
+					// Activity Bar 的内容由 Context 系统自动渲染
 				}
 			}
 		}

@@ -385,55 +385,12 @@ func (gui *Gui) GetInitialKeybindings() ([]*types.Binding, []*gocui.ViewMouseBin
 		},
 	}
 
-	// 🆕 添加活动栏键绑定（仅在启用时）
-	if gui.c.UserConfig().Gui.ActivityBar.Show {
-		bindings = append(bindings, []*types.Binding{
-			{
-				ViewName:    "activityBar",
-				Key:         opts.GetKey(opts.Config.Universal.Select),
-				Handler:     gui.handleActivityBarSelect,
-				Description: "Execute",
-			},
-			{
-				ViewName:    "activityBar",
-				Key:         opts.GetKey(opts.Config.Universal.PrevItem),
-				Handler:     gui.handleActivityBarPrevLine,
-				Description: "Previous item",
-			},
-			{
-				ViewName:    "activityBar",
-				Key:         opts.GetKey(opts.Config.Universal.NextItem),
-				Handler:     gui.handleActivityBarNextLine,
-				Description: "Next item",
-			},
-			{
-				ViewName: "activityBar",
-				Key:      gocui.MouseLeft,
-				Handler:  func() error { return nil }, // 鼠标处理在 mouseKeybindings 中
-			},
-			{
-				ViewName: "activityBar",
-				Key:      gocui.MouseWheelUp,
-				Handler:  gui.handleActivityBarPrevLine,
-			},
-			{
-				ViewName: "activityBar",
-				Key:      gocui.MouseWheelDown,
-				Handler:  gui.handleActivityBarNextLine,
-			},
-		}...)
-	}
+	// 注意：Activity Bar 的键绑定现在由 ActivityBarController 自动注册
+	// 不再需要手动添加键绑定
 
 	mouseKeybindings := []*gocui.ViewMouseBinding{}
 
-	// 🆕 添加活动栏鼠标绑定（仅在启用时）
-	if gui.c.UserConfig().Gui.ActivityBar.Show {
-		mouseKeybindings = append(mouseKeybindings, &gocui.ViewMouseBinding{
-			ViewName: "activityBar",
-			Key:      gocui.MouseLeft,
-			Handler:  gui.handleActivityBarClick,
-		})
-	}
+	// 注意：Activity Bar 的鼠标绑定现在由 ActivityBarController 自动注册
 
 	for _, c := range gui.State.Contexts.Flatten() {
 		viewName := c.GetViewName()
