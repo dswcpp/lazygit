@@ -136,6 +136,11 @@ func (gui *Gui) createAIChatPopup(chat *AIChat) error {
 	inputView.Title = " ✏️  输入消息 "
 	inputView.Editable = true
 	inputView.Wrap = true
+	inputView.Editor = gocui.EditorFunc(func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
+		return gui.handleEditorKeypress(v, key, ch, mod, true)
+	})
+	// 初始化 TextArea，避免空 view 被鼠标点击时 lines[-1] 越界 panic
+	inputView.RenderTextArea()
 	chat.inputView = inputView
 
 	// 渲染初始内容
@@ -162,11 +167,10 @@ func (gui *Gui) setAIChatKeyBindings(chat *AIChat) {
 		return chat.sendMessage()
 	})
 
-	// Ctrl+Enter - 换行
+	// Alt+Enter - 换行（TextArea 模式）
 	gui.g.SetKeybinding("aiChatInput", gocui.KeyEnter, gocui.ModAlt, func(g *gocui.Gui, v *gocui.View) error {
-		cx, cy := v.Cursor()
-		v.SetCursor(cx, cy+1)
-		fmt.Fprintln(v)
+		v.TextArea.TypeCharacter("\n")
+		v.RenderTextArea()
 		return nil
 	})
 
@@ -285,8 +289,8 @@ func (gui *Gui) setAIChatKeyBindings(chat *AIChat) {
 
 // sendMessage 发送消息
 func (chat *AIChat) sendMessage() error {
-	// 获取输入内容
-	content := strings.TrimSpace(chat.inputView.Buffer())
+	// 获取输入内容（TextArea 模式）
+	content := strings.TrimSpace(chat.inputView.TextArea.GetContent())
 	if content == "" {
 		return nil
 	}
@@ -296,9 +300,8 @@ func (chat *AIChat) sendMessage() error {
 	chat.historyIndex = len(chat.inputHistory)
 
 	// 清空输入框
-	chat.inputView.Clear()
-	chat.inputView.SetCursor(0, 0)
-	chat.inputView.SetOrigin(0, 0)
+	chat.inputView.ClearTextArea()
+	chat.inputView.RenderTextArea()
 
 	// 添加用户消息
 	chat.addUserMessage(content)
@@ -688,14 +691,14 @@ func (chat *AIChat) navigateHistory(direction int) error {
 
 	chat.historyIndex = newIndex
 
-	// 更新输入框内容
-	chat.inputView.Clear()
-	chat.inputView.SetCursor(0, 0)
-	chat.inputView.SetOrigin(0, 0)
-
+	// 更新输入框内容（TextArea 模式）
+	chat.inputView.ClearTextArea()
 	if chat.historyIndex < len(chat.inputHistory) {
-		fmt.Fprint(chat.inputView, chat.inputHistory[chat.historyIndex])
+		for _, ch := range chat.inputHistory[chat.historyIndex] {
+			chat.inputView.TextArea.TypeCharacter(string(ch))
+		}
 	}
+	chat.inputView.RenderTextArea()
 
 	return nil
 }
