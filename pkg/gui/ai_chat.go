@@ -232,6 +232,14 @@ func (gui *Gui) setAIChatKeyBindings(chat *AIChat) {
 		return chat.copyLastResponse()
 	})
 
+	// x - 提取并静默执行上一条 AI 回复中的命令
+	gui.g.SetKeybinding("aiChat", 'x', gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
+		return chat.executeLastResponseCommands()
+	})
+	gui.g.SetKeybinding("aiChatInput", 'x', gocui.ModAlt, func(*gocui.Gui, *gocui.View) error {
+		return chat.executeLastResponseCommands()
+	})
+
 	// Tab - 切换到输入框
 	gui.g.SetKeybinding("aiChat", gocui.KeyTab, gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
 		gui.g.SetCurrentView("aiChatInput")

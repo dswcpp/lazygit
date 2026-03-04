@@ -436,6 +436,62 @@ func parseAICommands(response string) []string {
 	return cmds
 }
 
+// ExtractCommandsFromMessage 从 AI 消息文本中提取可执行命令。
+// 优先提取代码块（```...```）中的内容，其次提取以 git / $ 开头的行。
+func ExtractCommandsFromMessage(message string) []string {
+	var cmds []string
+
+	// 1. 提取代码块内容
+	lines := strings.Split(message, "\n")
+	inBlock := false
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "```") {
+			inBlock = !inBlock
+			continue
+		}
+		if inBlock {
+			if trimmed != "" && !strings.HasPrefix(trimmed, "#") {
+				cmds = append(cmds, trimmed)
+			}
+		}
+	}
+
+	// 2. 若代码块中无内容，则从正文中提取 git / $ 开头的行
+	if len(cmds) == 0 {
+		for _, line := range lines {
+			trimmed := strings.TrimSpace(line)
+			trimmed = strings.TrimPrefix(trimmed, "$ ")
+			if strings.HasPrefix(trimmed, "git ") {
+				cmds = append(cmds, trimmed)
+			}
+		}
+	}
+
+	return cmds
+}
+
+// ConfirmAndSilentExecute 展示待执行命令，用户确认后在后台静默执行（不弹出终端）并刷新界面。
+func (self *AIHelper) ConfirmAndSilentExecute(commands []string) error {
+	preview := strings.Join(commands, "\n")
+	self.c.Confirm(types.ConfirmOpts{
+		Title:  self.c.Tr.AIAssistantTitle,
+		Prompt: "确认静默执行以下命令？\n\n" + preview,
+		HandleConfirm: func() error {
+			cmdStr := strings.Join(commands, " && ")
+			self.c.LogAction("AI silent execute")
+			return self.c.WithWaitingStatus("正在执行命令...", func(_ gocui.Task) error {
+				if err := self.c.OS().Cmd.NewShell(cmdStr, self.c.UserConfig().OS.ShellFunctionsFile).Run(); err != nil {
+					return err
+				}
+				self.c.Refresh(types.RefreshOptions{Mode: types.ASYNC})
+				return nil
+			})
+		},
+	})
+	return nil
+}
+
 // buildGitContext collects comprehensive repository information to include in the AI prompt.
 // This enhanced version provides much richer context for better AI command generation.
 func (self *AIHelper) buildGitContext() string {
