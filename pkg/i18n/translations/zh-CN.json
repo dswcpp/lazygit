@@ -1011,7 +1011,7 @@
     "BisectSkip": "二分查找跳过",
     "BisectMark": "二分查找标记",
     "AddWorktree": "添加工作区",
-    "FixupCommitKeepMessage": "Fixup commit (keep message)"
+    "FixupCommitKeepMessage": "修正提交（保留消息）"
   },
   "Bisect": {
     "MarkStart": "将 %s 标记为 %s (start bisect)",
@@ -1246,12 +1246,12 @@
   "StagedFilesLabel": "已暂存：",
   "UnstagedFilesLabel": "未暂存：",
   "DiffTruncatedNote": "\n[diff 已截断，仅显示前 8000 字符]",
-  "FixupKeepMessage": "Fixup and use this commit's message",
-  "FixupKeepMessageTooltip": "Squash the selected commit into the commit below, using this commit's message, discarding the message of the commit below.",
-  "SetFixupMessage": "Set fixup message",
-  "SetFixupMessageTooltip": "Set the message option for the fixup commit. The -C option means to use this commit's message instead of the target commit's message.",
-  "FixupDiscardMessage": "Fixup and discard this commit's message",
-  "FixupDiscardMessageTooltip": "Squash the selected commit into the commit below, discarding this commit's message.",
-  "NotMidRebase": "This action only works during an interactive rebase",
-  "MustSelectFixupCommit": "This action only works on fixup commits"
+  "FixupKeepMessage": "修正并使用此提交的消息",
+  "FixupKeepMessageTooltip": "将所选提交压缩到下方的提交中，使用此提交的消息，丢弃下方提交的消息。",
+  "SetFixupMessage": "设置修正消息",
+  "SetFixupMessageTooltip": "为修正提交设置消息选项。-C 选项表示使用此提交的消息而不是目标提交的消息。",
+  "FixupDiscardMessage": "修正并丢弃此提交的消息",
+  "FixupDiscardMessageTooltip": "将所选提交压缩到下方的提交中，丢弃此提交的消息。",
+  "NotMidRebase": "此操作仅在交互式变基期间有效",
+  "MustSelectFixupCommit": "此操作仅适用于修正提交"
 }
