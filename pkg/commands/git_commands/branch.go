@@ -295,6 +295,24 @@ func (self *BranchCommands) CanDoFastForwardMerge(refName string) bool {
 	return err == nil
 }
 
+// GetBranchesContainingCommit 返回所有包含指定 commit 的分支（本地+远程）
+func (self *BranchCommands) GetBranchesContainingCommit(hash string) ([]string, error) {
+	cmdArgs := NewGitCmd("branch").
+		Arg("-a").
+		Arg("--contains", hash).
+		Arg("--format=%(refname:short)").
+		ToArgv()
+
+	output, err := self.cmd.New(cmdArgs).DontLog().RunWithOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Filter(utils.SplitLines(output), func(b string, _ int) bool {
+		return b != ""
+	}), nil
+}
+
 // Only choose between non-empty, non-identical commands
 func (self *BranchCommands) allBranchesLogCandidates() []string {
 	return lo.Uniq(lo.WithoutEmpty(self.UserConfig().Git.AllBranchesLogCmds))

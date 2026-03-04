@@ -1005,6 +1005,10 @@ type TranslationSet struct {
 	CantChangeContextSizeError               string
 	OpenCommitInBrowser                      string
 	ViewBisectOptions                        string
+	ViewBranchesContainingCommit             string
+	ViewBranchesContainingCommitTooltip      string
+	NoBranchesContainingCommit               string
+	EnterCommitHashToFindBranches            string
 	ConfirmRevertCommit                      string
 	ConfirmRevertCommitRange                 string
 	RewordInEditorTitle                      string
@@ -2312,6 +2316,10 @@ func EnglishTranslationSet() *TranslationSet {
 		CantChangeContextSizeError:               "Cannot change context while in patch building mode because we were too lazy to support it when releasing the feature. If you really want it, please let us know!",
 		OpenCommitInBrowser:                      "Open commit in browser",
 		ViewBisectOptions:                        "View bisect options",
+		ViewBranchesContainingCommit:             "View branches containing this commit",
+		ViewBranchesContainingCommitTooltip:      "Show all local and remote branches that contain this commit.",
+		NoBranchesContainingCommit:               "No branches contain this commit",
+		EnterCommitHashToFindBranches:            "Enter commit hash:",
 		ConfirmRevertCommit:                      "Are you sure you want to revert {{.selectedCommit}}?",
 		ConfirmRevertCommitRange:                 "Are you sure you want to revert the selected commits?",
 		RewordInEditorTitle:                      "Reword in editor",

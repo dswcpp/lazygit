@@ -129,6 +129,13 @@ func (self *BasicCommitsController) GetKeybindings(opts types.KeybindingsOpts) [
 			GetDisabledReason: self.require(self.canSelectCommitsOfCurrentBranch),
 			Description:       self.c.Tr.SelectCommitsOfCurrentBranch,
 		},
+		{
+			Key:         opts.GetKey(opts.Config.Commits.ViewBranchesContainingCommit),
+			Handler:     self.promptAndShowBranchesContainingCommit,
+			Description: self.c.Tr.ViewBranchesContainingCommit,
+			Tooltip:     self.c.Tr.ViewBranchesContainingCommitTooltip,
+			OpensMenu:   true,
+		},
 	}
 
 	return bindings
@@ -424,4 +431,47 @@ func (self *BasicCommitsController) selectCommitsOfCurrentBranch() error {
 	self.context.SetSelectionRangeAndMode(0, index-1, mode)
 	self.context.HandleFocus(types.OnFocusOpts{})
 	return nil
+}
+
+func (self *BasicCommitsController) promptAndShowBranchesContainingCommit() error {
+	// 预填当前选中 commit 的 hash（若有）
+	initialHash := ""
+	if commit := self.context.GetSelected(); commit != nil {
+		initialHash = commit.Hash()
+	}
+
+	self.c.Prompt(types.PromptOpts{
+		Title:          self.c.Tr.EnterCommitHashToFindBranches,
+		InitialContent: initialHash,
+		HandleConfirm: func(hash string) error {
+			return self.showBranchesContainingCommit(strings.TrimSpace(hash))
+		},
+	})
+	return nil
+}
+
+func (self *BasicCommitsController) showBranchesContainingCommit(hash string) error {
+	branches, err := self.c.Git().Branch.GetBranchesContainingCommit(hash)
+	if err != nil {
+		return err
+	}
+
+	if len(branches) == 0 {
+		self.c.Alert(self.c.Tr.ViewBranchesContainingCommit, self.c.Tr.NoBranchesContainingCommit)
+		return nil
+	}
+
+	menuItems := lo.Map(branches, func(branch string, _ int) *types.MenuItem {
+		return &types.MenuItem{
+			Label: branch,
+			OnPress: func() error {
+				return nil
+			},
+		}
+	})
+
+	return self.c.Menu(types.CreateMenuOptions{
+		Title: self.c.Tr.ViewBranchesContainingCommit,
+		Items: menuItems,
+	})
 }
