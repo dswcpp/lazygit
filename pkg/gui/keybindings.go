@@ -200,6 +200,12 @@ func (gui *Gui) GetInitialKeybindings() ([]*types.Binding, []*gocui.ViewMouseBin
 			OpensMenu:   true,
 		},
 		{
+			ViewName:    "",
+			Key:         gocui.KeyCtrlY,
+			Handler:     gui.ShowAIChat,
+			Description: gui.c.Tr.OpenAIAssistant,
+		},
+		{
 			ViewName:    "main",
 			Key:         gocui.MouseWheelDown,
 			Handler:     gui.scrollDownMain,

@@ -36,38 +36,56 @@ type AIChat struct {
 	maxHeight     int      // 最大高度
 }
 
-// ShowAIChat 显示 AI 对话框
+// ShowAIChat 显示 AI 对话框（复用上次会话，历史不丢失）
 func (gui *Gui) ShowAIChat() error {
+	return gui.showAIChatInternal("")
+}
+
+// ShowAIChatWithFollowUp 携带上下文内容打开 AI 对话框，用于从其他面板（如代码审查）继续对话
+func (gui *Gui) ShowAIChatWithFollowUp(contextContent string) error {
+	return gui.showAIChatInternal(contextContent)
+}
+
+func (gui *Gui) showAIChatInternal(followUpContext string) error {
 	if gui.c.AI == nil {
 		gui.ShowError("AI 未启用", "请先在设置中启用并配置 AI 功能。", "提示：按 'o' 打开设置菜单")
 		return nil
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	maxX, maxY := gui.g.Size()
-	chat := &AIChat{
-		gui:          gui,
-		messages:     []ChatMessage{},
-		ctx:          ctx,
-		cancel:       cancel,
-		inputHistory: []string{},
-		historyIndex: -1,
-		maxWidth:     maxX - 10,
-		maxHeight:    maxY - 6,
+	// 复用已有会话，保留历史消息
+	if gui.aiChatSession == nil {
+		ctx, cancel := context.WithCancel(context.Background())
+		maxX, maxY := gui.g.Size()
+		chat := &AIChat{
+			gui:          gui,
+			messages:     []ChatMessage{},
+			ctx:          ctx,
+			cancel:       cancel,
+			inputHistory: []string{},
+			historyIndex: -1,
+			maxWidth:     maxX - 10,
+			maxHeight:    maxY - 6,
+		}
+		chat.addSystemMessage("欢迎使用 AI 助手！")
+		chat.addAssistantMessage(
+			"你好！我是你的 Git 智能助手 🤖\n\n" +
+				"我可以帮你：\n" +
+				"  • 解答 Git 相关问题\n" +
+				"  • 分析当前仓库状态\n" +
+				"  • 提供操作建议和最佳实践\n" +
+				"  • 生成和解释 Git 命令\n\n" +
+				"有什么我可以帮助你的吗？",
+		)
+		gui.aiChatSession = chat
 	}
 
-	// 添加欢迎消息
-	chat.addSystemMessage("欢迎使用 AI 助手！")
-	chat.addAssistantMessage(
-		"你好！我是你的 Git 智能助手 🤖\n\n" +
-		"我可以帮你：\n" +
-		"  • 解答 Git 相关问题\n" +
-		"  • 分析当前仓库状态\n" +
-		"  • 提供操作建议和最佳实践\n" +
-		"  • 生成和解释 Git 命令\n\n" +
-		"有什么我可以帮助你的吗？",
-	)
+	chat := gui.aiChatSession
+
+	// 如果携带外部上下文（例如来自代码审查），作为 assistant 消息注入，并提示用户继续提问
+	if followUpContext != "" {
+		chat.addSystemMessage("─── 以下内容来自上一次 AI 分析，你可以继续追问 ───")
+		chat.addAssistantMessage(followUpContext)
+	}
 
 	return gui.createAIChatPopup(chat)
 }
@@ -897,19 +915,23 @@ func (chat *AIChat) showHelp() error {
 	return nil
 }
 
-// CloseAIChat 关闭 AI 对话框
+// CloseAIChat 关闭 AI 对话框（保留会话历史，下次打开可继续）
 func (gui *Gui) CloseAIChat(chat *AIChat) error {
-	// 取消上下文
+	// 重建 context，以便下次打开时仍可发送请求
 	if chat.cancel != nil {
 		chat.cancel()
 	}
+	ctx, cancel := context.WithCancel(context.Background())
+	chat.ctx = ctx
+	chat.cancel = cancel
+	chat.isTyping = false
 
 	// 删除键盘绑定
 	gui.g.DeleteViewKeybindings("aiChat")
 	gui.g.DeleteViewKeybindings("aiChatInput")
 	gui.g.DeleteViewKeybindings("aiChatStatus")
 
-	// 删除视图
+	// 删除视图（会话历史保留在 gui.aiChatSession 中）
 	gui.g.DeleteView("aiChat")
 	gui.g.DeleteView("aiChatInput")
 	gui.g.DeleteView("aiChatStatus")

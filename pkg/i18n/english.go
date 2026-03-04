@@ -860,6 +860,7 @@ type TranslationSet struct {
 	CancelDiffingMode                     string
 	OpenCommandLogMenu                    string
 	OpenCommandLogMenuTooltip             string
+	OpenAIAssistant                       string
 	ShowingGitDiff                        string
 	ShowingDiffForRange                   string
 	CommitDiff                            string
@@ -2174,6 +2175,7 @@ func EnglishTranslationSet() *TranslationSet {
 		// the actual view is the extras view which I intend to give more tabs in future but for now we'll only mention the command log part
 		OpenCommandLogMenu:                       "View command log options",
 		OpenCommandLogMenuTooltip:                "View options for the command log e.g. show/hide the command log and focus the command log.",
+		OpenAIAssistant:                          "Open AI git assistant",
 		ShowingGitDiff:                           "Showing output for:",
 		ShowingDiffForRange:                      "Showing diff for range",
 		CommitDiff:                               "Commit diff",
