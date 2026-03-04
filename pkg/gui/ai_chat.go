@@ -3,6 +3,7 @@ package gui
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"strings"
 	"time"
 
@@ -342,6 +343,18 @@ func (chat *AIChat) getAIResponse(userMessage string) {
 	})
 }
 
+// currentShellInfo 返回当前 OS 和推荐 shell 的描述，用于注入到提示词
+func currentShellInfo() string {
+	switch runtime.GOOS {
+	case "windows":
+		return "操作系统: Windows\n推荐 Shell: Git Bash（直接使用 && 连接命令，不要用 cmd /c 或 ^&^& 转义）"
+	case "darwin":
+		return "操作系统: macOS\n推荐 Shell: zsh/bash（直接使用 && 连接命令）"
+	default:
+		return "操作系统: Linux\n推荐 Shell: bash（直接使用 && 连接命令）"
+	}
+}
+
 // buildPrompt 构建提示词
 func (chat *AIChat) buildPrompt(userMessage string) string {
 	var sb strings.Builder
@@ -349,6 +362,13 @@ func (chat *AIChat) buildPrompt(userMessage string) string {
 	// 系统提示
 	sb.WriteString("你是一个专业的 Git 助手，运行在 lazygit 终端界面中。\n")
 	sb.WriteString("你的职责是帮助用户理解和使用 Git，回答问题，提供建议。\n\n")
+	sb.WriteString("═══ 运行环境 ═══\n")
+	sb.WriteString(currentShellInfo())
+	sb.WriteString("\n\n")
+	sb.WriteString("命令格式要求：\n")
+	sb.WriteString("- 根据上述运行环境生成对应格式的命令\n")
+	sb.WriteString("- Windows Git Bash 用 &&，不要用 cmd /c 或 ^&^& 转义\n")
+	sb.WriteString("- 不要在命令外面套 cmd /c \"...\"\n\n")
 	sb.WriteString("回答要求：\n")
 	sb.WriteString("- 简洁、准确、实用\n")
 	sb.WriteString("- 使用清晰的格式和结构\n")

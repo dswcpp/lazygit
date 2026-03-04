@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -41,12 +42,26 @@ func (self *AICommandHelper) GenerateShellCommand(userIntent string) ([]CommandS
 	// Build repository context
 	repoContext := self.aiHelper.buildGitContext()
 
+	// Detect OS for shell-specific command format
+	osShellHint := func() string {
+		switch runtime.GOOS {
+		case "windows":
+			return "运行环境: Windows + Git Bash\n命令格式: 直接用 && 连接多个命令，禁止使用 cmd /c 或 ^&^& 转义"
+		case "darwin":
+			return "运行环境: macOS + zsh/bash\n命令格式: 直接用 && 连接多个命令"
+		default:
+			return "运行环境: Linux + bash\n命令格式: 直接用 && 连接多个命令"
+		}
+	}()
+
 	// Create detailed prompt for structured JSON output
 	prompt := fmt.Sprintf(`你是一个 Git 命令专家。根据用户意图生成精确的 shell 命令。
 
+%s
+
 规则：
 1. 输出 JSON 数组，每个元素包含：
-   - "command": 完整的可执行命令
+   - "command": 完整的可执行命令（必须符合上述运行环境的格式）
    - "explanation": 命令的中文解释（简洁，1-2 句话）
    - "risk_level": 风险等级（必须是 "safe", "medium", "dangerous" 之一）
    - "alternatives": 替代命令（可选，如果有更安全的方案）
@@ -81,6 +96,7 @@ func (self *AICommandHelper) GenerateShellCommand(userIntent string) ([]CommandS
 ]
 
 输出（仅 JSON，不要其他内容）：`,
+		osShellHint,
 		repoContext,
 		userIntent,
 	)
