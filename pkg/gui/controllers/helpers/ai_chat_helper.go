@@ -212,7 +212,10 @@ func (s *AIChatSession) render() {
 		}
 	}
 
-	if s.isTyping && total == 0 {
+	if s.isTyping && len(agentMsgs) == 0 {
+		if total > 0 {
+			fmt.Fprintln(aiView)
+		}
 		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint("正在思考..."))
 	}
 
@@ -221,6 +224,16 @@ func (s *AIChatSession) render() {
 		aiView.ScrollDown(9999)
 		s.scrollToBottom = false
 	}
+}
+
+// flushAgentSession moves all messages from the current agent session into s.messages
+// so they survive across turns, then clears agentSession.
+func (s *AIChatSession) flushAgentSession() {
+	if s.agentSession == nil {
+		return
+	}
+	s.messages = append(s.messages, s.agentUIMessages()...)
+	s.agentSession = nil
 }
 
 // agentUIMessages converts the current agent session's UIMessages to ChatMessages for rendering.
@@ -377,6 +390,7 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 
 	s.c.GocuiGui().Update(func(*gocui.Gui) error {
 		s.isTyping = false
+		s.flushAgentSession()
 		if err != nil && !errors.Is(err, context.Canceled) {
 			s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
 		}
@@ -425,6 +439,7 @@ func (s *AIChatSession) clearHistory() error {
 		Prompt: "确定要清空对话历史吗？此操作不可撤销。",
 		HandleConfirm: func() error {
 			s.messages = []ChatMessage{}
+			s.agentSession = nil
 			s.addSystemMessage("对话历史已清空")
 			s.addAssistantMessage("有什么我可以帮助你的吗？")
 			s.render()
@@ -443,6 +458,7 @@ func (s *AIChatSession) stopGeneration() error {
 			s.cancel = cancel
 		}
 		s.isTyping = false
+		s.flushAgentSession()
 		s.addSystemMessage("已停止生成")
 		s.render()
 		s.c.Toast("已停止 AI 生成")

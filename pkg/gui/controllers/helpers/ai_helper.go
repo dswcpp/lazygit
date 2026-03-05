@@ -11,7 +11,6 @@ import (
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/ai"
 	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
-	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/config"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
@@ -364,7 +363,7 @@ func (self *AIHelper) OpenAIAssistant() error {
 				return nil
 			}
 			self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIAssistantStatus, func(_ gocui.Task) error {
-				repoCtx := self.buildGitContext()
+				repoCtx := self.c.AIManager.RepoContext().CompactString()
 				prompt := fmt.Sprintf(
 					self.c.Tr.AIAssistantSystemPrompt+
 						self.c.Tr.AIAssistantRules+
@@ -630,117 +629,6 @@ func buildSequentialCommandScript(commands []string, osName string) string {
 	lines := []string{"set -e"}
 	lines = append(lines, commands...)
 	return strings.Join(lines, "\n")
-}
-
-// buildGitContext collects comprehensive repository information to include in the AI prompt.
-// This enhanced version provides much richer context for better AI command generation.
-func (self *AIHelper) buildGitContext() string {
-	var sb strings.Builder
-
-	// Current branch with tracking information
-	var currentBranch *models.Branch
-	if len(self.c.Model().Branches) > 0 {
-		currentBranch = self.c.Model().Branches[0]
-	}
-	if currentBranch != nil {
-		sb.WriteString(fmt.Sprintf(self.c.Tr.CurrentBranch+"\n", currentBranch.Name))
-
-		// Branch tracking status (ahead/behind remote)
-		if currentBranch.IsTrackingRemote() {
-			// AheadForPull and BehindForPull are strings, check if they're not empty
-			ahead := currentBranch.AheadForPull
-			behind := currentBranch.BehindForPull
-
-			if ahead != "" || behind != "" {
-				if ahead != "" && behind != "" {
-					sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchAheadBehind+"\n", currentBranch.UpstreamRemote, ahead, behind))
-				} else if ahead != "" {
-					sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchAhead+"\n", currentBranch.UpstreamRemote, ahead))
-				} else if behind != "" {
-					sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchBehind+"\n", currentBranch.UpstreamRemote, behind))
-				}
-			} else {
-				sb.WriteString(fmt.Sprintf(self.c.Tr.TrackingRemoteBranchSynced+"\n", currentBranch.UpstreamRemote))
-			}
-		} else {
-			sb.WriteString(self.c.Tr.NotTrackingRemoteBranch + "\n")
-		}
-	} else {
-		sb.WriteString(fmt.Sprintf(self.c.Tr.CurrentBranch+"\n", self.c.Model().CheckedOutBranch))
-	}
-
-	// Working tree state (merge/rebase/cherry-pick in progress)
-	workingTreeState := self.c.Git().Status.WorkingTreeState()
-	if workingTreeState.Any() {
-		sb.WriteString(fmt.Sprintf(self.c.Tr.WorkingTreeState+"\n", workingTreeState.Title(self.c.Tr)))
-	}
-
-	// Staged and unstaged changes count
-	stagedCount := 0
-	unstagedCount := 0
-	untrackedCount := 0
-	files := self.c.Model().Files
-	for _, f := range files {
-		if f.HasStagedChanges {
-			stagedCount++
-		}
-		if f.HasUnstagedChanges {
-			unstagedCount++
-		}
-		if !f.Tracked {
-			untrackedCount++
-		}
-	}
-	if stagedCount > 0 || unstagedCount > 0 || untrackedCount > 0 {
-		sb.WriteString(fmt.Sprintf(self.c.Tr.ChangeStats+"\n", stagedCount, unstagedCount, untrackedCount))
-	}
-
-	// Recent commits (up to 10)
-	commits := self.c.Model().Commits
-	limit := 10
-	if len(commits) < limit {
-		limit = len(commits)
-	}
-	if limit > 0 {
-		sb.WriteString(self.c.Tr.RecentCommits + "\n")
-		for _, commit := range commits[:limit] {
-			sb.WriteString(fmt.Sprintf("  %s %s\n", commit.ShortHash(), commit.Name))
-		}
-	}
-
-	// Working tree files (detailed, limited to first 20)
-	if len(files) > 0 {
-		sb.WriteString(self.c.Tr.ChangedFiles + "\n")
-		displayLimit := 20
-		if len(files) < displayLimit {
-			displayLimit = len(files)
-		}
-		for i := 0; i < displayLimit; i++ {
-			f := files[i]
-			sb.WriteString(fmt.Sprintf("  %s %s\n", f.ShortStatus, f.Path))
-		}
-		if len(files) > displayLimit {
-			sb.WriteString(fmt.Sprintf(self.c.Tr.MoreFiles+"\n", len(files)-displayLimit))
-		}
-	}
-
-	// Stash list (if any)
-	stashEntries := self.c.Model().StashEntries
-	if len(stashEntries) > 0 {
-		sb.WriteString(fmt.Sprintf(self.c.Tr.StashList+"\n", len(stashEntries)))
-		stashLimit := 5
-		if len(stashEntries) < stashLimit {
-			stashLimit = len(stashEntries)
-		}
-		for i := 0; i < stashLimit; i++ {
-			sb.WriteString(fmt.Sprintf("  %s\n", stashEntries[i].Name))
-		}
-		if len(stashEntries) > stashLimit {
-			sb.WriteString(fmt.Sprintf(self.c.Tr.MoreStashes+"\n", len(stashEntries)-stashLimit))
-		}
-	}
-
-	return sb.String()
 }
 
 // ShowFirstTimeWizard guides new users through AI setup when they first try to use AI features.

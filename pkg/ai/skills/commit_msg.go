@@ -55,7 +55,8 @@ func (s *CommitMsgSkill) Execute(ctx context.Context, p provider.Provider, input
 func commitMsgSystemPrompt() string {
 	return `你是一名经验丰富的软件工程师，专门负责撰写高质量的 Git 提交信息。
 遵循 Conventional Commits 规范（https://www.conventionalcommits.org/）。
-只输出提交信息本身，不要任何额外说明、前缀或引号。`
+只输出提交信息本身，不要任何额外说明、前缀或引号。
+提交信息（subject 和 body）必须使用中文。`
 }
 
 func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote string) string {
@@ -79,11 +80,16 @@ func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote st
 	sb.WriteString("\n```\n\n")
 
 	sb.WriteString("## 输出规则\n")
-	sb.WriteString("- 格式: `<type>(<scope>): <subject>`\n")
+	sb.WriteString("- 格式:\n")
+	sb.WriteString("  ```\n")
+	sb.WriteString("  <type>(<scope>): <subject>\n")
+	sb.WriteString("  \n")
+	sb.WriteString("  <body>\n")
+	sb.WriteString("  ```\n")
 	sb.WriteString("- type: feat | fix | refactor | docs | test | chore | perf | style | ci | revert\n")
-	sb.WriteString("- subject: 动词开头，祈使句，不超过 72 字符\n")
+	sb.WriteString("- subject: 中文，动词开头，祈使句，不超过 72 字符\n")
 	sb.WriteString("- scope 可省略\n")
-	sb.WriteString("- 如变更较复杂，可在空行后添加正文（body）\n\n")
+	sb.WriteString("- body: 必须包含，与 subject 之间空一行，用中文说明本次变更的原因和主要内容（1-4 行）\n\n")
 
 	switch scenario {
 	case "bugfix":
@@ -95,7 +101,7 @@ func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote st
 	case "test":
 		sb.WriteString("场景提示: 这是测试相关变更，使用 test 类型。\n")
 	case "large":
-		sb.WriteString("场景提示: 变更较大，优先用 body 列举关键点，subject 保持简洁。\n")
+		sb.WriteString("场景提示: 变更较大，body 须逐点列举主要变更，subject 保持简洁。\n")
 	}
 
 	sb.WriteString("\n请直接输出提交信息：")
