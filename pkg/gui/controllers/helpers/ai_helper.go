@@ -412,6 +412,9 @@ func (self *AIHelper) confirmAndExecuteCommands(commands []string) error {
 	if len(normalizedCommands) == 0 {
 		return errors.New(self.c.Tr.AIAssistantNoCommands)
 	}
+	if err := validateAICommands(normalizedCommands); err != nil {
+		return err
+	}
 
 	preview := strings.Join(normalizedCommands, "\n")
 	self.c.Confirm(types.ConfirmOpts{
@@ -536,6 +539,9 @@ func (self *AIHelper) ConfirmAndSilentExecute(commands []string) error {
 	if len(normalizedCommands) == 0 {
 		return errors.New(self.c.Tr.AIAssistantSilentNoCommands)
 	}
+	if err := validateAICommands(normalizedCommands); err != nil {
+		return err
+	}
 
 	preview := strings.Join(normalizedCommands, "\n")
 	self.c.Confirm(types.ConfirmOpts{
@@ -565,6 +571,39 @@ func normalizeAICommands(commands []string) []string {
 		}
 	}
 	return normalizedCommands
+}
+
+func validateAICommands(commands []string) error {
+	for i, cmd := range commands {
+		if hasUnquotedGitCommitMessage(cmd) {
+			return fmt.Errorf("第 %d 条命令可能无效：git commit -m 的提交信息包含空格时必须加引号", i+1)
+		}
+	}
+	return nil
+}
+
+func hasUnquotedGitCommitMessage(command string) bool {
+	trimmed := strings.TrimSpace(command)
+	if !strings.HasPrefix(trimmed, "git commit") {
+		return false
+	}
+
+	idx := strings.Index(trimmed, " -m ")
+	if idx == -1 {
+		return false
+	}
+
+	msg := strings.TrimSpace(trimmed[idx+4:])
+	if msg == "" {
+		return false
+	}
+
+	first := msg[0]
+	if first == '"' || first == '\'' {
+		return false
+	}
+
+	return len(strings.Fields(msg)) > 1
 }
 
 func buildSequentialCommandScript(commands []string, osName string) string {

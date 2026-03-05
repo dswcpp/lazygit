@@ -593,6 +593,8 @@ func (chat *AIChat) buildPrompt(userMessage string) string {
 	sb.WriteString("- 根据上述运行环境生成对应格式的命令\n")
 	sb.WriteString("- Windows Git Bash 用 &&，不要用 cmd /c 或 ^&^& 转义\n")
 	sb.WriteString("- 不要在命令外面套 cmd /c \"...\"\n\n")
+	sb.WriteString("- git commit -m 的提交信息如果包含空格，必须使用双引号\n")
+	sb.WriteString("- 如果需要执行多条命令，请按“一行一条命令”返回\n\n")
 	sb.WriteString("回答要求：\n")
 	sb.WriteString("- 简洁、准确、实用\n")
 	sb.WriteString("- 使用清晰的格式和结构\n")

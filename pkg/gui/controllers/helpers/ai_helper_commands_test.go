@@ -59,3 +59,24 @@ func TestBuildSequentialCommandScript_Posix(t *testing.T) {
 	assert.Equal(t, "set -e\ncd repo\ngit status", script)
 }
 
+func TestHasUnquotedGitCommitMessage(t *testing.T) {
+	assert.True(t, hasUnquotedGitCommitMessage("git commit -m Auto commit before merge"))
+	assert.False(t, hasUnquotedGitCommitMessage(`git commit -m "Auto commit before merge"`))
+	assert.False(t, hasUnquotedGitCommitMessage("git status"))
+}
+
+func TestValidateAICommands(t *testing.T) {
+	err := validateAICommands([]string{
+		"git add -A",
+		"git commit -m Auto commit before merge",
+		"git push",
+	})
+	assert.Error(t, err)
+
+	err = validateAICommands([]string{
+		"git add -A",
+		`git commit -m "Auto commit before merge"`,
+		"git push",
+	})
+	assert.NoError(t, err)
+}
