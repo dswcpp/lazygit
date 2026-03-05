@@ -44,9 +44,9 @@ func NewCreateBranchTool(d *Deps) tools.Tool { return &CreateBranchTool{d} }
 func (t *CreateBranchTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "create_branch",
-		Description: "创建新分支；checkout=true（默认）时同时切换过去（git checkout -b），false 时仅创建不切换（git branch）",
+		Description: "创建新分支。分支名由 AI 根据用户描述自动生成（feature/xxx、fix/xxx 等 kebab-case 格式），不要询问用户；checkout=true（默认）时同时切换过去",
 		Params: map[string]tools.ParamSchema{
-			"name":     {Type: "string", Description: "新分支名", Required: true},
+			"name":     {Type: "string", Description: "分支名，格式 类型/功能描述（kebab-case），如 feature/user-login", Required: true},
 			"base":     {Type: "string", Description: "基础 ref（默认 HEAD）"},
 			"checkout": {Type: "bool", Description: "创建后是否切换到新分支（默认 true）"},
 		},

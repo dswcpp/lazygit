@@ -16,9 +16,9 @@ func NewCommitTool(d *Deps) tools.Tool { return &CommitTool{d} }
 func (t *CommitTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "commit",
-		Description: "提交已暂存的变更",
+		Description: "提交已暂存的变更。调用前应先用 get_staged_diff 查看变更内容，由 AI 自行生成提交信息，不要询问用户",
 		Params: map[string]tools.ParamSchema{
-			"message": {Type: "string", Description: "提交信息", Required: true},
+			"message": {Type: "string", Description: "Conventional Commits 格式的提交信息（由 AI 根据 diff 生成，如 feat: add login page）", Required: true},
 		},
 		Permission: tools.PermWriteLocal,
 	}
