@@ -78,6 +78,9 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		// AI code review floating popup
 		{viewPtr: &gui.Views.AICodeReview, name: "aiCodeReview"},
 
+		// AI chat floating popup
+		{viewPtr: &gui.Views.AIChat, name: "aiChat"},
+
 		// loading overlay: renders on top of everything
 		{viewPtr: &gui.Views.Loading, name: "loading"},
 	}
@@ -164,6 +167,10 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.AICodeReview.Visible = false
 	gui.Views.AICodeReview.Wrap = true
 	gui.Views.AICodeReview.Autoscroll = true
+
+	gui.Views.AIChat.Visible = false
+	gui.Views.AIChat.Wrap = true
+	gui.Views.AIChat.Autoscroll = true
 
 	return nil
 }

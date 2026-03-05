@@ -51,6 +51,9 @@ type Views struct {
 	// floating popup for AI code review results
 	AICodeReview *gocui.View
 
+	// floating popup for AI chat
+	AIChat *gocui.View
+
 	// VSCode-style activity bar on the left
 	ActivityBar *gocui.View
 }

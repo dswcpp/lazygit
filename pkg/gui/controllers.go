@@ -140,6 +140,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 	aiHelper := helpers.NewAIHelper(helperCommon, loadingHelper)
 	gui.helpers.AI = aiHelper
 	gui.helpers.AICodeReview = helpers.NewAICodeReviewHelper(helperCommon, loadingHelper, aiHelper)
+	gui.helpers.AIChat = helpers.NewAIChatHelper(helperCommon, aiHelper)
 	commitsHelper.SetAIHelper(aiHelper)
 
 	gui.CustomCommandsClient = custom_commands.NewClient(
@@ -202,6 +203,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 	statusController := controllers.NewStatusController(common)
 	commandLogController := controllers.NewCommandLogController(common)
 	aiCodeReviewController := controllers.NewAICodeReviewController(common)
+	aiChatController := controllers.NewAIChatController(common)
 	activityBarController := controllers.NewActivityBarController(common, syncController.HandlePull, syncController.HandlePush)
 	confirmationController := controllers.NewConfirmationController(common)
 	promptController := controllers.NewPromptController(common)
@@ -410,6 +412,11 @@ func (gui *Gui) resetHelpersAndControllers() {
 	controllers.AttachControllers(gui.State.Contexts.AICodeReview,
 		aiCodeReviewController,
 		verticalScrollControllerFactory.Create(gui.State.Contexts.AICodeReview),
+	)
+
+	controllers.AttachControllers(gui.State.Contexts.AIChat,
+		aiChatController,
+		verticalScrollControllerFactory.Create(gui.State.Contexts.AIChat),
 	)
 
 	controllers.AttachControllers(gui.State.Contexts.Confirmation,

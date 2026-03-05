@@ -223,8 +223,6 @@ outer:
 		}
 	}
 
-	gui.ensureAIChatFocus()
-
 	return nil
 }
 

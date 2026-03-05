@@ -150,9 +150,6 @@ type Gui struct {
 	integrationTest integrationTypes.IntegrationTest
 
 	afterLayoutFuncs chan func() error
-
-	// aiChatSession 保持 AI 对话的会话状态，关闭窗口后历史不丢失
-	aiChatSession *AIChat
 }
 
 type StateAccessor struct {

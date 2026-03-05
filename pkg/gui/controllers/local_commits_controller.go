@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-errors/errors"
@@ -252,6 +253,12 @@ func (self *LocalCommitsController) GetKeybindings(opts types.KeybindingsOpts) [
 			Description: self.c.Tr.OpenLogMenu,
 			Tooltip:     self.c.Tr.OpenLogMenuTooltip,
 			OpensMenu:   true,
+		},
+		{
+			Key:               opts.GetKey(opts.Config.AI.AIAssistant),
+			Handler:           self.withItem(self.askAIAboutCommit),
+			GetDisabledReason: self.require(self.singleItemSelected()),
+			Description:       "Ask AI about this commit",
 		},
 	}
 
@@ -1529,4 +1536,14 @@ func (self *LocalCommitsController) pickEnabled(selectedCommits []*models.Commit
 	}
 
 	return self.midRebaseCommandEnabled(selectedCommits, startIdx, endIdx)
+}
+
+
+func (self *LocalCommitsController) askAIAboutCommit(commit *models.Commit) error {
+	contextInfo := fmt.Sprintf("提交信息: %s\n提交 Hash: %s\n作者: %s\n\n请分析这个 commit 的变更内容和目的。",
+		commit.Name,
+		commit.ShortHash(),
+		commit.AuthorName,
+	)
+	return self.c.Helpers().AIChat.ShowChatWithContext(contextInfo)
 }

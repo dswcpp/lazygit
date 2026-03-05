@@ -55,6 +55,7 @@ type Helpers struct {
 	SubCommits        *SubCommitsHelper
 	AI                *AIHelper
 	AICodeReview      *AICodeReviewHelper
+	AIChat            *AIChatHelper
 	Loading           *LoadingHelper
 }
 
@@ -95,6 +96,7 @@ func NewStubHelpers() *Helpers {
 		SubCommits:        &SubCommitsHelper{},
 		AI:           &AIHelper{},
 		AICodeReview: &AICodeReviewHelper{},
+		AIChat:       &AIChatHelper{},
 		Loading:      &LoadingHelper{},
 	}
 }

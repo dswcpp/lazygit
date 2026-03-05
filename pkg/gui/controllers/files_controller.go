@@ -212,6 +212,11 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 			GetDisabledReason: self.require(self.withFileTreeViewModelMutex(self.singleItemSelected())),
 			Description:       self.c.Tr.AICodeReview,
 		},
+		{
+			Key:         opts.GetKey(opts.Config.AI.AIAssistant),
+			Handler:     self.askAIAboutStagedChanges,
+			Description: "Ask AI about staged changes",
+		},
 	}
 }
 
@@ -1509,4 +1514,17 @@ func (self *FilesController) aiCodeReview(node *filetree.FileNode) error {
 	}
 
 	return self.c.Helpers().AICodeReview.ReviewDiff(node.GetPath(), diff)
+}
+
+func (self *FilesController) askAIAboutStagedChanges() error {
+	diff, err := self.c.Git().Diff.GetDiff(true)
+	if err != nil {
+		return err
+	}
+	if diff == "" {
+		self.c.Alert("No staged changes", "There are no staged changes to ask AI about.")
+		return nil
+	}
+	contextInfo := fmt.Sprintf("以下是暂存区的变更（staged diff）：\n\n%s\n\n请分析这些变更的目的和影响。", diff)
+	return self.c.Helpers().AIChat.ShowChatWithContext(contextInfo)
 }

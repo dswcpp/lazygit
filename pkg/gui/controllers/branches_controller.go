@@ -187,6 +187,12 @@ func (self *BranchesController) GetKeybindings(opts types.KeybindingsOpts) []*ty
 			GetDisabledReason: self.require(self.singleItemSelected()),
 			Description:       self.c.Tr.OpenDiffTool,
 		},
+		{
+			Key:               opts.GetKey(opts.Config.AI.AIAssistant),
+			Handler:           self.withItem(self.askAIAboutBranch),
+			GetDisabledReason: self.require(self.singleItemSelected()),
+			Description:       "Ask AI about this branch",
+		},
 	}
 }
 
@@ -958,4 +964,16 @@ func (self *BranchesController) notMergingIntoYourself(branch *models.Branch) *t
 	}
 
 	return nil
+}
+
+func (self *BranchesController) askAIAboutBranch(branch *models.Branch) error {
+	aheadBehind := ""
+	if branch.AheadForPull != "" && branch.AheadForPull != "0" {
+		aheadBehind = fmt.Sprintf("  ahead: %s, behind: %s\n", branch.AheadForPull, branch.BehindForPull)
+	}
+	contextInfo := fmt.Sprintf("分支名: %s\n%s请分析这个分支的状态，并提供相关建议。",
+		branch.Name,
+		aheadBehind,
+	)
+	return self.c.Helpers().AIChat.ShowChatWithContext(contextInfo)
 }

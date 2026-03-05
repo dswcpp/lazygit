@@ -482,18 +482,6 @@ func (gui *Gui) resetKeybindings() error {
 		}
 	}
 
-	// AI 对话是动态视图，reset 后需要补回其视图级绑定
-	if gui.aiChatSession != nil && gui.isAIChatOpen() {
-		gui.setAIChatKeyBindings(gui.aiChatSession)
-		// 仅当焦点已在 AI 视图时才重置焦点，避免干扰用户在其他面板的操作
-		if v := gui.g.CurrentView(); v != nil {
-			switch v.Name() {
-			case "aiChat", "aiChatInput", "aiChatStatus":
-				gui.focusAIChatInput()
-			}
-		}
-	}
-
 	return nil
 }
 

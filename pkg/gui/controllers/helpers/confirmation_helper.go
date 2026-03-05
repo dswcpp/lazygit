@@ -319,6 +319,8 @@ func (self *ConfirmationHelper) ResizeCurrentPopupPanels() {
 			self.ResizeCommitMessagePanels(parentPopupContext)
 		case self.c.Contexts().AICodeReview:
 			self.resizeAICodeReviewPanel(parentPopupContext)
+		case self.c.Contexts().AIChat:
+			self.resizeAIChatPanel(parentPopupContext)
 		}
 
 		parentPopupContext = c
@@ -439,6 +441,23 @@ func (self *ConfirmationHelper) resizeAICodeReviewPanel(_ types.Context) {
 	y0 := (height - panelHeight) / 2
 	_, _ = self.c.GocuiGui().SetView(
 		self.c.Views().AICodeReview.Name(), x0, y0, x0+panelWidth, y0+panelHeight, 0,
+	)
+}
+
+func (self *ConfirmationHelper) resizeAIChatPanel(_ types.Context) {
+	width, height := self.c.GocuiGui().Size()
+	var panelWidth, panelHeight int
+	if self.c.Contexts().AIChat.Zoomed {
+		panelWidth = width - 4
+		panelHeight = height - 4
+	} else {
+		panelWidth = width * 9 / 10
+		panelHeight = height * 9 / 10
+	}
+	x0 := (width - panelWidth) / 2
+	y0 := (height - panelHeight) / 2
+	_, _ = self.c.GocuiGui().SetView(
+		self.c.Views().AIChat.Name(), x0, y0, x0+panelWidth, y0+panelHeight, 0,
 	)
 }
 
