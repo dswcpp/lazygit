@@ -464,28 +464,86 @@ func (s *AIChatSession) relevantMessages(n int) []ChatMessage {
 
 func (s *AIChatSession) buildGitContext() string {
 	var sb strings.Builder
+
+	// 当前分支
 	branch := s.c.Model().CheckedOutBranch
 	if branch != "" {
 		sb.WriteString(fmt.Sprintf("分支: %s\n", branch))
 	}
+
+	// rebase/merge 状态
+	state := s.c.Model().WorkingTreeStateAtLastCommitRefresh
+	if state.Any() {
+		desc := ""
+		switch {
+		case state.Rebasing:
+			desc = "rebase 进行中"
+		case state.Merging:
+			desc = "merge 进行中"
+		case state.CherryPicking:
+			desc = "cherry-pick 进行中"
+		case state.Reverting:
+			desc = "revert 进行中"
+		}
+		sb.WriteString(fmt.Sprintf("状态: ⚠ %s\n", desc))
+	}
+
+	// 工作区文件
 	files := s.c.Model().Files
 	if len(files) > 0 {
-		sb.WriteString(fmt.Sprintf("变更文件: %d 个\n", len(files)))
+		staged, unstaged := 0, 0
+		for _, f := range files {
+			if f.HasStagedChanges {
+				staged++
+			}
+			if f.HasUnstagedChanges {
+				unstaged++
+			}
+		}
+		sb.WriteString(fmt.Sprintf("变更: %d 个文件（暂存 %d，未暂存 %d）\n", len(files), staged, unstaged))
 		limit := len(files)
-		if limit > 5 {
-			limit = 5
+		if limit > 8 {
+			limit = 8
 		}
 		for i := 0; i < limit; i++ {
 			sb.WriteString(fmt.Sprintf("  %s %s\n", files[i].ShortStatus, files[i].Path))
 		}
-		if len(files) > 5 {
-			sb.WriteString(fmt.Sprintf("  ... 还有 %d 个文件\n", len(files)-5))
+		if len(files) > 8 {
+			sb.WriteString(fmt.Sprintf("  ... 还有 %d 个\n", len(files)-8))
 		}
+	} else {
+		sb.WriteString("工作区: 干净\n")
 	}
+
+	// 最近提交
 	commits := s.c.Model().Commits
 	if len(commits) > 0 {
-		sb.WriteString(fmt.Sprintf("最近提交: %s - %s\n", commits[0].ShortHash(), commits[0].Name))
+		sb.WriteString("最近提交:\n")
+		limit := 3
+		if len(commits) < limit {
+			limit = len(commits)
+		}
+		for i := 0; i < limit; i++ {
+			sb.WriteString(fmt.Sprintf("  %s %s\n", commits[i].ShortHash(), commits[i].Name))
+		}
 	}
+
+	// Stash 数量
+	stashes := s.c.Model().StashEntries
+	if len(stashes) > 0 {
+		sb.WriteString(fmt.Sprintf("Stash: %d 条\n", len(stashes)))
+	}
+
+	// 远程
+	remotes := s.c.Model().Remotes
+	if len(remotes) > 0 {
+		names := make([]string, 0, len(remotes))
+		for _, r := range remotes {
+			names = append(names, r.Name)
+		}
+		sb.WriteString(fmt.Sprintf("远程: %s\n", strings.Join(names, ", ")))
+	}
+
 	return sb.String()
 }
 

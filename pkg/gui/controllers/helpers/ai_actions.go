@@ -151,7 +151,17 @@ func executeAction(c *HelperCommon, action AIAction) AIActionResult {
 		// 是否在 rebase/merge 中
 		state := c.Model().WorkingTreeStateAtLastCommitRefresh
 		if state.Any() {
-			sb.WriteString(fmt.Sprintf("⚠ 正在进行: %s\n", state.Effective()))
+			stateDesc := ""
+			if state.Rebasing {
+				stateDesc = "rebase"
+			} else if state.Merging {
+				stateDesc = "merge"
+			} else if state.CherryPicking {
+				stateDesc = "cherry-pick"
+			} else if state.Reverting {
+				stateDesc = "revert"
+			}
+			sb.WriteString(fmt.Sprintf("⚠ 正在进行: %s\n", stateDesc))
 		}
 
 		if len(files) == 0 {
