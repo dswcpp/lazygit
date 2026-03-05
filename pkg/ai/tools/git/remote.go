@@ -30,7 +30,7 @@ func (t *FetchTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolRe
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: "fetch 完成"}
 }
 
-// PushTool pushes the current branch to its upstream.
+// PushTool pushes the current branch to its upstream (normal push only).
 type PushTool struct{ d *Deps }
 
 func NewPushTool(d *Deps) tools.Tool { return &PushTool{d} }
@@ -38,17 +38,14 @@ func NewPushTool(d *Deps) tools.Tool { return &PushTool{d} }
 func (t *PushTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "push",
-		Description: "推送当前分支到远程（git push）",
-		Params: map[string]tools.ParamSchema{
-			"force": {Type: "bool", Description: "是否强制推送（默认 false）"},
-		},
-		Permission: tools.PermWriteRemote,
+		Description: "推送当前分支到远程（git push）。如需强制推送请使用 push_force 工具",
+		Params:      map[string]tools.ParamSchema{},
+		Permission:  tools.PermWriteRemote,
 	}
 }
 
 func (t *PushTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
-	force := boolParam(call.Params, "force", false)
-	cmdObj, err := t.d.Sync.PushCmdObj(nil, git_commands.PushOpts{Force: force})
+	cmdObj, err := t.d.Sync.PushCmdObj(nil, git_commands.PushOpts{})
 	if err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("push 配置错误: %v", err)}
 	}
@@ -57,4 +54,30 @@ func (t *PushTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolRes
 	}
 	t.d.Refresh(ScopeBranches, ScopeCommits)
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: "push 成功"}
+}
+
+// PushForceTool force-pushes using --force-with-lease (safer than --force).
+type PushForceTool struct{ d *Deps }
+
+func NewPushForceTool(d *Deps) tools.Tool { return &PushForceTool{d} }
+
+func (t *PushForceTool) Schema() tools.ToolSchema {
+	return tools.ToolSchema{
+		Name:        "push_force",
+		Description: "强制推送（git push --force-with-lease）：若远程有未拉取的提交则自动中止，比 --force 更安全。仍会覆盖远程历史，需谨慎",
+		Params:      map[string]tools.ParamSchema{},
+		Permission:  tools.PermDestructive,
+	}
+}
+
+func (t *PushForceTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
+	cmdObj, err := t.d.Sync.PushCmdObj(nil, git_commands.PushOpts{ForceWithLease: true})
+	if err != nil {
+		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("push 配置错误: %v", err)}
+	}
+	if err := cmdObj.Run(); err != nil {
+		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("force push 失败: %v", err)}
+	}
+	t.d.Refresh(ScopeBranches, ScopeCommits)
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: "force push（--force-with-lease）成功"}
 }

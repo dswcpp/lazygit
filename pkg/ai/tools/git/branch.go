@@ -16,9 +16,9 @@ func NewCheckoutTool(d *Deps) tools.Tool { return &CheckoutTool{d} }
 func (t *CheckoutTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "checkout",
-		Description: "切换到指定分支",
+		Description: "切换到指定分支、tag 或 commit hash（hash 会进入 detached HEAD 状态）",
 		Params: map[string]tools.ParamSchema{
-			"name": {Type: "string", Description: "分支名", Required: true},
+			"name": {Type: "string", Description: "分支名、tag 或 commit hash", Required: true},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -44,10 +44,11 @@ func NewCreateBranchTool(d *Deps) tools.Tool { return &CreateBranchTool{d} }
 func (t *CreateBranchTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "create_branch",
-		Description: "创建新分支",
+		Description: "创建新分支；checkout=true（默认）时同时切换过去（git checkout -b），false 时仅创建不切换（git branch）",
 		Params: map[string]tools.ParamSchema{
-			"name": {Type: "string", Description: "新分支名", Required: true},
-			"base": {Type: "string", Description: "基础 ref（默认 HEAD）"},
+			"name":     {Type: "string", Description: "新分支名", Required: true},
+			"base":     {Type: "string", Description: "基础 ref（默认 HEAD）"},
+			"checkout": {Type: "bool", Description: "创建后是否切换到新分支（默认 true）"},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -59,11 +60,19 @@ func (t *CreateBranchTool) Execute(_ context.Context, call tools.ToolCall) tools
 		return tools.ToolResult{CallID: call.ID, Output: "缺少 name 参数"}
 	}
 	base := strParam(call.Params, "base", "HEAD")
-	if err := t.d.Branch.New(name, base); err != nil {
+	doCheckout := boolParam(call.Params, "checkout", true)
+	if doCheckout {
+		if err := t.d.Branch.New(name, base); err != nil {
+			return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("创建并切换分支失败: %v", err)}
+		}
+		t.d.Refresh(ScopeFiles, ScopeBranches, ScopeCommits)
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已创建并切换到分支 %s（基于 %s）", name, base)}
+	}
+	if err := t.d.Branch.NewWithoutCheckout(name, base); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("创建分支失败: %v", err)}
 	}
 	t.d.Refresh(ScopeBranches)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已创建分支 %s（基于 %s）", name, base)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已创建分支 %s（基于 %s，未切换）", name, base)}
 }
 
 // DeleteBranchTool deletes a local branch.
@@ -150,4 +159,32 @@ func (t *MergeBranchTool) Execute(_ context.Context, call tools.ToolCall) tools.
 	}
 	t.d.Refresh(ScopeCommits, ScopeBranches, ScopeFiles)
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已将 %s 合并到当前分支", name)}
+}
+
+// RebaseBranchTool rebases the current branch onto another branch.
+type RebaseBranchTool struct{ d *Deps }
+
+func NewRebaseBranchTool(d *Deps) tools.Tool { return &RebaseBranchTool{d} }
+
+func (t *RebaseBranchTool) Schema() tools.ToolSchema {
+	return tools.ToolSchema{
+		Name:        "rebase_branch",
+		Description: "将当前分支 rebase 到指定分支（git rebase <target>）",
+		Params: map[string]tools.ParamSchema{
+			"target": {Type: "string", Description: "目标分支名或 ref", Required: true},
+		},
+		Permission: tools.PermWriteLocal,
+	}
+}
+
+func (t *RebaseBranchTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
+	target := strParam(call.Params, "target", "")
+	if target == "" {
+		return tools.ToolResult{CallID: call.ID, Output: "缺少 target 参数"}
+	}
+	if err := t.d.Rebase.RebaseBranch(target); err != nil {
+		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("rebase 失败: %v（如有冲突请手动解决后继续）", err)}
+	}
+	t.d.Refresh(ScopeCommits, ScopeBranches, ScopeFiles)
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已将当前分支 rebase 到 %s", target)}
 }

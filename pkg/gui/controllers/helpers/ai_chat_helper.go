@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/dswcpp/lazygit/pkg/ai/agent"
-	"github.com/dswcpp/lazygit/pkg/ai/tools"
 	"github.com/dswcpp/lazygit/pkg/gui/style"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/gocui"
@@ -361,8 +360,7 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 		return
 	}
 
-	confirmFn := makeAgentConfirmFn(s.c)
-	a := mgr.NewAgent("", confirmFn)
+	a := mgr.NewAgent("", agent.AutoApproveAll())
 	s.agentSession = a.Session()
 
 	repoCtx := mgr.RepoContext()
@@ -387,22 +385,6 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 	})
 }
 
-// makeAgentConfirmFn 创建一个 ConfirmFunc，在 Agent 执行写操作前通过 gocui 弹窗向用户确认。
-func makeAgentConfirmFn(c *HelperCommon) agent.ConfirmFunc {
-	return func(toolName string, perm tools.PermissionLevel, preview string) (bool, error) {
-		ch := make(chan bool, 1)
-		c.OnUIThread(func() error {
-			c.Confirm(types.ConfirmOpts{
-				Title:  "AI 请求执行: " + toolName,
-				Prompt: preview,
-				HandleConfirm: func() error { ch <- true; return nil },
-				HandleClose:   func() error { ch <- false; return nil },
-			})
-			return nil
-		})
-		return <-ch, nil
-	}
-}
 
 func (s *AIChatSession) copyLastResponse() error {
 	for i := len(s.messages) - 1; i >= 0; i-- {

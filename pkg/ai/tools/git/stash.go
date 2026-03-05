@@ -40,18 +40,21 @@ func NewStashPopTool(d *Deps) tools.Tool { return &StashPopTool{d} }
 func (t *StashPopTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "stash_pop",
-		Description: "恢复最近的 stash 并从 stash 列表中删除",
-		Params:      map[string]tools.ParamSchema{},
-		Permission:  tools.PermWriteLocal,
+		Description: "恢复指定 stash 并从 stash 列表中删除",
+		Params: map[string]tools.ParamSchema{
+			"index": {Type: "int", Description: "stash 索引，默认 0（最近的 stash）"},
+		},
+		Permission: tools.PermWriteLocal,
 	}
 }
 
 func (t *StashPopTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
-	if err := t.d.Stash.Pop(0); err != nil {
+	idx := intParam(call.Params, "index", 0)
+	if err := t.d.Stash.Pop(idx); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("stash pop 失败: %v", err)}
 	}
 	t.d.Refresh(ScopeFiles, ScopeStash)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: "已恢复最近的 stash"}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已恢复 stash[%d]", idx)}
 }
 
 // StashApplyTool applies a stash entry without removing it.

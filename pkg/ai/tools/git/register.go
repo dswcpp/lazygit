@@ -10,6 +10,7 @@ func RegisterAll(d *Deps, r *tools.Registry) {
 		NewGetStatusTool(d),
 		NewGetStagedDiffTool(d),
 		NewGetDiffTool(d),
+		NewGetFileDiffTool(d),
 		NewGetLogTool(d),
 		NewGetBranchesTool(d),
 		NewGetStashListTool(d),
@@ -38,6 +39,7 @@ func RegisterAll(d *Deps, r *tools.Registry) {
 		NewDeleteBranchTool(d),
 		NewRenameBranchTool(d),
 		NewMergeBranchTool(d),
+		NewRebaseBranchTool(d),
 
 		// Stash
 		NewStashTool(d),
@@ -52,6 +54,7 @@ func RegisterAll(d *Deps, r *tools.Registry) {
 		// Remote
 		NewFetchTool(d),
 		NewPushTool(d),
+		NewPushForceTool(d),
 	} {
 		r.Register(t)
 	}
