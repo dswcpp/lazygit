@@ -343,6 +343,56 @@ func (self *CommitsHelper) AIGenerateCommitMessage() error {
 	return nil
 }
 
+// AIGenerateCommitMessageAndOpen 生成 AI 提交信息后调用 openPanel 打开提交面板。
+// 界面全程不显示 diff 内容，仅展示加载状态。
+func (self *CommitsHelper) AIGenerateCommitMessageAndOpen(openPanel func(message string) error) error {
+	if self.c.AI == nil {
+		return self.aiHelper.ShowFirstTimeWizard()
+	}
+
+	self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIGeneratingStatus, func(_ gocui.Task) error {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		rawDiff, err := self.c.Git().Diff.GetDiff(true)
+		if err != nil {
+			return err
+		}
+		if strings.TrimSpace(rawDiff) == "" {
+			return errors.New(self.c.Tr.AINoStagedChanges)
+		}
+
+		diff := FilterDiffForAI(rawDiff, self.c.Tr)
+		const maxDiffChars = 120_000
+		safetyNote := ""
+		if len(diff) > maxDiffChars {
+			diff = diff[:maxDiffChars]
+			safetyNote = self.c.Tr.AICommitPromptTruncated
+		}
+
+		repoContext := self.buildRepoContext()
+		projectType := self.detectProjectType()
+		scenario := self.detectChangeScenario(diff)
+		prompt := self.buildEnhancedPrompt(diff, repoContext, projectType, scenario, safetyNote)
+
+		result, err := self.c.AI.Complete(ctx, prompt)
+		if err != nil {
+			if errors.Is(err, context.Canceled) {
+				return errors.New(self.c.Tr.AIGenerationCancelled)
+			}
+			return self.aiHelper.HandleAIError(err)
+		}
+
+		message := strings.TrimSpace(result.Content)
+		if message == "" {
+			return errors.New(self.c.Tr.AICommitEmptyResponse)
+		}
+
+		return openPanel(message)
+	})
+	return nil
+}
+
 // buildRepoContext builds repository context information for the AI prompt.
 func (self *CommitsHelper) buildRepoContext() string {
 	var sb strings.Builder

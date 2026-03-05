@@ -3,7 +3,6 @@ package helpers
 import (
 	"context"
 	"fmt"
-	"runtime"
 	"strings"
 	"time"
 
@@ -14,22 +13,26 @@ import (
 
 // ChatMessage 聊天消息
 type ChatMessage struct {
-	Role      string    // "user" | "assistant" | "system"
+	Role      string    // "user" | "assistant" | "system" | "action"
 	Content   string
 	Timestamp time.Time
 	IsError   bool
+	// Action 相关（仅 Role=="action" 时有效）
+	ActionSuccess bool
+	ActionType    string
 }
 
 // AIChatSession 保持 AI 对话的会话状态
 type AIChatSession struct {
-	c            *HelperCommon
-	aiHelper     *AIHelper
-	messages     []ChatMessage
-	isTyping     bool
-	ctx          context.Context
-	cancel       context.CancelFunc
-	inputHistory []string
-	historyIndex int
+	c              *HelperCommon
+	aiHelper       *AIHelper
+	messages       []ChatMessage
+	isTyping       bool
+	ctx            context.Context
+	cancel         context.CancelFunc
+	inputHistory   []string
+	historyIndex   int
+	scrollToBottom bool // 新消息到来时置 true，render 后重置，允许用户自由向上滚动
 }
 
 // AIChatHelper 管理 AI 聊天弹窗
@@ -58,13 +61,13 @@ func (self *AIChatHelper) GetOrCreateSession() *AIChatSession {
 		}
 		self.session.addSystemMessage("欢迎使用 AI 助手！")
 		self.session.addAssistantMessage(
-			"你好！我是你的 Git 智能助手\n\n" +
-				"我可以帮你：\n" +
-				"  • 解答 Git 相关问题\n" +
-				"  • 分析当前仓库状态\n" +
-				"  • 提供操作建议和最佳实践\n" +
-				"  • 生成和解释 Git 命令\n\n" +
-				"有什么我可以帮助你的吗？",
+			"你好！我是你的 Git Agent\n\n" +
+				"我可以直接帮你操作仓库，例如：\n" +
+				"  • 「帮我提交当前修改」\n" +
+				"  • 「创建一个 feature/login 分支」\n" +
+				"  • 「查看最近的提交记录」\n" +
+				"  • 「把这些改动 stash 起来，切到 main 分支」\n\n" +
+				"说你想做什么，我来执行。",
 		)
 	}
 	return self.session
@@ -162,12 +165,14 @@ func (s *AIChatSession) addUserMessage(content string) {
 	s.messages = append(s.messages, ChatMessage{
 		Role: "user", Content: content, Timestamp: time.Now(),
 	})
+	s.scrollToBottom = true
 }
 
 func (s *AIChatSession) addAssistantMessage(content string) {
 	s.messages = append(s.messages, ChatMessage{
 		Role: "assistant", Content: content, Timestamp: time.Now(),
 	})
+	s.scrollToBottom = true
 }
 
 func (s *AIChatSession) addSystemMessage(content string) {
@@ -180,6 +185,7 @@ func (s *AIChatSession) addErrorMessage(content string) {
 	s.messages = append(s.messages, ChatMessage{
 		Role: "assistant", Content: content, Timestamp: time.Now(), IsError: true,
 	})
+	s.scrollToBottom = true
 }
 
 // render 渲染所有消息到 AIChat 视图
@@ -191,6 +197,11 @@ func (s *AIChatSession) render() {
 		if i < len(s.messages)-1 {
 			fmt.Fprintln(aiView)
 		}
+	}
+	// 仅在有新消息时才滚动到底部；用户手动向上滚动后不会被打断
+	if s.scrollToBottom {
+		aiView.ScrollDown(9999)
+		s.scrollToBottom = false
 	}
 }
 
@@ -259,113 +270,196 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 			trimmed := strings.TrimSpace(line)
 			if strings.HasPrefix(trimmed, "```") {
 				fmt.Fprintf(view, "  %s\n", style.FgMagenta.Sprint(line))
-			} else if strings.HasPrefix(trimmed, "git ") || strings.HasPrefix(trimmed, "$ ") {
-				fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint(line))
 			} else {
 				fmt.Fprintf(view, "  %s\n", line)
+			}
+		}
+
+	case "action":
+		// 操作执行结果
+		var indicator string
+		var lineColor style.TextStyle
+		if msg.ActionSuccess {
+			indicator = "✓"
+			lineColor = style.FgGreen
+		} else {
+			indicator = "✗"
+			lineColor = style.FgRed
+		}
+		header := fmt.Sprintf("  [%s %s]", indicator, msg.ActionType)
+		fmt.Fprintf(view, "%s\n", lineColor.Sprint(header))
+		for _, line := range strings.Split(strings.TrimSpace(msg.Content), "\n") {
+			if line != "" {
+				fmt.Fprintf(view, "    %s\n", style.FgDefault.Sprint(line))
 			}
 		}
 	}
 }
 
-// getAIResponse 异步获取 AI 回复
+// getAIResponse 异步执行 AI agentic loop：AI 可调用工具，结果反馈后继续决策
 func (s *AIChatSession) getAIResponse(userMessage string) {
 	s.isTyping = true
+	const maxRounds = 6
 
-	// 显示"正在思考"占位
-	s.c.GocuiGui().Update(func(*gocui.Gui) error {
-		s.messages = append(s.messages, ChatMessage{
-			Role:      "assistant",
-			Content:   "正在思考...",
-			Timestamp: time.Now(),
+	for round := 0; round < maxRounds && s.isTyping; round++ {
+		// 显示"正在思考"
+		s.c.GocuiGui().Update(func(*gocui.Gui) error {
+			s.removePendingMessage()
+			s.messages = append(s.messages, ChatMessage{
+				Role: "assistant", Content: "正在思考...", Timestamp: time.Now(),
+			})
+			s.render()
+			return nil
 		})
-		s.render()
-		return nil
-	})
 
-	prompt := s.buildPrompt(userMessage)
-	result, err := s.c.AI.Complete(s.ctx, prompt)
-	assistantContent := ""
-	if err == nil {
-		assistantContent = strings.TrimSpace(result.Content)
+		prompt := s.buildPrompt(userMessage)
+		aiResult, err := s.c.AI.Complete(s.ctx, prompt)
+
+		if err != nil {
+			s.c.GocuiGui().Update(func(*gocui.Gui) error {
+				s.removePendingMessage()
+				s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
+				s.isTyping = false
+				s.render()
+				return nil
+			})
+			return
+		}
+
+		rawContent := strings.TrimSpace(aiResult.Content)
+		actions := parseActionsFromResponse(rawContent)
+		displayText := stripActionBlocks(rawContent)
+
+		// 执行所有工具调用（在 goroutine 中，git 命令是线程安全的）
+		actionResults := make([]AIActionResult, 0, len(actions))
+		for _, action := range actions {
+			actionResults = append(actionResults, executeAction(s.c, action))
+		}
+
+		// 更新 UI：移除 thinking，显示 AI 文本和操作结果
+		s.c.GocuiGui().Update(func(*gocui.Gui) error {
+			s.removePendingMessage()
+			if displayText != "" {
+				s.addAssistantMessage(displayText)
+			}
+			for _, res := range actionResults {
+				s.messages = append(s.messages, ChatMessage{
+					Role:          "action",
+					Content:       res.Output,
+					Timestamp:     time.Now(),
+					ActionSuccess: res.Success,
+					ActionType:    string(res.Type),
+				})
+				s.scrollToBottom = true
+			}
+			s.render()
+			return nil
+		})
+
+		// 如果没有动作，对话结束
+		if len(actions) == 0 {
+			s.c.GocuiGui().Update(func(*gocui.Gui) error {
+				s.isTyping = false
+				return nil
+			})
+			return
+		}
+
+		// 将工具结果加入对话历史，供 AI 下一轮参考
+		// 注意：这里直接修改 s.messages 是安全的，因为 gocui.Update 是排队执行的
+		// 在 Update 回调执行完后，goroutine 才会进入下一轮
+		var resultSummary strings.Builder
+		resultSummary.WriteString("【工具执行结果】\n")
+		for _, res := range actionResults {
+			status := "成功"
+			if !res.Success {
+				status = "失败"
+			}
+			resultSummary.WriteString(fmt.Sprintf("- %s [%s]: %s\n", res.Type, status, res.Output))
+		}
+		s.messages = append(s.messages, ChatMessage{
+			Role: "system", Content: resultSummary.String(), Timestamp: time.Now(),
+		})
+
+		// 下一轮告诉 AI：总结结果或继续操作
+		userMessage = "请根据上面的工具执行结果，用自然语言向用户说明已完成的操作，如需继续可继续调用工具。"
 	}
 
 	s.c.GocuiGui().Update(func(*gocui.Gui) error {
-		// 移除"正在思考"消息
-		if len(s.messages) > 0 && strings.Contains(s.messages[len(s.messages)-1].Content, "正在思考") {
-			s.messages = s.messages[:len(s.messages)-1]
-		}
-		if err != nil {
-			s.addErrorMessage(fmt.Sprintf("抱歉，发生错误：%v", err))
-		} else {
-			s.addAssistantMessage(assistantContent)
-		}
+		s.removePendingMessage()
 		s.isTyping = false
 		s.render()
 		return nil
 	})
 }
 
-func currentShellInfoForChat() string {
-	switch runtime.GOOS {
-	case "windows":
-		return "操作系统: Windows\n推荐 Shell: Git Bash（直接使用 && 连接命令）"
-	case "darwin":
-		return "操作系统: macOS\n推荐 Shell: zsh/bash"
-	default:
-		return "操作系统: Linux\n推荐 Shell: bash"
+// removePendingMessage 移除末尾的"正在思考..."占位消息
+func (s *AIChatSession) removePendingMessage() {
+	if len(s.messages) > 0 && strings.Contains(s.messages[len(s.messages)-1].Content, "正在思考") {
+		s.messages = s.messages[:len(s.messages)-1]
 	}
 }
+
+
 
 func (s *AIChatSession) buildPrompt(userMessage string) string {
 	var sb strings.Builder
 
-	sb.WriteString("你是一个专业的 Git 助手，运行在 lazygit 终端界面中。\n")
-	sb.WriteString("你的职责是帮助用户理解和使用 Git，回答问题，提供建议。\n\n")
-	sb.WriteString("═══ 运行环境 ═══\n")
-	sb.WriteString(currentShellInfoForChat())
-	sb.WriteString("\n\n命令格式要求：\n")
-	sb.WriteString("- git commit -m 的提交信息如果包含空格，必须使用双引号\n")
-	sb.WriteString("- 如果需要执行多条命令，请每行一条命令\n\n")
-	sb.WriteString("回答要求：简洁、准确、实用，提供具体的命令和步骤。\n\n")
+	// 系统角色：Agent 能力描述 + 可用工具列表
+	sb.WriteString(aiAgentSystemPrompt())
+	sb.WriteString("\n\n")
 
+	// 当前仓库快照
 	repoCtx := s.buildGitContext()
 	if repoCtx != "" {
-		sb.WriteString("═══ 当前仓库状态 ═══\n")
+		sb.WriteString("═══ 当前仓库快照 ═══\n")
 		sb.WriteString(repoCtx)
 		sb.WriteString("\n")
 	}
 
-	// 最近 6 条对话历史
-	historyCount := 0
-	start := len(s.messages) - 1
-	for start >= 0 && historyCount < 6 {
-		msg := s.messages[start]
-		if msg.Role != "system" && !msg.IsError && !strings.Contains(msg.Content, "正在思考") {
-			historyCount++
-		}
-		start--
-	}
-	start++
-	if start < len(s.messages)-1 {
+	// 对话历史（包含工具调用结果）
+	relevant := s.relevantMessages(12)
+	if len(relevant) > 0 {
 		sb.WriteString("═══ 对话历史 ═══\n")
-		for i := start; i < len(s.messages); i++ {
-			msg := s.messages[i]
-			if msg.Role == "system" || msg.IsError || strings.Contains(msg.Content, "正在思考") {
-				continue
-			}
-			if msg.Role == "user" {
+		for _, msg := range relevant {
+			switch msg.Role {
+			case "user":
 				sb.WriteString(fmt.Sprintf("用户: %s\n", msg.Content))
-			} else {
+			case "assistant":
 				sb.WriteString(fmt.Sprintf("助手: %s\n", msg.Content))
+			case "action":
+				status := "成功"
+				if !msg.ActionSuccess {
+					status = "失败"
+				}
+				sb.WriteString(fmt.Sprintf("[工具结果 %s - %s] %s\n", msg.ActionType, status, msg.Content))
+			case "system":
+				sb.WriteString(fmt.Sprintf("[系统] %s\n", msg.Content))
 			}
 		}
 		sb.WriteString("\n")
 	}
 
-	sb.WriteString("═══ 当前问题 ═══\n")
-	sb.WriteString(fmt.Sprintf("用户: %s\n\nassistant: ", userMessage))
+	sb.WriteString("═══ 当前任务 ═══\n")
+	sb.WriteString(fmt.Sprintf("用户: %s\n\n助手: ", userMessage))
 	return sb.String()
+}
+
+// relevantMessages 返回最近 n 条有效消息（过滤掉 thinking 占位）
+func (s *AIChatSession) relevantMessages(n int) []ChatMessage {
+	var result []ChatMessage
+	for i := len(s.messages) - 1; i >= 0 && len(result) < n; i-- {
+		msg := s.messages[i]
+		if strings.Contains(msg.Content, "正在思考") {
+			continue
+		}
+		result = append(result, msg)
+	}
+	// 反转为正序
+	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
+		result[i], result[j] = result[j], result[i]
+	}
+	return result
 }
 
 func (s *AIChatSession) buildGitContext() string {

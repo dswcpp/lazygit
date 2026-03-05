@@ -170,7 +170,7 @@ func (gui *Gui) createAllViews() error {
 
 	gui.Views.AIChat.Visible = false
 	gui.Views.AIChat.Wrap = true
-	gui.Views.AIChat.Autoscroll = true
+	gui.Views.AIChat.Autoscroll = false // 手动控制：仅新消息时滚底，允许用户向上滚动
 
 	return nil
 }

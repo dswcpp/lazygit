@@ -214,8 +214,8 @@ func (self *FilesController) GetKeybindings(opts types.KeybindingsOpts) []*types
 		},
 		{
 			Key:         opts.GetKey(opts.Config.AI.AIAssistant),
-			Handler:     self.askAIAboutStagedChanges,
-			Description: "Ask AI about staged changes",
+			Handler:     self.aiGenerateCommitMessage,
+			Description: "AI 生成提交信息",
 		},
 	}
 }
@@ -1516,15 +1516,8 @@ func (self *FilesController) aiCodeReview(node *filetree.FileNode) error {
 	return self.c.Helpers().AICodeReview.ReviewDiff(node.GetPath(), diff)
 }
 
-func (self *FilesController) askAIAboutStagedChanges() error {
-	diff, err := self.c.Git().Diff.GetDiff(true)
-	if err != nil {
-		return err
-	}
-	if diff == "" {
-		self.c.Alert("No staged changes", "There are no staged changes to ask AI about.")
-		return nil
-	}
-	contextInfo := fmt.Sprintf("以下是暂存区的变更（staged diff）：\n\n%s\n\n请分析这些变更的目的和影响。", diff)
-	return self.c.Helpers().AIChat.ShowChatWithContext(contextInfo)
+func (self *FilesController) aiGenerateCommitMessage() error {
+	return self.c.Helpers().Commits.AIGenerateCommitMessageAndOpen(func(message string) error {
+		return self.c.Helpers().WorkingTree.HandleCommitPressWithMessage(message, false)
+	})
 }
