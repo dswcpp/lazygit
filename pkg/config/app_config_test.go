@@ -150,6 +150,60 @@ func TestMigrateNullKeybindingsToDisabled(t *testing.T) {
 	}
 }
 
+func TestMigrateConflictingAIAssistantAndCopyPullRequestURLKey(t *testing.T) {
+	scenarios := []struct {
+		name              string
+		input             string
+		expected          string
+		expectedDidChange bool
+		expectedChanges   []string
+	}{
+		{
+			name: "No conflict",
+			input: `keybinding:
+  branches:
+    copyPullRequestURL: "y"
+  ai:
+    aiAssistant: <c-y>
+`,
+			expectedDidChange: false,
+			expectedChanges:   []string{},
+		},
+		{
+			name: "Conflict with legacy defaults",
+			input: `keybinding:
+  branches:
+    copyPullRequestURL: <c-y>
+  ai:
+    aiAssistant: <c-y>
+`,
+			expected: `keybinding:
+  branches:
+    copyPullRequestURL: y
+  ai:
+    aiAssistant: <c-y>
+`,
+			expectedDidChange: true,
+			expectedChanges: []string{
+				"Changed 'keybinding.branches.copyPullRequestURL' from '<c-y>' to 'y' to avoid conflict with 'keybinding.ai.aiAssistant'",
+			},
+		},
+	}
+
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			changes := NewChangesSet()
+			actual, didChange, err := computeMigratedConfig("path doesn't matter", []byte(s.input), changes)
+			assert.NoError(t, err)
+			assert.Equal(t, s.expectedDidChange, didChange)
+			if didChange {
+				assert.Equal(t, s.expected, string(actual))
+			}
+			assert.Equal(t, s.expectedChanges, changes.ToSliceFromOldest())
+		})
+	}
+}
+
 func TestCommitPrefixMigrations(t *testing.T) {
 	scenarios := []struct {
 		name              string
@@ -905,7 +959,7 @@ keybinding:
   branches:
     createPullRequest: o
     viewPullRequestOptions: O
-    copyPullRequestURL: <c-y>
+    copyPullRequestURL: "y"
     checkoutBranchByName: c
     forceCheckoutBranch: F
     rebaseBranch: r

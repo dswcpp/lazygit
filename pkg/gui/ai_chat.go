@@ -2,15 +2,20 @@ package gui
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"runtime"
 	"strings"
 	"time"
 
-	"github.com/jesseduffield/gocui"
+	"github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
 	"github.com/dswcpp/lazygit/pkg/gui/style"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/jesseduffield/gocui"
 )
+
+// chatPageScrollLines 是 PgUp/PgDn 每次翻页的行数
+const chatPageScrollLines = 10
 
 // ChatMessage 聊天消息
 type ChatMessage struct {
@@ -23,9 +28,6 @@ type ChatMessage struct {
 // AIChat AI 对话框
 type AIChat struct {
 	gui           *Gui
-	chatView      *gocui.View
-	inputView     *gocui.View
-	statusView    *gocui.View
 	messages      []ChatMessage
 	isTyping      bool
 	ctx           context.Context
@@ -34,6 +36,7 @@ type AIChat struct {
 	historyIndex  int      // 历史索引
 	maxWidth      int      // 最大宽度
 	maxHeight     int      // 最大高度
+	pendingCreate bool     // 防止 afterLayout 无限递归重试
 }
 
 // ShowAIChat 显示 AI 对话框（复用上次会话，历史不丢失）
@@ -55,7 +58,6 @@ func (gui *Gui) showAIChatInternal(followUpContext string) error {
 	// 复用已有会话，保留历史消息
 	if gui.aiChatSession == nil {
 		ctx, cancel := context.WithCancel(context.Background())
-		maxX, maxY := gui.g.Size()
 		chat := &AIChat{
 			gui:          gui,
 			messages:     []ChatMessage{},
@@ -63,8 +65,8 @@ func (gui *Gui) showAIChatInternal(followUpContext string) error {
 			cancel:       cancel,
 			inputHistory: []string{},
 			historyIndex: -1,
-			maxWidth:     maxX - 10,
-			maxHeight:    maxY - 6,
+			maxWidth:     80, // 默认值，createAIChatPopup 里会用当前 Size() 覆盖
+			maxHeight:    24,
 		}
 		chat.addSystemMessage("欢迎使用 AI 助手！")
 		chat.addAssistantMessage(
@@ -81,18 +83,72 @@ func (gui *Gui) showAIChatInternal(followUpContext string) error {
 
 	chat := gui.aiChatSession
 
-	// 如果携带外部上下文（例如来自代码审查），作为 assistant 消息注入，并提示用户继续提问
+	// 如果携带外部上下文（例如来自代码审查），作为 assistant 消息注入
 	if followUpContext != "" {
 		chat.addSystemMessage("─── 以下内容来自上一次 AI 分析，你可以继续追问 ───")
 		chat.addAssistantMessage(followUpContext)
 	}
 
-	return gui.createAIChatPopup(chat)
+	// 若对话框已打开（视图已存在），只重新聚焦，避免重复创建和注册键位
+	if _, err := gui.g.View("aiChatInput"); err == nil {
+		// 兜底重绑：全局 resetKeybindings 可能清掉动态绑定，导致 Enter 无法发送
+		gui.setAIChatKeyBindings(chat)
+		gui.focusAIChatInput()
+		gui.afterLayout(func() error {
+			gui.focusAIChatInput()
+			return nil
+		})
+		return nil
+	}
+
+	// 在布局阶段后创建，避免与当前帧的布局/焦点切换互相覆盖
+	gui.afterLayout(func() error {
+		return gui.createAIChatPopup(chat)
+	})
+	return nil
 }
 
 // createAIChatPopup 创建 AI 对话弹出窗口
 func (gui *Gui) createAIChatPopup(chat *AIChat) error {
 	maxX, maxY := gui.g.Size()
+
+	// 某些启动阶段 Size 可能暂时为 0，异步重试一次，避免用户反复按快捷键
+	if maxX <= 0 || maxY <= 0 {
+		if !chat.pendingCreate {
+			chat.pendingCreate = true
+			gui.afterLayout(func() error {
+				chat.pendingCreate = false
+				return gui.createAIChatPopup(chat)
+			})
+		}
+		return nil
+	}
+
+	// 每次打开时用当前终端尺寸重新计算，避免首次 Size() 返回 0 导致负数
+	if maxX > 10 {
+		chat.maxWidth = maxX - 10
+	}
+	if maxY > 6 {
+		chat.maxHeight = maxY - 6
+	}
+
+	// 兜底保护，避免极端窗口尺寸导致负坐标/无效布局
+	if chat.maxWidth < 20 {
+		chat.maxWidth = 20
+	}
+	if chat.maxHeight < 10 {
+		chat.maxHeight = 10
+	}
+	if chat.maxWidth > maxX-2 {
+		chat.maxWidth = maxX - 2
+	}
+	if chat.maxHeight > maxY-2 {
+		chat.maxHeight = maxY - 2
+	}
+	if chat.maxWidth < 2 || chat.maxHeight < 2 {
+		gui.c.Toast("终端窗口过小，无法打开 AI 对话")
+		return nil
+	}
 
 	// 计算布局
 	width := chat.maxWidth
@@ -109,27 +165,25 @@ func (gui *Gui) createAIChatPopup(chat *AIChat) error {
 
 	// 创建对话视图（主要内容区域）
 	chatView, err := gui.g.SetView("aiChat", x0, y0, x1, y1-inputHeight-statusHeight, 0)
-	if err != nil && err != gocui.ErrUnknownView {
+	if err != nil && !errors.Is(err, gocui.ErrUnknownView) {
 		return err
 	}
 	chatView.Frame = true
 	chatView.Title = " 💬 AI 智能助手 "
 	chatView.Wrap = true
 	chatView.Autoscroll = true
-	chat.chatView = chatView
 
 	// 创建状态栏
 	statusView, err := gui.g.SetView("aiChatStatus", x0, y1-inputHeight-statusHeight+1, x1, y1-inputHeight, 0)
-	if err != nil && err != gocui.ErrUnknownView {
+	if err != nil && !errors.Is(err, gocui.ErrUnknownView) {
 		return err
 	}
 	statusView.Frame = false
-	chat.statusView = statusView
 	chat.updateStatusBar()
 
 	// 创建输入框
 	inputView, err := gui.g.SetView("aiChatInput", x0, y1-inputHeight+1, x1, y1, 0)
-	if err != nil && err != gocui.ErrUnknownView {
+	if err != nil && !errors.Is(err, gocui.ErrUnknownView) {
 		return err
 	}
 	inputView.Frame = true
@@ -141,25 +195,85 @@ func (gui *Gui) createAIChatPopup(chat *AIChat) error {
 	})
 	// 初始化 TextArea，避免空 view 被鼠标点击时 lines[-1] 越界 panic
 	inputView.RenderTextArea()
-	chat.inputView = inputView
-
-	// 渲染初始内容
-	chat.render()
-
-	// 设置焦点和层级
-	gui.g.SetViewOnTop("aiChat")
-	gui.g.SetViewOnTop("aiChatStatus")
-	gui.g.SetViewOnTop("aiChatInput")
-	gui.g.SetCurrentView("aiChatInput")
 
 	// 设置键盘绑定
 	gui.setAIChatKeyBindings(chat)
 
+	// 立即渲染并抢占焦点，避免首次打开需要多次按键才可见
+	chat.render()
+	gui.focusAIChatInput()
+	gui.afterLayout(func() error {
+		gui.focusAIChatInput()
+		return nil
+	})
+
 	return nil
+}
+
+func (gui *Gui) isAIChatOpen() bool {
+	if gui == nil || gui.g == nil {
+		return false
+	}
+	_, err := gui.g.View("aiChatInput")
+	return err == nil
+}
+
+func (gui *Gui) focusAIChatInput() {
+	if gui == nil || gui.g == nil {
+		return
+	}
+	inputView, err := gui.g.View("aiChatInput")
+	if err != nil {
+		return
+	}
+	if inputView.TextArea == nil {
+		inputView.RenderTextArea()
+	}
+
+	_, _ = gui.g.SetViewOnTop("aiChat")
+	_, _ = gui.g.SetViewOnTop("aiChatStatus")
+	_, _ = gui.g.SetViewOnTop("aiChatInput")
+	if v, err := gui.g.SetCurrentView("aiChatInput"); err == nil {
+		gui.g.Cursor = v.Editable && v.Mask == ""
+	}
+}
+
+func (gui *Gui) ensureAIChatFocus() {
+	if !gui.isAIChatOpen() {
+		return
+	}
+
+	// 如果当前有标准 popup（菜单/确认框等），不要强抢焦点，避免破坏交互
+	if gui.helpers != nil && gui.helpers.Confirmation != nil && gui.helpers.Confirmation.IsPopupPanelFocused() {
+		return
+	}
+
+	current := gui.g.CurrentView()
+	if current != nil {
+		switch current.Name() {
+		case "aiChatInput", "aiChat", "aiChatStatus":
+			// 空白保护：若视图存在但内容为空，补一次渲染
+			if gui.aiChatSession != nil {
+				chatView := gui.aiChatSession.getChatView()
+				if chatView != nil && strings.TrimSpace(chatView.Buffer()) == "" && len(gui.aiChatSession.messages) > 0 {
+					gui.aiChatSession.render()
+					gui.aiChatSession.updateStatusBar()
+				}
+			}
+			return
+		}
+	}
+
+	gui.focusAIChatInput()
 }
 
 // setAIChatKeyBindings 设置 AI 对话键盘绑定
 func (gui *Gui) setAIChatKeyBindings(chat *AIChat) {
+	// 保证幂等：先清理旧绑定，避免重复叠加或被重置后缺失
+	gui.g.DeleteViewKeybindings("aiChat")
+	gui.g.DeleteViewKeybindings("aiChatInput")
+	gui.g.DeleteViewKeybindings("aiChatStatus")
+
 	// ==================== 输入框快捷键 ====================
 
 	// Enter - 发送消息
@@ -207,6 +321,54 @@ func (gui *Gui) setAIChatKeyBindings(chat *AIChat) {
 	// 下箭头 - 历史记录（下一条）
 	gui.g.SetKeybinding("aiChatInput", gocui.KeyArrowDown, gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
 		return chat.navigateHistory(1)
+	})
+
+	// Alt+上下箭头 - 在输入框内滚动聊天内容
+	gui.g.SetKeybinding("aiChatInput", gocui.KeyArrowUp, gocui.ModAlt, func(*gocui.Gui, *gocui.View) error {
+		if chatView := chat.getChatView(); chatView != nil {
+			gui.scrollUpView(chatView)
+		}
+		return nil
+	})
+	gui.g.SetKeybinding("aiChatInput", gocui.KeyArrowDown, gocui.ModAlt, func(*gocui.Gui, *gocui.View) error {
+		if chatView := chat.getChatView(); chatView != nil {
+			gui.scrollDownView(chatView)
+		}
+		return nil
+	})
+
+	// 在输入框内也支持 PgUp/PgDn/Home/End 滚动聊天内容
+	gui.g.SetKeybinding("aiChatInput", gocui.KeyPgup, gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
+		if chatView := chat.getChatView(); chatView != nil {
+			for i := 0; i < chatPageScrollLines; i++ {
+				gui.scrollUpView(chatView)
+			}
+		}
+		return nil
+	})
+	gui.g.SetKeybinding("aiChatInput", gocui.KeyPgdn, gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
+		if chatView := chat.getChatView(); chatView != nil {
+			for i := 0; i < chatPageScrollLines; i++ {
+				gui.scrollDownView(chatView)
+			}
+		}
+		return nil
+	})
+	gui.g.SetKeybinding("aiChatInput", gocui.KeyHome, gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
+		if chatView := chat.getChatView(); chatView != nil {
+			chatView.SetOrigin(0, 0)
+		}
+		return nil
+	})
+	gui.g.SetKeybinding("aiChatInput", gocui.KeyEnd, gocui.ModNone, func(*gocui.Gui, *gocui.View) error {
+		if chatView := chat.getChatView(); chatView != nil {
+			_, height := chatView.Size()
+			lines := len(chatView.BufferLines())
+			if lines > height {
+				chatView.SetOrigin(0, lines-height)
+			}
+		}
+		return nil
 	})
 
 	// Tab - 切换到对话视图
@@ -293,12 +455,41 @@ func (gui *Gui) setAIChatKeyBindings(chat *AIChat) {
 	gui.g.SetKeybinding("aiChatInput", '?', gocui.ModAlt, func(*gocui.Gui, *gocui.View) error {
 		return chat.showHelp()
 	})
+
+	// 鼠标滚轮：在 AI 对话框任一区域滚动聊天内容
+	scrollChatByMouse := func(direction int) func(*gocui.Gui, *gocui.View) error {
+		return func(*gocui.Gui, *gocui.View) error {
+			chatView := chat.getChatView()
+			if chatView == nil {
+				return nil
+			}
+			if direction < 0 {
+				gui.scrollUpView(chatView)
+			} else {
+				gui.scrollDownView(chatView)
+			}
+			return nil
+		}
+	}
+
+	gui.g.SetKeybinding("aiChat", gocui.MouseWheelUp, gocui.ModNone, scrollChatByMouse(-1))
+	gui.g.SetKeybinding("aiChat", gocui.MouseWheelDown, gocui.ModNone, scrollChatByMouse(1))
+	gui.g.SetKeybinding("aiChatInput", gocui.MouseWheelUp, gocui.ModNone, scrollChatByMouse(-1))
+	gui.g.SetKeybinding("aiChatInput", gocui.MouseWheelDown, gocui.ModNone, scrollChatByMouse(1))
+	gui.g.SetKeybinding("aiChatStatus", gocui.MouseWheelUp, gocui.ModNone, scrollChatByMouse(-1))
+	gui.g.SetKeybinding("aiChatStatus", gocui.MouseWheelDown, gocui.ModNone, scrollChatByMouse(1))
 }
 
 // sendMessage 发送消息
 func (chat *AIChat) sendMessage() error {
+	inputView := chat.getInputView()
+	if inputView == nil || inputView.TextArea == nil {
+		chat.gui.c.Toast("输入框尚未就绪，请重试")
+		return nil
+	}
+
 	// 获取输入内容（TextArea 模式）
-	content := strings.TrimSpace(chat.inputView.TextArea.GetContent())
+	content := strings.TrimSpace(inputView.TextArea.GetContent())
 	if content == "" {
 		return nil
 	}
@@ -308,8 +499,8 @@ func (chat *AIChat) sendMessage() error {
 	chat.historyIndex = len(chat.inputHistory)
 
 	// 清空输入框
-	chat.inputView.ClearTextArea()
-	chat.inputView.RenderTextArea()
+	inputView.ClearTextArea()
+	inputView.RenderTextArea()
 
 	// 添加用户消息
 	chat.addUserMessage(content)
@@ -350,6 +541,12 @@ func (chat *AIChat) getAIResponse(userMessage string) {
 
 	// 调用 AI
 	result, err := chat.gui.c.AI.Complete(chat.ctx, prompt)
+	assistantContent := ""
+	extractedCommands := []string{}
+	if err == nil {
+		assistantContent = strings.TrimSpace(result.Content)
+		extractedCommands = helpers.ExtractCommandsFromMessage(assistantContent)
+	}
 
 	chat.gui.g.Update(func(*gocui.Gui) error {
 		// 移除"正在思考"消息
@@ -362,7 +559,7 @@ func (chat *AIChat) getAIResponse(userMessage string) {
 			chat.addErrorMessage(fmt.Sprintf("抱歉，发生错误：%v", err))
 		} else {
 			// 添加 AI 回复
-			chat.addAssistantMessage(strings.TrimSpace(result.Content))
+			chat.addAssistantMessage(assistantContent)
 		}
 
 		chat.isTyping = false
@@ -370,6 +567,13 @@ func (chat *AIChat) getAIResponse(userMessage string) {
 		chat.updateStatusBar()
 		return nil
 	})
+
+	// AI 回复中若包含命令，自动弹出确认并按顺序执行。
+	if err == nil && len(extractedCommands) > 0 && chat.gui.helpers != nil && chat.gui.helpers.AI != nil {
+		chat.gui.g.Update(func(*gocui.Gui) error {
+			return chat.gui.helpers.AI.ConfirmAndSilentExecute(extractedCommands)
+		})
+	}
 }
 
 // currentShellInfo 返回当前 OS 和推荐 shell 的描述，用于注入到提示词
@@ -521,134 +725,175 @@ func (chat *AIChat) addErrorMessage(content string) {
 	})
 }
 
+func (chat *AIChat) getChatView() *gocui.View {
+	if chat == nil || chat.gui == nil || chat.gui.g == nil {
+		return nil
+	}
+	v, err := chat.gui.g.View("aiChat")
+	if err != nil {
+		return nil
+	}
+	return v
+}
+
+func (chat *AIChat) getStatusView() *gocui.View {
+	if chat == nil || chat.gui == nil || chat.gui.g == nil {
+		return nil
+	}
+	v, err := chat.gui.g.View("aiChatStatus")
+	if err != nil {
+		return nil
+	}
+	return v
+}
+
+func (chat *AIChat) getInputView() *gocui.View {
+	if chat == nil || chat.gui == nil || chat.gui.g == nil {
+		return nil
+	}
+	v, err := chat.gui.g.View("aiChatInput")
+	if err != nil {
+		return nil
+	}
+	return v
+}
+
 // Continue in next part...
 // 继续 ai_chat_v2.go 的实现
 
 // render 渲染对话内容
 func (chat *AIChat) render() {
-	chat.chatView.Clear()
+	chatView := chat.getChatView()
+	if chatView == nil {
+		return
+	}
+	chatView.Clear()
 
 	// 渲染标题分隔线
-	fmt.Fprintln(chat.chatView, style.FgCyan.Sprint(strings.Repeat("─", chat.maxWidth-4)))
-	fmt.Fprintln(chat.chatView)
+	fmt.Fprintln(chatView, style.FgCyan.Sprint(strings.Repeat("─", chat.maxWidth-4)))
+	fmt.Fprintln(chatView)
 
 	// 渲染所有消息
 	for i, msg := range chat.messages {
-		chat.renderMessage(msg)
+		chat.renderMessage(chatView, msg)
 
 		// 消息之间添加分隔线（除了最后一条）
 		if i < len(chat.messages)-1 {
-			fmt.Fprintln(chat.chatView)
+			fmt.Fprintln(chatView)
 		}
 	}
 }
 
 // renderMessage 渲染单条消息
-func (chat *AIChat) renderMessage(msg ChatMessage) {
+func (chat *AIChat) renderMessage(chatView *gocui.View, msg ChatMessage) {
 	timeStr := msg.Timestamp.Format("15:04:05")
 
 	switch msg.Role {
 	case "system":
 		// 系统消息 - 居中，灰色
-		fmt.Fprintf(chat.chatView, "%s\n",
+		fmt.Fprintf(chatView, "%s\n",
 			style.FgDefault.Sprint("┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈"))
-		fmt.Fprintf(chat.chatView, "  %s  %s\n",
+		fmt.Fprintf(chatView, "  %s  %s\n",
 			style.FgYellow.Sprint("ℹ"),
 			style.FgDefault.Sprint(msg.Content))
-		fmt.Fprintf(chat.chatView, "%s\n",
+		fmt.Fprintf(chatView, "%s\n",
 			style.FgDefault.Sprint("┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈"))
 
 	case "user":
 		// 用户消息 - 右对齐风格，青色
-		fmt.Fprintf(chat.chatView, "%s %s\n",
+		fmt.Fprintf(chatView, "%s %s\n",
 			style.FgCyan.SetBold().Sprint("👤 你"),
 			style.FgDefault.Sprint(timeStr))
 
 		// 消息内容，带边框
 		lines := strings.Split(msg.Content, "\n")
-		fmt.Fprintln(chat.chatView, style.FgCyan.Sprint("╭─────────────────────────────────────────────────────────"))
+		fmt.Fprintln(chatView, style.FgCyan.Sprint("╭─────────────────────────────────────────────────────────"))
 		for _, line := range lines {
 			if line == "" {
-				fmt.Fprintln(chat.chatView, style.FgCyan.Sprint("│"))
+				fmt.Fprintln(chatView, style.FgCyan.Sprint("│"))
 			} else {
-				fmt.Fprintf(chat.chatView, "%s %s\n",
+				fmt.Fprintf(chatView, "%s %s\n",
 					style.FgCyan.Sprint("│"),
 					line)
 			}
 		}
-		fmt.Fprintln(chat.chatView, style.FgCyan.Sprint("╰─────────────────────────────────────────────────────────"))
+		fmt.Fprintln(chatView, style.FgCyan.Sprint("╰─────────────────────────────────────────────────────────"))
 
 	case "assistant":
 		// AI 消息 - 左对齐风格，绿色
 		if msg.IsError {
 			// 错误消息 - 红色
-			fmt.Fprintf(chat.chatView, "%s %s\n",
+			fmt.Fprintf(chatView, "%s %s\n",
 				style.FgRed.SetBold().Sprint("❌ AI"),
 				style.FgDefault.Sprint(timeStr))
 
 			lines := strings.Split(msg.Content, "\n")
-			fmt.Fprintln(chat.chatView, style.FgRed.Sprint("╭─────────────────────────────────────────────────────────"))
+			fmt.Fprintln(chatView, style.FgRed.Sprint("╭─────────────────────────────────────────────────────────"))
 			for _, line := range lines {
 				if line == "" {
-					fmt.Fprintln(chat.chatView, style.FgRed.Sprint("│"))
+					fmt.Fprintln(chatView, style.FgRed.Sprint("│"))
 				} else {
-					fmt.Fprintf(chat.chatView, "%s %s\n",
+					fmt.Fprintf(chatView, "%s %s\n",
 						style.FgRed.Sprint("│"),
 						line)
 				}
 			}
-			fmt.Fprintln(chat.chatView, style.FgRed.Sprint("╰─────────────────────────────────────────────────────────"))
+			fmt.Fprintln(chatView, style.FgRed.Sprint("╰─────────────────────────────────────────────────────────"))
 		} else if strings.Contains(msg.Content, "正在思考") {
 			// 思考中消息 - 黄色，带动画效果
-			fmt.Fprintf(chat.chatView, "%s %s\n",
+			fmt.Fprintf(chatView, "%s %s\n",
 				style.FgYellow.SetBold().Sprint("🤖 AI"),
 				style.FgDefault.Sprint(timeStr))
-			fmt.Fprintf(chat.chatView, "  %s\n", style.FgYellow.Sprint(msg.Content))
+			fmt.Fprintf(chatView, "  %s\n", style.FgYellow.Sprint(msg.Content))
 		} else {
 			// 正常 AI 回复 - 绿色
-			fmt.Fprintf(chat.chatView, "%s %s\n",
+			fmt.Fprintf(chatView, "%s %s\n",
 				style.FgGreen.SetBold().Sprint("🤖 AI"),
 				style.FgDefault.Sprint(timeStr))
 
 			lines := strings.Split(msg.Content, "\n")
-			fmt.Fprintln(chat.chatView, style.FgGreen.Sprint("╭─────────────────────────────────────────────────────────"))
+			fmt.Fprintln(chatView, style.FgGreen.Sprint("╭─────────────────────────────────────────────────────────"))
 			for _, line := range lines {
 				if line == "" {
-					fmt.Fprintln(chat.chatView, style.FgGreen.Sprint("│"))
+					fmt.Fprintln(chatView, style.FgGreen.Sprint("│"))
 				} else {
 					// 检测代码块
 					if strings.HasPrefix(strings.TrimSpace(line), "```") {
-						fmt.Fprintf(chat.chatView, "%s %s\n",
+						fmt.Fprintf(chatView, "%s %s\n",
 							style.FgGreen.Sprint("│"),
 							style.FgMagenta.Sprint(line))
 					} else if strings.HasPrefix(strings.TrimSpace(line), "git ") ||
 						strings.HasPrefix(strings.TrimSpace(line), "$ ") {
 						// 高亮命令
-						fmt.Fprintf(chat.chatView, "%s %s\n",
+						fmt.Fprintf(chatView, "%s %s\n",
 							style.FgGreen.Sprint("│"),
 							style.FgYellow.Sprint(line))
 					} else if strings.HasPrefix(strings.TrimSpace(line), "•") ||
 						strings.HasPrefix(strings.TrimSpace(line), "-") ||
 						strings.HasPrefix(strings.TrimSpace(line), "*") {
 						// 高亮列表项
-						fmt.Fprintf(chat.chatView, "%s %s\n",
+						fmt.Fprintf(chatView, "%s %s\n",
 							style.FgGreen.Sprint("│"),
 							style.FgCyan.Sprint(line))
 					} else {
-						fmt.Fprintf(chat.chatView, "%s %s\n",
+						fmt.Fprintf(chatView, "%s %s\n",
 							style.FgGreen.Sprint("│"),
 							line)
 					}
 				}
 			}
-			fmt.Fprintln(chat.chatView, style.FgGreen.Sprint("╰─────────────────────────────────────────────────────────"))
+			fmt.Fprintln(chatView, style.FgGreen.Sprint("╰─────────────────────────────────────────────────────────"))
 		}
 	}
 }
 
 // updateStatusBar 更新状态栏
 func (chat *AIChat) updateStatusBar() {
-	chat.statusView.Clear()
+	statusView := chat.getStatusView()
+	if statusView == nil {
+		return
+	}
+	statusView.Clear()
 
 	// 构建状态信息
 	var statusParts []string
@@ -679,12 +924,17 @@ func (chat *AIChat) updateStatusBar() {
 
 	// 渲染状态栏
 	statusLine := strings.Join(statusParts, " │ ")
-	fmt.Fprintf(chat.statusView, " %s\n", statusLine)
-	fmt.Fprintln(chat.statusView, style.FgDefault.Sprint(strings.Repeat("─", chat.maxWidth-4)))
+	fmt.Fprintf(statusView, " %s\n", statusLine)
+	fmt.Fprintln(statusView, style.FgDefault.Sprint(strings.Repeat("─", chat.maxWidth-4)))
 }
 
 // navigateHistory 导航输入历史
 func (chat *AIChat) navigateHistory(direction int) error {
+	inputView := chat.getInputView()
+	if inputView == nil || inputView.TextArea == nil {
+		return nil
+	}
+
 	if len(chat.inputHistory) == 0 {
 		return nil
 	}
@@ -700,13 +950,11 @@ func (chat *AIChat) navigateHistory(direction int) error {
 	chat.historyIndex = newIndex
 
 	// 更新输入框内容（TextArea 模式）
-	chat.inputView.ClearTextArea()
+	inputView.ClearTextArea()
 	if chat.historyIndex < len(chat.inputHistory) {
-		for _, ch := range chat.inputHistory[chat.historyIndex] {
-			chat.inputView.TextArea.TypeCharacter(string(ch))
-		}
+		inputView.TextArea.TypeString(chat.inputHistory[chat.historyIndex])
 	}
-	chat.inputView.RenderTextArea()
+	inputView.RenderTextArea()
 
 	return nil
 }
@@ -764,6 +1012,24 @@ func (chat *AIChat) copyLastResponse() error {
 	return nil
 }
 
+// executeLastResponseCommands 提取上一条 AI 回复中的命令，确认后静默执行
+func (chat *AIChat) executeLastResponseCommands() error {
+	for i := len(chat.messages) - 1; i >= 0; i-- {
+		msg := chat.messages[i]
+		if msg.Role != "assistant" || msg.IsError || strings.Contains(msg.Content, "正在思考") {
+			continue
+		}
+		cmds := helpers.ExtractCommandsFromMessage(msg.Content)
+		if len(cmds) == 0 {
+			chat.gui.c.Toast("上一条 AI 回复中未找到可执行命令")
+			return nil
+		}
+		return chat.gui.helpers.AI.ConfirmAndSilentExecute(cmds)
+	}
+	chat.gui.c.Toast("没有可执行的 AI 回复")
+	return nil
+}
+
 // saveConversation 保存对话
 func (chat *AIChat) saveConversation() error {
 	// 构建对话内容
@@ -805,7 +1071,7 @@ func (chat *AIChat) saveConversation() error {
 // showPresetQuestions 显示预设问题
 func (chat *AIChat) showPresetQuestions() error {
 	presets := []struct {
-		category string
+		category  string
 		questions []string
 	}{
 		{
@@ -864,9 +1130,13 @@ func (chat *AIChat) showPresetQuestions() error {
 				Label: fmt.Sprintf("%s: %s", category, q),
 				OnPress: func() error {
 					// 填充到输入框
-					chat.inputView.Clear()
-					chat.inputView.SetCursor(0, 0)
-					fmt.Fprint(chat.inputView, q)
+					inputView := chat.getInputView()
+					if inputView == nil || inputView.TextArea == nil {
+						return nil
+					}
+					inputView.ClearTextArea()
+					inputView.TextArea.TypeString(q)
+					inputView.RenderTextArea()
 					return nil
 				},
 			})
@@ -941,6 +1211,17 @@ func (gui *Gui) CloseAIChat(chat *AIChat) error {
 	gui.g.DeleteViewKeybindings("aiChat")
 	gui.g.DeleteViewKeybindings("aiChatInput")
 	gui.g.DeleteViewKeybindings("aiChatStatus")
+
+	// 删除视图前先把焦点还给当前静态 context，避免 currentView 指向已删除的 editable view
+	if current := gui.g.CurrentView(); current != nil {
+		switch current.Name() {
+		case "aiChat", "aiChatInput", "aiChatStatus":
+			targetView := gui.c.Context().CurrentStatic().GetViewName()
+			if v, err := gui.g.SetCurrentView(targetView); err == nil {
+				gui.g.Cursor = v.Editable && v.Mask == ""
+			}
+		}
+	}
 
 	// 删除视图（会话历史保留在 gui.aiChatSession 中）
 	gui.g.DeleteView("aiChat")

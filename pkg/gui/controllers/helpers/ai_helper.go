@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -407,12 +408,17 @@ func (self *AIHelper) OpenAIAssistant() error {
 // executes them via a subprocess on confirmation.
 // Must be called on the UI thread.
 func (self *AIHelper) confirmAndExecuteCommands(commands []string) error {
-	preview := strings.Join(commands, "\n")
+	normalizedCommands := normalizeAICommands(commands)
+	if len(normalizedCommands) == 0 {
+		return errors.New(self.c.Tr.AIAssistantNoCommands)
+	}
+
+	preview := strings.Join(normalizedCommands, "\n")
 	self.c.Confirm(types.ConfirmOpts{
 		Title:  self.c.Tr.AIAssistantTitle,
 		Prompt: self.c.Tr.AIAssistantConfirmExecute + "\n\n" + preview,
 		HandleConfirm: func() error {
-			cmdStr := strings.Join(commands, " && ")
+			cmdStr := buildSequentialCommandScript(normalizedCommands, self.c.OS().Platform.OS)
 			self.c.LogAction("AI git assistant")
 			return self.c.RunSubprocessAndRefresh(
 				self.c.OS().Cmd.NewShell(cmdStr, self.c.UserConfig().OS.ShellFunctionsFile),
@@ -425,15 +431,7 @@ func (self *AIHelper) confirmAndExecuteCommands(commands []string) error {
 // parseAICommands splits the AI response into individual shell commands,
 // discarding blank lines and comment lines.
 func parseAICommands(response string) []string {
-	var cmds []string
-	for _, line := range strings.Split(response, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		cmds = append(cmds, line)
-	}
-	return cmds
+	return ExtractCommandsFromMessage(response)
 }
 
 // ExtractCommandsFromMessage 从 AI 消息文本中提取可执行命令。
@@ -451,19 +449,19 @@ func ExtractCommandsFromMessage(message string) []string {
 			continue
 		}
 		if inBlock {
-			if trimmed != "" && !strings.HasPrefix(trimmed, "#") {
-				cmds = append(cmds, trimmed)
+			cmd := normalizeAICommandLine(trimmed)
+			if cmd != "" && !strings.HasPrefix(cmd, "#") {
+				cmds = append(cmds, cmd)
 			}
 		}
 	}
 
-	// 2. 若代码块中无内容，则从正文中提取 git / $ 开头的行
+	// 2. 若代码块中无内容，则从正文中提取明显的命令行
 	if len(cmds) == 0 {
 		for _, line := range lines {
-			trimmed := strings.TrimSpace(line)
-			trimmed = strings.TrimPrefix(trimmed, "$ ")
-			if strings.HasPrefix(trimmed, "git ") {
-				cmds = append(cmds, trimmed)
+			cmd := normalizeAICommandLine(line)
+			if looksLikeCommand(cmd) {
+				cmds = append(cmds, cmd)
 			}
 		}
 	}
@@ -471,18 +469,84 @@ func ExtractCommandsFromMessage(message string) []string {
 	return cmds
 }
 
+var commandListPrefixRe = regexp.MustCompile(`^\s*(?:[-*•]+\s+|\d+[.)]\s+)`)
+
+// knownCommands 是允许从 AI 正文（非代码块）中提取的可执行程序白名单。
+// 代码块内的命令不受此限制，由调用方直接提取。
+var knownCommands = map[string]bool{
+	// Git 工具
+	"git": true, "gh": true, "hub": true,
+	// Shell 内置 / 常用工具
+	"cd": true, "ls": true, "mkdir": true, "rm": true, "cp": true, "mv": true,
+	"touch": true, "cat": true, "echo": true, "grep": true, "find": true,
+	"chmod": true, "chown": true, "ln": true, "curl": true, "wget": true,
+	"ssh": true, "scp": true, "rsync": true,
+	// Shell
+	"sh": true, "bash": true, "zsh": true, "fish": true,
+	// Node.js
+	"npm": true, "yarn": true, "pnpm": true, "npx": true, "node": true,
+	// Python
+	"python": true, "python3": true, "pip": true, "pip3": true,
+	// Go
+	"go": true,
+	// 构建工具
+	"make": true, "cmake": true, "cargo": true, "mvn": true, "gradle": true,
+}
+
+func normalizeAICommandLine(line string) string {
+	line = strings.TrimSpace(line)
+	if line == "" {
+		return ""
+	}
+
+	// 去掉列表前缀（如 "1. "、"- "、"• "）
+	line = commandListPrefixRe.ReplaceAllString(line, "")
+	line = strings.TrimSpace(line)
+
+	// 去掉常见 shell 提示符前缀
+	line = strings.TrimPrefix(line, "$ ")
+	line = strings.TrimPrefix(line, "> ")
+	line = strings.TrimSpace(line)
+
+	// 去掉包裹式单行反引号（精确去除首尾各一个，避免误删多重反引号）
+	if strings.HasPrefix(line, "`") && strings.HasSuffix(line, "`") && len(line) > 1 {
+		line = strings.TrimSpace(line[1 : len(line)-1])
+	}
+
+	return line
+}
+
+func looksLikeCommand(line string) bool {
+	if line == "" {
+		return false
+	}
+
+	fields := strings.Fields(line)
+	if len(fields) == 0 {
+		return false
+	}
+
+	// 只允许白名单中的已知可执行程序，防止说明性文字被误判为命令
+	return knownCommands[fields[0]]
+}
+
 // ConfirmAndSilentExecute 展示待执行命令，用户确认后在后台静默执行（不弹出终端）并刷新界面。
 func (self *AIHelper) ConfirmAndSilentExecute(commands []string) error {
-	preview := strings.Join(commands, "\n")
+	normalizedCommands := normalizeAICommands(commands)
+	if len(normalizedCommands) == 0 {
+		return errors.New(self.c.Tr.AIAssistantSilentNoCommands)
+	}
+
+	preview := strings.Join(normalizedCommands, "\n")
 	self.c.Confirm(types.ConfirmOpts{
 		Title:  self.c.Tr.AIAssistantTitle,
-		Prompt: "确认静默执行以下命令？\n\n" + preview,
+		Prompt: self.c.Tr.AIAssistantConfirmSilentExecute + "\n\n" + preview,
 		HandleConfirm: func() error {
-			cmdStr := strings.Join(commands, " && ")
 			self.c.LogAction("AI silent execute")
-			return self.c.WithWaitingStatus("正在执行命令...", func(_ gocui.Task) error {
+			return self.c.WithWaitingStatus(self.c.Tr.AIAssistantExecuting, func(_ gocui.Task) error {
+				cmdStr := buildSequentialCommandScript(normalizedCommands, self.c.OS().Platform.OS)
 				if err := self.c.OS().Cmd.NewShell(cmdStr, self.c.UserConfig().OS.ShellFunctionsFile).Run(); err != nil {
-					return err
+					return fmt.Errorf("%s: %w", self.c.Tr.AIAssistantExecuteError, err)
 				}
 				self.c.Refresh(types.RefreshOptions{Mode: types.ASYNC})
 				return nil
@@ -490,6 +554,36 @@ func (self *AIHelper) ConfirmAndSilentExecute(commands []string) error {
 		},
 	})
 	return nil
+}
+
+func normalizeAICommands(commands []string) []string {
+	normalizedCommands := make([]string, 0, len(commands))
+	for _, cmd := range commands {
+		normalized := normalizeAICommandLine(cmd)
+		if looksLikeCommand(normalized) {
+			normalizedCommands = append(normalizedCommands, normalized)
+		}
+	}
+	return normalizedCommands
+}
+
+func buildSequentialCommandScript(commands []string, osName string) string {
+	if len(commands) == 0 {
+		return ""
+	}
+
+	if osName == "windows" {
+		lines := []string{"@echo off", "setlocal"}
+		for _, cmd := range commands {
+			lines = append(lines, cmd)
+			lines = append(lines, "if errorlevel 1 exit /b 1")
+		}
+		return strings.Join(lines, "\n")
+	}
+
+	lines := []string{"set -e"}
+	lines = append(lines, commands...)
+	return strings.Join(lines, "\n")
 }
 
 // buildGitContext collects comprehensive repository information to include in the AI prompt.

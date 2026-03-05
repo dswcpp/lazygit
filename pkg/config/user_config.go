@@ -1101,7 +1101,7 @@ func GetDefaultConfig() *UserConfig {
 				ExpandAll:                "=",
 			},
 			Branches: KeybindingBranchesConfig{
-				CopyPullRequestURL:     "<c-y>",
+				CopyPullRequestURL:     "y",
 				CreatePullRequest:      "o",
 				ViewPullRequestOptions: "O",
 				CheckoutBranchByName:   "c",

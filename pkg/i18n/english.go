@@ -445,6 +445,10 @@ type TranslationSet struct {
 	AIAssistantStatus                     string
 	AIAssistantConfirmExecute             string
 	AIAssistantNoCommands                 string
+	AIAssistantSilentNoCommands           string
+	AIAssistantConfirmSilentExecute       string
+	AIAssistantExecuting                  string
+	AIAssistantExecuteError               string
 	AICodeReview                          string
 	AICodeReviewTitle                     string
 	AIGenerationCancelled                 string
@@ -1761,6 +1765,10 @@ func EnglishTranslationSet() *TranslationSet {
 		AIAssistantStatus:                    "AI generating commands...",
 		AIAssistantConfirmExecute:            "Execute these commands?",
 		AIAssistantNoCommands:                "AI did not generate any commands",
+		AIAssistantSilentNoCommands:          "No executable commands found",
+		AIAssistantConfirmSilentExecute:      "Silently execute these commands?",
+		AIAssistantExecuting:                 "Executing commands...",
+		AIAssistantExecuteError:              "Command execution failed",
 		AICodeReview:                         "AI code review",
 		AICodeReviewTitle:                    "AI Code Review",
 		AIGenerationCancelled:                "AI commit message generation cancelled",

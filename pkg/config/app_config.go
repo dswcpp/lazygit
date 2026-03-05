@@ -321,6 +321,11 @@ func computeMigratedConfig(path string, content []byte, changes *ChangesSet) ([]
 		return nil, false, fmt.Errorf("Couldn't migrate config file at `%s`: %w", path, err)
 	}
 
+	err = migrateConflictingAIAssistantAndCopyPullRequestURLKey(&rootNode, changes)
+	if err != nil {
+		return nil, false, fmt.Errorf("Couldn't migrate config file at `%s`: %w", path, err)
+	}
+
 	// Add more migrations here...
 
 	if reflect.DeepEqual(rootNode, originalCopy) {
@@ -583,6 +588,34 @@ func migrateAIFlatConfigToProfiles(rootNode *yaml.Node, changes *ChangesSet) err
 		)
 
 		changes.Add("Migrated ai flat config fields to ai.profiles array")
+		return nil
+	})
+}
+
+func migrateConflictingAIAssistantAndCopyPullRequestURLKey(rootNode *yaml.Node, changes *ChangesSet) error {
+	return yaml_utils.TransformNode(rootNode, []string{"keybinding"}, func(keybindingNode *yaml.Node) error {
+		if keybindingNode.Kind != yaml.MappingNode {
+			return nil
+		}
+
+		_, branchesNode := yaml_utils.LookupKey(keybindingNode, "branches")
+		_, aiNode := yaml_utils.LookupKey(keybindingNode, "ai")
+		if branchesNode == nil || aiNode == nil {
+			return nil
+		}
+
+		_, copyPullRequestURLNode := yaml_utils.LookupKey(branchesNode, "copyPullRequestURL")
+		_, aiAssistantNode := yaml_utils.LookupKey(aiNode, "aiAssistant")
+		if copyPullRequestURLNode == nil || aiAssistantNode == nil {
+			return nil
+		}
+
+		if strings.EqualFold(copyPullRequestURLNode.Value, "<c-y>") &&
+			strings.EqualFold(aiAssistantNode.Value, "<c-y>") {
+			copyPullRequestURLNode.Value = "y"
+			changes.Add("Changed 'keybinding.branches.copyPullRequestURL' from '<c-y>' to 'y' to avoid conflict with 'keybinding.ai.aiAssistant'")
+		}
+
 		return nil
 	})
 }

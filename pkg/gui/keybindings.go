@@ -201,7 +201,7 @@ func (gui *Gui) GetInitialKeybindings() ([]*types.Binding, []*gocui.ViewMouseBin
 		},
 		{
 			ViewName:    "",
-			Key:         gocui.KeyCtrlY,
+			Key:         gocui.KeyF1,
 			Handler:     gui.ShowAIChat,
 			Description: gui.c.Tr.OpenAIAssistant,
 		},
@@ -480,6 +480,16 @@ func (gui *Gui) resetKeybindings() error {
 				return err
 			}
 		}
+	}
+
+	// AI 对话是动态视图，reset 后需要补回其视图级绑定
+	if gui.aiChatSession != nil && gui.isAIChatOpen() {
+		gui.setAIChatKeyBindings(gui.aiChatSession)
+		gui.focusAIChatInput()
+		gui.afterLayout(func() error {
+			gui.focusAIChatInput()
+			return nil
+		})
 	}
 
 	return nil
