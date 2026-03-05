@@ -20,8 +20,11 @@ type Common struct {
 	// for interacting with the filesystem. We use afero rather than the default
 	// `os` package for the sake of mocking the filesystem in tests
 	Fs afero.Fs
-	// AI is the client for AI features; nil when AI is disabled
+	// AI is the legacy client for AI features; nil when AI is disabled.
+	// Prefer AIManager for new code.
 	AI *ai.Client
+	// AIManager is the top-level AI facade. nil when AI is disabled.
+	AIManager *ai.Manager
 }
 
 func (c *Common) UserConfig() *config.UserConfig {

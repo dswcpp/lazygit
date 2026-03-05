@@ -60,7 +60,7 @@ func (self *CommitMessageController) GetKeybindings(opts types.KeybindingsOpts) 
 			Description:     self.c.Tr.AIGenerateCommitMessage,
 			DisplayOnScreen: true,
 			GetDisabledReason: func() *types.DisabledReason {
-				if self.c.AI == nil {
+				if self.c.AIManager == nil {
 					return &types.DisabledReason{Text: self.c.Tr.AINotEnabled}
 				}
 				return nil

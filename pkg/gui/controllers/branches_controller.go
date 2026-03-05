@@ -762,7 +762,7 @@ func (self *BranchesController) newBranch(selectedBranch *models.Branch) error {
 
 func (self *BranchesController) newBranchWithAI(selectedBranch *models.Branch) error {
 	// Check if AI is enabled
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		return self.c.Helpers().AI.ShowFirstTimeWizard()
 	}
 
@@ -873,7 +873,7 @@ func (self *BranchesController) createPullRequest(from string, to string) error 
 	}
 
 	// If AI is enabled, offer to generate PR description
-	if self.c.AI != nil {
+	if self.c.AIManager != nil {
 		return self.c.Menu(types.CreateMenuOptions{
 			Title: self.c.Tr.CreatePullRequestOptions,
 			Items: []*types.MenuItem{

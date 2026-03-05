@@ -74,13 +74,21 @@ func NewCommon(config config.AppConfigurer) (*common.Common, error) {
 		return nil, fmt.Errorf("failed to initialize AI client: %w", err)
 	}
 
+	// Manager is created without a context builder; the GUI layer injects one
+	// via AIManager.SetContextBuilder() once the GUI model is available.
+	aiManager, err := ai.NewManager(userConfig.AI, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize AI manager: %w", err)
+	}
+
 	cmn := &common.Common{
-		Log:      log,
-		Tr:       tr,
-		AppState: appState,
-		Debug:    config.GetDebug(),
-		Fs:       afero.NewOsFs(),
-		AI:       aiClient,
+		Log:       log,
+		Tr:        tr,
+		AppState:  appState,
+		Debug:     config.GetDebug(),
+		Fs:        afero.NewOsFs(),
+		AI:        aiClient,
+		AIManager: aiManager,
 	}
 	cmn.SetUserConfig(userConfig)
 	return cmn, nil

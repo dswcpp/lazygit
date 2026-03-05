@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"runtime"
 	"strings"
 	"time"
+
+	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
 )
 
 // CommandSuggestion represents an AI-generated command suggestion.
@@ -35,77 +36,16 @@ func NewAICommandHelper(c *HelperCommon, aiHelper *AIHelper) *AICommandHelper {
 // GenerateShellCommand uses AI to convert natural language into shell commands.
 // Returns multiple suggestions with risk levels and explanations.
 func (self *AICommandHelper) GenerateShellCommand(userIntent string) ([]CommandSuggestion, error) {
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		return nil, errors.New("AI 功能未启用")
 	}
 
-	// Build repository context
-	repoContext := self.aiHelper.buildGitContext()
-
-	// Detect OS for shell-specific command format
-	osShellHint := func() string {
-		switch runtime.GOOS {
-		case "windows":
-			return "运行环境: Windows + Git Bash\n命令格式: 直接用 && 连接多个命令，禁止使用 cmd /c 或 ^&^& 转义"
-		case "darwin":
-			return "运行环境: macOS + zsh/bash\n命令格式: 直接用 && 连接多个命令"
-		default:
-			return "运行环境: Linux + bash\n命令格式: 直接用 && 连接多个命令"
-		}
-	}()
-
-	// Create detailed prompt for structured JSON output
-	prompt := fmt.Sprintf(`你是一个 Git 命令专家。根据用户意图生成精确的 shell 命令。
-
-%s
-
-规则：
-1. 输出 JSON 数组，每个元素包含：
-   - "command": 完整的可执行命令（必须符合上述运行环境的格式）
-   - "explanation": 命令的中文解释（简洁，1-2 句话）
-   - "risk_level": 风险等级（必须是 "safe", "medium", "dangerous" 之一）
-   - "alternatives": 替代命令（可选，如果有更安全的方案）
-
-2. 优先使用安全的命令
-3. 对于危险操作，提供更安全的替代方案
-4. 返回 1-3 个命令建议，按推荐程度排序
-
-风险等级定义：
-- safe: 不会丢失数据或更改历史（如 git status, git log, git stash）
-- medium: 可能影响工作区但可恢复（如 git reset --soft, git stash pop）
-- dangerous: 可能永久丢失数据（如 git reset --hard, git clean -fdx, git push --force）
-
-仓库状态：
-%s
-
-用户意图：%s
-
-示例输出：
-[
-  {
-    "command": "git commit -m \"feat: add feature\"",
-    "explanation": "提交当前暂存的更改",
-    "risk_level": "safe"
-  },
-  {
-    "command": "git reset --soft HEAD~1",
-    "explanation": "撤销最后一次提交但保留更改",
-    "risk_level": "medium",
-    "alternatives": "git commit --amend (如果只是想修改提交消息)"
-  }
-]
-
-输出（仅 JSON，不要其他内容）：`,
-		osShellHint,
-		repoContext,
-		userIntent,
-	)
-
-	// Call AI with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	result, err := self.c.AI.Complete(ctx, prompt)
+	output, err := self.c.AIManager.RunSkill(ctx, "shell_cmd", map[string]any{
+		"intent": userIntent,
+	})
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return nil, errors.New("AI 命令生成已取消")
@@ -113,32 +53,21 @@ func (self *AICommandHelper) GenerateShellCommand(userIntent string) ([]CommandS
 		return nil, self.aiHelper.HandleAIError(err)
 	}
 
-	// Clean response (remove markdown code blocks if present)
-	content := strings.TrimSpace(result.Content)
-	content = strings.TrimPrefix(content, "```json")
-	content = strings.TrimPrefix(content, "```")
-	content = strings.TrimSuffix(content, "```")
-	content = strings.TrimSpace(content)
-
-	// Parse JSON
 	var suggestions []CommandSuggestion
-	if err := json.Unmarshal([]byte(content), &suggestions); err != nil {
-		return nil, fmt.Errorf("AI 返回的格式无效: %v\n响应内容: %s", err, content)
+	if err := json.Unmarshal([]byte(output.Content), &suggestions); err != nil {
+		return nil, fmt.Errorf("AI 返回的格式无效: %v\n响应内容: %s", err, output.Content)
 	}
-
-	// Validate risk levels
 	for i := range suggestions {
 		if !isValidRiskLevel(suggestions[i].RiskLevel) {
-			suggestions[i].RiskLevel = "medium" // Default to medium if invalid
+			suggestions[i].RiskLevel = "medium"
 		}
 	}
-
 	return suggestions, nil
 }
 
 // ExplainCommand uses AI to explain what a shell command does.
 func (self *AICommandHelper) ExplainCommand(command string) (string, error) {
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		return "", errors.New("AI 功能未启用")
 	}
 
@@ -159,7 +88,9 @@ func (self *AICommandHelper) ExplainCommand(command string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	result, err := self.c.AI.Complete(ctx, prompt)
+	result, err := self.c.AIManager.Provider().Complete(ctx, []aiprovider.Message{
+		{Role: aiprovider.RoleUser, Content: prompt},
+	})
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return "", errors.New("命令解释已取消")

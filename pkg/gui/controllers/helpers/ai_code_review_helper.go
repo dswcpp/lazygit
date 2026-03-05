@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jesseduffield/gocui"
+	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 )
 
@@ -32,8 +33,7 @@ func NewAICodeReviewHelper(c *HelperCommon, loadingHelper *LoadingHelper, aiHelp
 //  3. First SSE chunk arrives → overlay closes; Extras panel header + content stream in.
 //  4. Error before first chunk → overlay closes; error toast is shown.
 func (self *AICodeReviewHelper) ReviewDiff(filePath string, diff string) error {
-	if self.c.AI == nil {
-		// Show first-time wizard instead of error
+	if self.c.AIManager == nil {
 		return self.aiHelper.ShowFirstTimeWizard()
 	}
 
@@ -123,7 +123,8 @@ func (self *AICodeReviewHelper) startReview(filePath, diff string) error {
 				})
 			}()
 
-			err := self.c.AI.CompleteStream(ctx, prompt, func(chunk string) {
+			msgs := []aiprovider.Message{{Role: aiprovider.RoleUser, Content: prompt}}
+		err := self.c.AIManager.Provider().CompleteStream(ctx, msgs, func(chunk string) {
 				signalFirst()
 				self.c.OnUIThreadSync(func() error {
 					fmt.Fprint(self.c.Views().AICodeReview, chunk)

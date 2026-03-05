@@ -10,6 +10,7 @@ import (
 
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/ai"
+	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/config"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
@@ -328,7 +329,7 @@ func maskKey(key string) string {
 	return strings.Repeat("*", len(key)-4) + key[len(key)-4:]
 }
 
-// saveAndReloadAI persists config to disk and re-initialises the AI client.
+// saveAndReloadAI persists config to disk and re-initialises the AI client and manager.
 func (self *AIHelper) saveAndReloadAI() error {
 	if err := self.c.GetConfig().SaveUserConfig(); err != nil {
 		return err
@@ -339,6 +340,17 @@ func (self *AIHelper) saveAndReloadAI() error {
 		return err
 	}
 	self.c.AI = newClient
+
+	newManager, err := ai.NewManager(self.c.UserConfig().AI, nil)
+	if err != nil {
+		return err
+	}
+	if newManager != nil {
+		newManager.SetContextBuilder(NewGuiContextBuilder(self.c))
+		RegisterGitTools(self.c, newManager)
+	}
+	self.c.AIManager = newManager
+
 	self.c.Toast(self.c.Tr.AISettingsSaved)
 	return nil
 }
@@ -347,8 +359,7 @@ func (self *AIHelper) saveAndReloadAI() error {
 // task. The AI generates the shell/git commands needed, shows them for
 // confirmation, then executes them via a subprocess.
 func (self *AIHelper) OpenAIAssistant() error {
-	if self.c.AI == nil {
-		// Show first-time wizard instead of error
+	if self.c.AIManager == nil {
 		return self.ShowFirstTimeWizard()
 	}
 
@@ -369,7 +380,9 @@ func (self *AIHelper) OpenAIAssistant() error {
 					userQuery,
 				)
 
-				result, err := self.c.AI.Complete(context.Background(), prompt)
+				result, err := self.c.AIManager.Provider().Complete(context.Background(), []aiprovider.Message{
+					{Role: aiprovider.RoleUser, Content: prompt},
+				})
 				if err != nil {
 					return self.HandleAIError(err)
 				}
@@ -849,7 +862,7 @@ func (self *AIHelper) setupProvider(provider, defaultModel, defaultEndpoint stri
 // testCurrentProfile tests the current AI profile by sending a simple completion request.
 // This helps users verify their API configuration is correct before using AI features.
 func (self *AIHelper) testCurrentProfile() error {
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		return errors.New(self.c.Tr.AINotEnabledPleaseConfig)
 	}
 
@@ -857,9 +870,10 @@ func (self *AIHelper) testCurrentProfile() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
-		// Send a simple test prompt
 		testPrompt := "Please reply 'OK' to confirm the connection is working."
-		result, err := self.c.AI.Complete(ctx, testPrompt)
+		result, err := self.c.AIManager.Provider().Complete(ctx, []aiprovider.Message{
+			{Role: aiprovider.RoleUser, Content: testPrompt},
+		})
 
 		if err != nil {
 			// Use friendly error handling
@@ -965,81 +979,29 @@ func (self *AIHelper) HandleAIError(err error) error {
 // SuggestBranchName uses AI to suggest a branch name based on working tree changes.
 // Returns a suggested branch name in kebab-case format (e.g., "feature/add-user-auth").
 func (self *AIHelper) SuggestBranchName() (string, error) {
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		return "", errors.New(self.c.Tr.AINotEnabledConfigFirst)
 	}
 
-	// Analyze working tree changes
-	files := self.c.Model().Files
-	if len(files) == 0 {
+	if len(self.c.Model().Files) == 0 {
 		return "", errors.New(self.c.Tr.NoChangesForBranchName)
 	}
 
-	// Build summary of changes
-	var changesSummary strings.Builder
-	stagedFiles := []string{}
-	unstagedFiles := []string{}
-
-	for _, f := range files {
-		if f.HasStagedChanges {
-			stagedFiles = append(stagedFiles, f.Path)
-		} else if f.HasUnstagedChanges {
-			unstagedFiles = append(unstagedFiles, f.Path)
-		}
-	}
-
-	changesSummary.WriteString(self.c.Tr.ChangedFilesLabel + "\n")
-	if len(stagedFiles) > 0 {
-		changesSummary.WriteString(self.c.Tr.StagedFilesLabel + "\n")
-		for i, file := range stagedFiles {
-			if i >= 15 { // Limit to first 15 files
-				changesSummary.WriteString(fmt.Sprintf("  ... %d more files\n", len(stagedFiles)-15))
-				break
-			}
-			changesSummary.WriteString(fmt.Sprintf("  - %s\n", file))
-		}
-	}
-	if len(unstagedFiles) > 0 {
-		changesSummary.WriteString(self.c.Tr.UnstagedFilesLabel + "\n")
-		for i, file := range unstagedFiles {
-			if i >= 15 { // Limit to first 15 files
-				changesSummary.WriteString(fmt.Sprintf("  ... %d more files\n", len(unstagedFiles)-15))
-				break
-			}
-			changesSummary.WriteString(fmt.Sprintf("  - %s\n", file))
-		}
-	}
-
-	// Get diff for more context (limit size to avoid token overflow)
-	rawDiff, err := self.c.Git().Diff.GetDiff(false) // All changes, not just staged
+	rawDiff, err := self.c.Git().Diff.GetDiff(false)
 	if err != nil {
-		rawDiff = "" // Ignore diff errors, use file list only
+		rawDiff = ""
 	}
-
-	// Truncate diff if too large
 	const maxDiffChars = 8000
-	diff := rawDiff
-	if len(diff) > maxDiffChars {
-		diff = diff[:maxDiffChars] + self.c.Tr.DiffTruncatedNote
+	if len(rawDiff) > maxDiffChars {
+		rawDiff = rawDiff[:maxDiffChars]
 	}
 
-	// Build prompt for AI
-	prompt := fmt.Sprintf(
-		self.c.Tr.AIBranchNameSystemPrompt+
-			self.c.Tr.AIBranchNameTask+
-			self.c.Tr.AIBranchNameRules+
-			self.c.Tr.AIBranchNameChanges+
-			self.c.Tr.AIBranchNameDiffSummary+
-			self.c.Tr.AIBranchNameRequirements,
-		changesSummary.String(),
-		diff,
-	)
-
-	// Call AI with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	result, err := self.c.AI.Complete(ctx, prompt)
+	output, err := self.c.AIManager.RunSkill(ctx, "branch_name", map[string]any{
+		"diff": rawDiff,
+	})
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return "", errors.New(self.c.Tr.AIBranchNameCancelled)
@@ -1047,120 +1009,52 @@ func (self *AIHelper) SuggestBranchName() (string, error) {
 		return "", self.HandleAIError(err)
 	}
 
-	// Clean up the response
-	branchName := strings.TrimSpace(result.Content)
-	branchName = strings.Trim(branchName, "\"'`")       // Remove quotes
-	branchName = strings.ReplaceAll(branchName, " ", "-") // Replace spaces with hyphens
-
-	// Validate format (should be <type>/<description>)
+	branchName := strings.TrimSpace(output.Content)
+	branchName = strings.Trim(branchName, "\"'`")
+	branchName = strings.ReplaceAll(branchName, " ", "-")
 	if !strings.Contains(branchName, "/") {
-		// If AI didn't follow format, prepend "feature/"
 		branchName = "feature/" + branchName
 	}
-
-	// Ensure lowercase and valid characters
 	branchName = strings.ToLower(branchName)
-	// Remove invalid characters (git branch names can't have certain chars)
-	invalidChars := []string{"~", "^", ":", "?", "*", "[", "\\", "..", "@{", "//"}
-	for _, char := range invalidChars {
+	for _, char := range []string{"~", "^", ":", "?", "*", "[", "\\", "..", "@{", "//"} {
 		branchName = strings.ReplaceAll(branchName, char, "")
 	}
-
 	return branchName, nil
 }
 
 // GeneratePRDescription uses AI to generate a pull request description based on commits and diff.
 // Returns a formatted PR description suitable for GitHub/GitLab/etc.
 func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) (string, error) {
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		return "", errors.New(self.c.Tr.AINotEnabledConfigFirst)
 	}
 
-	// Get commits in the current branch (commits ahead of base branch)
-	currentBranch := self.c.Model().Branches[0]
-	commits := self.c.Model().Commits
-
-	if len(commits) == 0 {
+	if len(self.c.Model().Commits) == 0 {
 		return "", errors.New(self.c.Tr.NoCommitsForPRDescription)
 	}
 
-	// Build commit history summary (limit to recent commits to avoid token overflow)
-	var commitsSummary strings.Builder
-	commitsSummary.WriteString(self.c.Tr.AIPRDescCommitHistory)
-	maxCommits := 20
-	for i, commit := range commits {
-		if i >= maxCommits {
-			commitsSummary.WriteString(fmt.Sprintf(self.c.Tr.AIPRDescMoreCommits, len(commits)-maxCommits))
-			break
-		}
-		// Format: hash - message (author)
-		commitsSummary.WriteString(fmt.Sprintf("- %s - %s (%s)\n",
-			commit.Hash()[:8],
-			commit.Name,
-			commit.AuthorName,
-		))
-	}
-
-	// Get diff from base branch to current HEAD
-	// Use git diff to compare branches
 	baseBranchRef := toBranch
 	if baseBranchRef == "" {
-		baseBranchRef = "origin/main" // Default to main branch
+		baseBranchRef = "origin/main"
 	}
 
-	// Get diff between base and current branch (use three-dot notation for merge base)
 	rawDiff, err := self.c.Git().Diff.GetDiff(false, baseBranchRef+"...HEAD")
 	if err != nil {
-		// If diff fails, try to get recent commits diff instead
-		rawDiff = fmt.Sprintf(self.c.Tr.AIPRDescDiffUnavailable, err, len(commits))
+		rawDiff = ""
 	}
-
-	// Truncate diff if too large
 	const maxDiffChars = 15000
-	diff := rawDiff
-	if len(diff) > maxDiffChars {
-		diff = diff[:maxDiffChars] + self.c.Tr.AIPRDescDiffTruncated
+	if len(rawDiff) > maxDiffChars {
+		rawDiff = rawDiff[:maxDiffChars]
 	}
 
-	// Get branch tracking info for context
-	branchContext := ""
-	if currentBranch.IsTrackingRemote() {
-		branchContext = fmt.Sprintf(self.c.Tr.AIPRDescBranchInfo,
-			currentBranch.UpstreamRemote,
-			currentBranch.UpstreamBranch,
-			toBranch,
-		)
-	} else {
-		branchContext = fmt.Sprintf(self.c.Tr.AIPRDescBranchInfo,
-			"",
-			fromBranch,
-			toBranch,
-		)
-	}
-
-	// Build prompt for AI
-	prompt := fmt.Sprintf(
-		self.c.Tr.AIPRDescSystemPrompt+
-			self.c.Tr.AIPRDescTask+
-			"%s\n"+
-			"%s\n"+
-			self.c.Tr.AIPRDescCodeChanges+
-			self.c.Tr.AIPRDescFormatRequirements+
-			self.c.Tr.AIPRDescSummarySection+
-			self.c.Tr.AIPRDescChangesSection+
-			self.c.Tr.AIPRDescTechDetailsSection+
-			self.c.Tr.AIPRDescTestingSection+
-			self.c.Tr.AIPRDescOutputRequirements,
-		branchContext,
-		commitsSummary.String(),
-		diff,
-	)
-
-	// Call AI with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 	defer cancel()
 
-	result, err := self.c.AI.Complete(ctx, prompt)
+	output, err := self.c.AIManager.RunSkill(ctx, "pr_desc", map[string]any{
+		"diff":        rawDiff,
+		"from_branch": fromBranch,
+		"to_branch":   toBranch,
+	})
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return "", errors.New(self.c.Tr.AIPRDescriptionCancelled)
@@ -1168,12 +1062,9 @@ func (self *AIHelper) GeneratePRDescription(fromBranch string, toBranch string) 
 		return "", self.HandleAIError(err)
 	}
 
-	// Clean up the response
-	description := strings.TrimSpace(result.Content)
-
+	description := strings.TrimSpace(output.Content)
 	if description == "" {
 		return "", errors.New(self.c.Tr.AIEmptyResponse)
 	}
-
 	return description, nil
 }

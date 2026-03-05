@@ -1,0 +1,124 @@
+package ai
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/dswcpp/lazygit/pkg/ai/agent"
+	"github.com/dswcpp/lazygit/pkg/ai/provider"
+	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
+	"github.com/dswcpp/lazygit/pkg/ai/skills"
+	"github.com/dswcpp/lazygit/pkg/ai/tools"
+	"github.com/dswcpp/lazygit/pkg/config"
+)
+
+// Manager is the top-level facade for all AI features.
+// GUI components depend on *Manager instead of *Client.
+//
+// Migration note: Manager is introduced alongside the existing *Client.
+// Components migrate to Manager incrementally; *Client remains available
+// during the transition period and is accessible via Manager.LegacyClient().
+type Manager struct {
+	prov       provider.Provider
+	registry   *tools.Registry
+	ctxBuilder repocontext.Builder
+	skillMap   map[string]skills.Skill
+}
+
+// agentSystemPrompt is the default system prompt for the chat agent.
+const agentSystemPrompt = `你是 lazygit 的内置 AI Agent，可以直接操控 Git 仓库。
+用户对你说话就像对同事下指令：你要主动思考、自主执行，而不是给出建议让用户手动操作。
+在回复中嵌入工具调用代码块来执行操作，格式如下：
+
+` + "```tool" + `
+{"name": "工具名", "params": {"参数": "值"}}
+` + "```" + `
+
+每次只调用一个工具，等待结果后再决定下一步。
+如果任务已完成，用自然语言告知用户结果，不要再调用工具。`
+
+// NewManager creates a Manager from the user's active AI profile.
+// Returns nil, nil when AI is disabled or no active profile is configured.
+func NewManager(cfg config.AIConfig, ctxBuilder repocontext.Builder) (*Manager, error) {
+	prov, err := provider.NewFromConfig(cfg)
+	if err != nil {
+		return nil, err
+	}
+	if prov == nil {
+		return nil, nil
+	}
+	m := &Manager{
+		prov:       prov,
+		registry:   tools.NewRegistry(),
+		ctxBuilder: ctxBuilder,
+		skillMap:   make(map[string]skills.Skill),
+	}
+	// Register built-in skills
+	for _, sk := range []skills.Skill{
+		skills.NewCommitMsgSkill(),
+		skills.NewBranchNameSkill(),
+		skills.NewPRDescSkill(),
+		skills.NewCodeReviewSkill(),
+		skills.NewShellCmdSkill(),
+	} {
+		m.skillMap[sk.Name()] = sk
+	}
+	return m, nil
+}
+
+// Provider returns the underlying provider for direct use by skills and the agent.
+func (m *Manager) Provider() provider.Provider { return m.prov }
+
+// Registry returns the tool registry.
+// The GUI layer registers git tools here during initialisation.
+func (m *Manager) Registry() *tools.Registry { return m.registry }
+
+// SetContextBuilder injects the repository context builder.
+// Called by the GUI layer after the Manager is created, once the GUI model is available.
+func (m *Manager) SetContextBuilder(b repocontext.Builder) {
+	m.ctxBuilder = b
+}
+
+// RepoContext builds a current snapshot of the repository state.
+func (m *Manager) RepoContext() repocontext.RepoContext {
+	if m.ctxBuilder == nil {
+		return repocontext.RepoContext{}
+	}
+	return m.ctxBuilder.Build()
+}
+
+// RunSkill executes a named skill and returns the output.
+// Returns an error if the skill is not registered or the provider call fails.
+func (m *Manager) RunSkill(ctx context.Context, name string, extra map[string]any) (skills.Output, error) {
+	sk, ok := m.skillMap[name]
+	if !ok {
+		return skills.Output{}, fmt.Errorf("unknown skill: %q", name)
+	}
+	return sk.Execute(ctx, m.prov, skills.Input{
+		RepoCtx: m.RepoContext(),
+		Extra:   extra,
+	})
+}
+
+// NewAgent creates a new Agent backed by this Manager's provider and tool registry.
+// Each call creates an independent session.
+// The systemPrompt parameter may be empty to use the default agent prompt.
+func (m *Manager) NewAgent(systemPrompt string, confirmFn agent.ConfirmFunc) *agent.Agent {
+	if systemPrompt == "" {
+		systemPrompt = agentSystemPrompt
+	}
+	// Inject tool list into system prompt
+	toolSection := m.registry.SystemPromptSection(tools.PermDestructive)
+	if toolSection != "" {
+		systemPrompt += "\n\n" + toolSection
+	}
+	session := agent.NewSession(systemPrompt)
+	return agent.NewAgent(m.prov, m.registry, session, confirmFn)
+}
+
+// LegacyClient returns a *Client that wraps this Manager's provider,
+// allowing existing code that depends on *Client to work unchanged
+// during the incremental migration.
+func (m *Manager) LegacyClient() *Client {
+	return &Client{provider: &legacyProviderAdapter{p: m.prov}}
+}

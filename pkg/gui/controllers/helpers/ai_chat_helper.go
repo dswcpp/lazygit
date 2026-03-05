@@ -2,10 +2,13 @@ package helpers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/dswcpp/lazygit/pkg/ai/agent"
+	"github.com/dswcpp/lazygit/pkg/ai/tools"
 	"github.com/dswcpp/lazygit/pkg/gui/style"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/gocui"
@@ -26,7 +29,8 @@ type ChatMessage struct {
 type AIChatSession struct {
 	c              *HelperCommon
 	aiHelper       *AIHelper
-	messages       []ChatMessage
+	messages       []ChatMessage   // welcome + user messages (pre-agent)
+	agentSession   *agent.Session  // current agent session; nil when idle
 	isTyping       bool
 	ctx            context.Context
 	cancel         context.CancelFunc
@@ -84,7 +88,7 @@ func (self *AIChatHelper) ShowChatWithContext(contextContent string) error {
 }
 
 func (self *AIChatHelper) showChatInternal(followUpContext string) error {
-	if self.c.AI == nil {
+	if self.c.AIManager == nil {
 		self.c.Alert("AI 未启用", "请先在设置中启用并配置 AI 功能。\n提示：按 'o' 打开设置菜单")
 		return nil
 	}
@@ -188,21 +192,66 @@ func (s *AIChatSession) addErrorMessage(content string) {
 	s.scrollToBottom = true
 }
 
-// render 渲染所有消息到 AIChat 视图
+// render 渲染所有消息到 AIChat 视图（包含 Agent 消息）
 func (s *AIChatSession) render() {
 	aiView := s.c.Views().AIChat
 	aiView.Clear()
+
+	agentMsgs := s.agentUIMessages()
+	total := len(s.messages) + len(agentMsgs)
+
 	for i, msg := range s.messages {
 		renderAIChatMessage(aiView, msg)
-		if i < len(s.messages)-1 {
+		if i < total-1 {
 			fmt.Fprintln(aiView)
 		}
 	}
+	for i, msg := range agentMsgs {
+		renderAIChatMessage(aiView, msg)
+		if len(s.messages)+i < total-1 {
+			fmt.Fprintln(aiView)
+		}
+	}
+
+	if s.isTyping && total == 0 {
+		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint("正在思考..."))
+	}
+
 	// 仅在有新消息时才滚动到底部；用户手动向上滚动后不会被打断
 	if s.scrollToBottom {
 		aiView.ScrollDown(9999)
 		s.scrollToBottom = false
 	}
+}
+
+// agentUIMessages converts the current agent session's UIMessages to ChatMessages for rendering.
+// KindUser messages are skipped as the user message is already in s.messages.
+func (s *AIChatSession) agentUIMessages() []ChatMessage {
+	if s.agentSession == nil {
+		return nil
+	}
+	msgs := s.agentSession.UIMessages
+	result := make([]ChatMessage, 0, len(msgs))
+	for _, m := range msgs {
+		switch m.Kind {
+		case agent.KindUser:
+			// Already shown in s.messages — skip to avoid duplication.
+		case agent.KindAssistant:
+			result = append(result, ChatMessage{Role: "assistant", Content: m.Content, Timestamp: m.Timestamp})
+		case agent.KindToolCall:
+			result = append(result, ChatMessage{Role: "action", Content: m.Content, Timestamp: m.Timestamp, ActionType: m.ToolName})
+		case agent.KindToolResult:
+			result = append(result, ChatMessage{
+				Role: "action", Content: m.Content, Timestamp: m.Timestamp,
+				ActionSuccess: m.ToolSuccess, ActionType: m.ToolName,
+			})
+		case agent.KindSystem:
+			result = append(result, ChatMessage{Role: "system", Content: m.Content, Timestamp: m.Timestamp})
+		case agent.KindError:
+			result = append(result, ChatMessage{Role: "assistant", Content: m.Content, Timestamp: m.Timestamp, IsError: true})
+		}
+	}
+	return result
 }
 
 // renderAIChatMessage 渲染单条消息（lazygit 极简风格，无 emoji）
@@ -296,255 +345,63 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 	}
 }
 
-// getAIResponse 异步执行 AI agentic loop：AI 可调用工具，结果反馈后继续决策
+// getAIResponse 使用 Agent ReAct 循环异步处理用户消息。
+// 必须在 goroutine 中调用（非 UI 线程）。
 func (s *AIChatSession) getAIResponse(userMessage string) {
 	s.isTyping = true
-	const maxRounds = 6
 
-	for round := 0; round < maxRounds && s.isTyping; round++ {
-		// 显示"正在思考"
+	mgr := s.c.AIManager
+	if mgr == nil {
 		s.c.GocuiGui().Update(func(*gocui.Gui) error {
-			s.removePendingMessage()
-			s.messages = append(s.messages, ChatMessage{
-				Role: "assistant", Content: "正在思考...", Timestamp: time.Now(),
-			})
+			s.addErrorMessage("AI 未初始化，请先配置 AI 功能。")
+			s.isTyping = false
 			s.render()
 			return nil
 		})
-
-		prompt := s.buildPrompt(userMessage)
-		aiResult, err := s.c.AI.Complete(s.ctx, prompt)
-
-		if err != nil {
-			s.c.GocuiGui().Update(func(*gocui.Gui) error {
-				s.removePendingMessage()
-				s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
-				s.isTyping = false
-				s.render()
-				return nil
-			})
-			return
-		}
-
-		rawContent := strings.TrimSpace(aiResult.Content)
-		actions := parseActionsFromResponse(rawContent)
-		displayText := stripActionBlocks(rawContent)
-
-		// 执行所有工具调用（在 goroutine 中，git 命令是线程安全的）
-		actionResults := make([]AIActionResult, 0, len(actions))
-		for _, action := range actions {
-			actionResults = append(actionResults, executeAction(s.c, action))
-		}
-
-		// 更新 UI：移除 thinking，显示 AI 文本和操作结果
-		s.c.GocuiGui().Update(func(*gocui.Gui) error {
-			s.removePendingMessage()
-			if displayText != "" {
-				s.addAssistantMessage(displayText)
-			}
-			for _, res := range actionResults {
-				s.messages = append(s.messages, ChatMessage{
-					Role:          "action",
-					Content:       res.Output,
-					Timestamp:     time.Now(),
-					ActionSuccess: res.Success,
-					ActionType:    string(res.Type),
-				})
-				s.scrollToBottom = true
-			}
-			s.render()
-			return nil
-		})
-
-		// 如果没有动作，对话结束
-		if len(actions) == 0 {
-			s.c.GocuiGui().Update(func(*gocui.Gui) error {
-				s.isTyping = false
-				return nil
-			})
-			return
-		}
-
-		// 将工具结果加入对话历史，供 AI 下一轮参考
-		// 注意：这里直接修改 s.messages 是安全的，因为 gocui.Update 是排队执行的
-		// 在 Update 回调执行完后，goroutine 才会进入下一轮
-		var resultSummary strings.Builder
-		resultSummary.WriteString("【工具执行结果】\n")
-		for _, res := range actionResults {
-			status := "成功"
-			if !res.Success {
-				status = "失败"
-			}
-			resultSummary.WriteString(fmt.Sprintf("- %s [%s]: %s\n", res.Type, status, res.Output))
-		}
-		s.messages = append(s.messages, ChatMessage{
-			Role: "system", Content: resultSummary.String(), Timestamp: time.Now(),
-		})
-
-		// 下一轮告诉 AI：总结结果或继续操作
-		userMessage = "请根据上面的工具执行结果，用自然语言向用户说明已完成的操作，如需继续可继续调用工具。"
+		return
 	}
 
+	confirmFn := makeAgentConfirmFn(s.c)
+	a := mgr.NewAgent("", confirmFn)
+	s.agentSession = a.Session()
+
+	repoCtx := mgr.RepoContext()
+
+	onUpdate := func() {
+		s.scrollToBottom = true
+		s.c.GocuiGui().Update(func(*gocui.Gui) error {
+			s.render()
+			return nil
+		})
+	}
+
+	err := a.Run(s.ctx, userMessage, repoCtx, onUpdate)
+
 	s.c.GocuiGui().Update(func(*gocui.Gui) error {
-		s.removePendingMessage()
 		s.isTyping = false
+		if err != nil && !errors.Is(err, context.Canceled) {
+			s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
+		}
 		s.render()
 		return nil
 	})
 }
 
-// removePendingMessage 移除末尾的"正在思考..."占位消息
-func (s *AIChatSession) removePendingMessage() {
-	if len(s.messages) > 0 && strings.Contains(s.messages[len(s.messages)-1].Content, "正在思考") {
-		s.messages = s.messages[:len(s.messages)-1]
+// makeAgentConfirmFn 创建一个 ConfirmFunc，在 Agent 执行写操作前通过 gocui 弹窗向用户确认。
+func makeAgentConfirmFn(c *HelperCommon) agent.ConfirmFunc {
+	return func(toolName string, perm tools.PermissionLevel, preview string) (bool, error) {
+		ch := make(chan bool, 1)
+		c.OnUIThread(func() error {
+			c.Confirm(types.ConfirmOpts{
+				Title:  "AI 请求执行: " + toolName,
+				Prompt: preview,
+				HandleConfirm: func() error { ch <- true; return nil },
+				HandleClose:   func() error { ch <- false; return nil },
+			})
+			return nil
+		})
+		return <-ch, nil
 	}
-}
-
-
-
-func (s *AIChatSession) buildPrompt(userMessage string) string {
-	var sb strings.Builder
-
-	// 系统角色：Agent 能力描述 + 可用工具列表
-	sb.WriteString(aiAgentSystemPrompt())
-	sb.WriteString("\n\n")
-
-	// 当前仓库快照
-	repoCtx := s.buildGitContext()
-	if repoCtx != "" {
-		sb.WriteString("═══ 当前仓库快照 ═══\n")
-		sb.WriteString(repoCtx)
-		sb.WriteString("\n")
-	}
-
-	// 对话历史（包含工具调用结果）
-	relevant := s.relevantMessages(12)
-	if len(relevant) > 0 {
-		sb.WriteString("═══ 对话历史 ═══\n")
-		for _, msg := range relevant {
-			switch msg.Role {
-			case "user":
-				sb.WriteString(fmt.Sprintf("用户: %s\n", msg.Content))
-			case "assistant":
-				sb.WriteString(fmt.Sprintf("助手: %s\n", msg.Content))
-			case "action":
-				status := "成功"
-				if !msg.ActionSuccess {
-					status = "失败"
-				}
-				sb.WriteString(fmt.Sprintf("[工具结果 %s - %s] %s\n", msg.ActionType, status, msg.Content))
-			case "system":
-				sb.WriteString(fmt.Sprintf("[系统] %s\n", msg.Content))
-			}
-		}
-		sb.WriteString("\n")
-	}
-
-	sb.WriteString("═══ 当前任务 ═══\n")
-	sb.WriteString(fmt.Sprintf("用户: %s\n\n助手: ", userMessage))
-	return sb.String()
-}
-
-// relevantMessages 返回最近 n 条有效消息（过滤掉 thinking 占位）
-func (s *AIChatSession) relevantMessages(n int) []ChatMessage {
-	var result []ChatMessage
-	for i := len(s.messages) - 1; i >= 0 && len(result) < n; i-- {
-		msg := s.messages[i]
-		if strings.Contains(msg.Content, "正在思考") {
-			continue
-		}
-		result = append(result, msg)
-	}
-	// 反转为正序
-	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
-		result[i], result[j] = result[j], result[i]
-	}
-	return result
-}
-
-func (s *AIChatSession) buildGitContext() string {
-	var sb strings.Builder
-
-	// 当前分支
-	branch := s.c.Model().CheckedOutBranch
-	if branch != "" {
-		sb.WriteString(fmt.Sprintf("分支: %s\n", branch))
-	}
-
-	// rebase/merge 状态
-	state := s.c.Model().WorkingTreeStateAtLastCommitRefresh
-	if state.Any() {
-		desc := ""
-		switch {
-		case state.Rebasing:
-			desc = "rebase 进行中"
-		case state.Merging:
-			desc = "merge 进行中"
-		case state.CherryPicking:
-			desc = "cherry-pick 进行中"
-		case state.Reverting:
-			desc = "revert 进行中"
-		}
-		sb.WriteString(fmt.Sprintf("状态: ⚠ %s\n", desc))
-	}
-
-	// 工作区文件
-	files := s.c.Model().Files
-	if len(files) > 0 {
-		staged, unstaged := 0, 0
-		for _, f := range files {
-			if f.HasStagedChanges {
-				staged++
-			}
-			if f.HasUnstagedChanges {
-				unstaged++
-			}
-		}
-		sb.WriteString(fmt.Sprintf("变更: %d 个文件（暂存 %d，未暂存 %d）\n", len(files), staged, unstaged))
-		limit := len(files)
-		if limit > 8 {
-			limit = 8
-		}
-		for i := 0; i < limit; i++ {
-			sb.WriteString(fmt.Sprintf("  %s %s\n", files[i].ShortStatus, files[i].Path))
-		}
-		if len(files) > 8 {
-			sb.WriteString(fmt.Sprintf("  ... 还有 %d 个\n", len(files)-8))
-		}
-	} else {
-		sb.WriteString("工作区: 干净\n")
-	}
-
-	// 最近提交
-	commits := s.c.Model().Commits
-	if len(commits) > 0 {
-		sb.WriteString("最近提交:\n")
-		limit := 3
-		if len(commits) < limit {
-			limit = len(commits)
-		}
-		for i := 0; i < limit; i++ {
-			sb.WriteString(fmt.Sprintf("  %s %s\n", commits[i].ShortHash(), commits[i].Name))
-		}
-	}
-
-	// Stash 数量
-	stashes := s.c.Model().StashEntries
-	if len(stashes) > 0 {
-		sb.WriteString(fmt.Sprintf("Stash: %d 条\n", len(stashes)))
-	}
-
-	// 远程
-	remotes := s.c.Model().Remotes
-	if len(remotes) > 0 {
-		names := make([]string, 0, len(remotes))
-		for _, r := range remotes {
-			names = append(names, r.Name)
-		}
-		sb.WriteString(fmt.Sprintf("远程: %s\n", strings.Join(names, ", ")))
-	}
-
-	return sb.String()
 }
 
 func (s *AIChatSession) copyLastResponse() error {

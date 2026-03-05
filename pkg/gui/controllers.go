@@ -143,6 +143,12 @@ func (gui *Gui) resetHelpersAndControllers() {
 	gui.helpers.AIChat = helpers.NewAIChatHelper(helperCommon, aiHelper)
 	commitsHelper.SetAIHelper(aiHelper)
 
+	// Wire up AI Manager: inject context builder and register git tools.
+	if helperCommon.AIManager != nil {
+		helperCommon.AIManager.SetContextBuilder(helpers.NewGuiContextBuilder(helperCommon))
+		helpers.RegisterGitTools(helperCommon, helperCommon.AIManager)
+	}
+
 	gui.CustomCommandsClient = custom_commands.NewClient(
 		helperCommon,
 		gui.helpers,

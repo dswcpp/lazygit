@@ -280,7 +280,7 @@ func (gui *Gui) demoBranchDeleteScenario() error {
 
 // demoAIAssistScenario 演示 AI 辅助场景
 func (gui *Gui) demoAIAssistScenario() error {
-	if gui.c.AI == nil {
+	if gui.c.AIManager == nil {
 		gui.ShowError(
 			"AI 未启用",
 			"此演示需要启用 AI 功能。",
