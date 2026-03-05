@@ -333,8 +333,6 @@
   "SureCherryPick": "コピーした {{.numCommits}} 個のコミットをこのブランチにチェリーピックしてよろしいですか？",
   "CherryPick": "チェリーピック",
   "CannotCherryPickNonCommit": "この種類の TODO 項目はチェリーピックできません",
-  "Donate": "寄付",
-  "AskQuestion": "質問する",
   "PrevHunk": "前のハンクに移動",
   "NextHunk": "次のハンクに移動",
   "PrevConflict": "前のコンフリクト",

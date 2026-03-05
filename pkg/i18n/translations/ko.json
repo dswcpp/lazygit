@@ -154,8 +154,6 @@
   "CherryPickCopy": "커밋을 복사 (cherry-pick)",
   "PasteCommits": "커밋을 붙여넣기 (cherry-pick)",
   "CherryPick": "체리픽",
-  "Donate": "후원",
-  "AskQuestion": "질문하기",
   "PrevHunk": "이전 hunk를 선택",
   "NextHunk": "다음 hunk를 선택",
   "PrevConflict": "이전 충돌을 선택",

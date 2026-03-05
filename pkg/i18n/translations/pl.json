@@ -253,8 +253,6 @@
   "CherryPickCopyTooltip": "Oznacz commit jako skopiowany. Następnie, w widoku lokalnych commitów, możesz nacisnąć `{{.paste}}`, aby wkleić (cherry-pick) skopiowane commity do sprawdzonej gałęzi. W dowolnym momencie możesz nacisnąć `{{.escape}}`, aby anulować zaznaczenie.",
   "PasteCommits": "Wklej (cherry-pick)",
   "CannotCherryPickNonCommit": "Nie można cherry-pick tego rodzaju wpisu TODO",
-  "Donate": "Wesprzyj",
-  "AskQuestion": "Zadaj pytanie",
   "PrevHunk": "Idź do poprzedniego fragmentu",
   "NextHunk": "Idź do następnego fragmentu",
   "PrevConflict": "Poprzedni konflikt",

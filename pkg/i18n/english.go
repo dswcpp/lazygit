@@ -378,8 +378,6 @@ type TranslationSet struct {
 	SureCherryPick                        string
 	CherryPick                            string
 	CannotCherryPickNonCommit             string
-	Donate                                string
-	AskQuestion                           string
 	PrevHunk                              string
 	NextHunk                              string
 	PrevConflict                          string
@@ -1698,8 +1696,6 @@ func EnglishTranslationSet() *TranslationSet {
 		SureCherryPick:                       "Are you sure you want to cherry-pick the {{.numCommits}} copied commit(s) onto this branch?",
 		CherryPick:                           "Cherry-pick",
 		CannotCherryPickNonCommit:            "Cannot cherry-pick this kind of todo item",
-		Donate:                               "Donate",
-		AskQuestion:                          "Ask Question",
 		PrevHunk:                             "Go to previous hunk",
 		NextHunk:                             "Go to next hunk",
 		PrevConflict:                         "Previous conflict",

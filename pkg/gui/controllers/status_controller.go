@@ -9,7 +9,6 @@ import (
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/constants"
 	"github.com/dswcpp/lazygit/pkg/gui/presentation"
-	"github.com/dswcpp/lazygit/pkg/gui/style"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
 	"github.com/dswcpp/lazygit/pkg/utils"
 	"github.com/samber/lo"
@@ -225,7 +224,6 @@ func (self *StatusController) showDashboard() {
 			fmt.Sprintf("Tutorial: %s", constants.Links.Docs.Tutorial),
 			fmt.Sprintf("Raise an Issue: %s", constants.Links.Issues),
 			fmt.Sprintf("Release Notes: %s", constants.Links.Releases),
-			style.FgMagenta.Sprintf("Become a sponsor: %s", constants.Links.Donate), // caffeine ain't free
 		}, "\n\n") + "\n"
 
 	self.c.RenderToMainViews(types.RefreshMainOpts{

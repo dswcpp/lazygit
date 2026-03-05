@@ -358,8 +358,6 @@
   "SureCherryPick": "确定要将复制的{{.numCommits}}个提交拣选到该分支上吗？",
   "CherryPick": "拣选(Cherry-Pick)",
   "CannotCherryPickNonCommit": "无法拣选TODO类型的提交",
-  "Donate": "捐助",
-  "AskQuestion": "提问咨询",
   "PrevHunk": "选择上一个区块",
   "NextHunk": "选择下一个区块",
   "PrevConflict": "选择上一个冲突",

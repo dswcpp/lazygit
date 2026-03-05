@@ -182,8 +182,6 @@
   "CherryPickCopy": "Скопировать отобранные коммит (cherry-pick)",
   "PasteCommits": "Вставить отобранные коммиты (cherry-pick)",
   "CherryPick": "Выборочная отборка (Cherry-Pick)",
-  "Donate": "Пожертвовать",
-  "AskQuestion": "Задать вопрос",
   "PrevHunk": "Выбрать предыдущую часть",
   "NextHunk": "Выбрать следующую часть",
   "PrevConflict": "Выбрать предыдущий конфликт",

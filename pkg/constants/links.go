@@ -12,18 +12,14 @@ type Docs struct {
 }
 
 var Links = struct {
-	Docs        Docs
-	Issues      string
-	Donate      string
-	Discussions string
-	RepoUrl     string
-	Releases    string
+	Docs    Docs
+	Issues  string
+	RepoUrl string
+	Releases string
 }{
-	RepoUrl:     "https://github.com/dswcpp/lazygit",
-	Issues:      "https://github.com/dswcpp/lazygit/issues",
-	Donate:      "https://github.com/sponsors/dswcpp",
-	Discussions: "https://github.com/dswcpp/lazygit/discussions",
-	Releases:    "https://github.com/dswcpp/lazygit/releases",
+	RepoUrl:  "https://github.com/dswcpp/lazygit",
+	Issues:   "https://github.com/dswcpp/lazygit/issues",
+	Releases: "https://github.com/dswcpp/lazygit/releases",
 	Docs: Docs{
 		CustomPagers:      "https://github.com/dswcpp/lazygit/blob/master/docs/Custom_Pagers.md",
 		CustomKeybindings: "https://github.com/dswcpp/lazygit/blob/master/docs/keybindings/Custom_Keybindings.md",

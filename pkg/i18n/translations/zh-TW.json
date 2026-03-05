@@ -216,8 +216,6 @@
   "CherryPickCopy": "複製提交 (揀選)",
   "PasteCommits": "貼上提交 (揀選)",
   "CherryPick": "揀選 (Cherry-pick)",
-  "Donate": "贊助",
-  "AskQuestion": "諮詢",
   "PrevHunk": "選擇上一段",
   "NextHunk": "選擇下一段",
   "PrevConflict": "選擇上一個衝突",
