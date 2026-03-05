@@ -150,8 +150,8 @@ func executeAction(c *HelperCommon, action AIAction) AIActionResult {
 
 		// 是否在 rebase/merge 中
 		state := c.Model().WorkingTreeStateAtLastCommitRefresh
-		if state != nil && state.RebaseType() != "" {
-			sb.WriteString(fmt.Sprintf("⚠ 正在进行: %s\n", state.RebaseType()))
+		if state.Any() {
+			sb.WriteString(fmt.Sprintf("⚠ 正在进行: %s\n", state.Effective()))
 		}
 
 		if len(files) == 0 {
@@ -452,7 +452,7 @@ func executeAction(c *HelperCommon, action AIAction) AIActionResult {
 			return res
 		}
 		// 构造临时 commit 对象用于 cherry-pick
-		commit := &models.Commit{Hash: action.Hash}
+		commit := models.NewCommit(c.Model().HashPool, models.NewCommitOpts{Hash: action.Hash})
 		if err := c.Git().Rebase.CherryPickCommits([]*models.Commit{commit}); err != nil {
 			res.Output = fmt.Sprintf("cherry-pick 失败: %v", err)
 			return res
