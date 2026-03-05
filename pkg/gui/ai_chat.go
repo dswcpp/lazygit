@@ -542,10 +542,8 @@ func (chat *AIChat) getAIResponse(userMessage string) {
 	// 调用 AI
 	result, err := chat.gui.c.AI.Complete(chat.ctx, prompt)
 	assistantContent := ""
-	extractedCommands := []string{}
 	if err == nil {
 		assistantContent = strings.TrimSpace(result.Content)
-		extractedCommands = helpers.ExtractCommandsFromMessage(assistantContent)
 	}
 
 	chat.gui.g.Update(func(*gocui.Gui) error {
@@ -567,13 +565,6 @@ func (chat *AIChat) getAIResponse(userMessage string) {
 		chat.updateStatusBar()
 		return nil
 	})
-
-	// AI 回复中若包含命令，自动弹出确认并按顺序执行。
-	if err == nil && len(extractedCommands) > 0 && chat.gui.helpers != nil && chat.gui.helpers.AI != nil {
-		chat.gui.g.Update(func(*gocui.Gui) error {
-			return chat.gui.helpers.AI.ConfirmAndSilentExecute(extractedCommands)
-		})
-	}
 }
 
 // currentShellInfo 返回当前 OS 和推荐 shell 的描述，用于注入到提示词
@@ -757,9 +748,6 @@ func (chat *AIChat) getInputView() *gocui.View {
 	}
 	return v
 }
-
-// Continue in next part...
-// 继续 ai_chat_v2.go 的实现
 
 // render 渲染对话内容
 func (chat *AIChat) render() {
