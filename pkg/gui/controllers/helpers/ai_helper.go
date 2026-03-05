@@ -329,17 +329,11 @@ func maskKey(key string) string {
 	return strings.Repeat("*", len(key)-4) + key[len(key)-4:]
 }
 
-// saveAndReloadAI persists config to disk and re-initialises the AI client and manager.
+// saveAndReloadAI persists config to disk and re-initialises the AI manager.
 func (self *AIHelper) saveAndReloadAI() error {
 	if err := self.c.GetConfig().SaveUserConfig(); err != nil {
 		return err
 	}
-
-	newClient, err := ai.NewClient(self.c.UserConfig().AI)
-	if err != nil {
-		return err
-	}
-	self.c.AI = newClient
 
 	newManager, err := ai.NewManager(self.c.UserConfig().AI, nil)
 	if err != nil {

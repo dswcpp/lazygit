@@ -69,11 +69,6 @@ func NewCommon(config config.AppConfigurer) (*common.Common, error) {
 	// the configured language will be read after reading the user config
 	tr := i18n.EnglishTranslationSet()
 
-	aiClient, err := ai.NewClient(userConfig.AI)
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize AI client: %w", err)
-	}
-
 	// Manager is created without a context builder; the GUI layer injects one
 	// via AIManager.SetContextBuilder() once the GUI model is available.
 	aiManager, err := ai.NewManager(userConfig.AI, nil)
@@ -87,7 +82,6 @@ func NewCommon(config config.AppConfigurer) (*common.Common, error) {
 		AppState:  appState,
 		Debug:     config.GetDebug(),
 		Fs:        afero.NewOsFs(),
-		AI:        aiClient,
 		AIManager: aiManager,
 	}
 	cmn.SetUserConfig(userConfig)
