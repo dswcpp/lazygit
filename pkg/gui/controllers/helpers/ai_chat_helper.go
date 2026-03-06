@@ -40,7 +40,8 @@ type AIChatSession struct {
 	scrollToBottom bool // 新消息到来时置 true，render 后重置，允许用户自由向上滚动
 	statusLabel    string
 	statusDetail   string
-	logoFrame      int // 动态 logo 帧索引
+	logoFrame      int  // 动态 logo 帧索引
+	isAnimating    bool // 标记动画是否正在运行
 }
 
 // AI Chat 动态 logo 字符序列
@@ -133,8 +134,11 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 	self.c.Context().Push(self.c.Contexts().AIChat, types.OnFocusOpts{})
 	_, _ = self.c.GocuiGui().SetCurrentView(inputView.Name())
 
-	// 启动标题动画
-	go session.animateTitle()
+	// 启动标题动画（仅在未运行时启动）
+	if !session.isAnimating {
+		session.isAnimating = true
+		go session.animateTitle()
+	}
 
 	return nil
 }
@@ -726,6 +730,7 @@ func (s *AIChatSession) renderStatus(view *gocui.View, status string, detail str
 func (s *AIChatSession) animateTitle() {
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
+	defer func() { s.isAnimating = false }() // 退出时重置标志
 
 	for {
 		select {
