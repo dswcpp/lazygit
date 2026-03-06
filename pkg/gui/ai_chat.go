@@ -1,5 +1,11 @@
 package gui
 
+import (
+	"strings"
+
+	"github.com/jesseduffield/gocui"
+)
+
 // AI 聊天功能现已迁移到 Context 系统，通过 AIChatContext + AIChatController 管理。
 // 相关实现位于：
 //   - pkg/gui/context/ai_chat_context.go        (Context 定义)
@@ -14,4 +20,30 @@ func (gui *Gui) ShowAIChat() error {
 // ShowAIChatWithFollowUp 携带上下文内容打开 AI 聊天，用于从其他面板继续对话
 func (gui *Gui) ShowAIChatWithFollowUp(contextContent string) error {
 	return gui.helpers.AIChat.ShowChatWithContext(contextContent)
+}
+
+// aiChatInputEditor 处理 AIChatInput 视图的键盘输入。
+//   - Enter：发送消息，清空输入框
+//   - Esc / Ctrl+C：关闭聊天弹窗
+//   - 其他键：交给 gocui 默认编辑器（字符插入、Backspace、方向键等）
+func (gui *Gui) aiChatInputEditor(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
+	switch key {
+	case gocui.KeyEnter:
+		content := strings.TrimSpace(v.Buffer())
+		if content == "" {
+			return true
+		}
+		v.Clear()
+		v.SetCursor(0, 0)
+		// 在 UI goroutine 外发送（helpers.AIChat.SendMessage 内部会用 goroutine）
+		_ = gui.helpers.AIChat.SendMessage(content)
+		return true
+
+	case gocui.KeyEsc, gocui.KeyCtrlC:
+		gui.c.Context().Pop()
+		return true
+
+	default:
+		return gocui.DefaultEditor.Edit(v, key, ch, mod)
+	}
 }

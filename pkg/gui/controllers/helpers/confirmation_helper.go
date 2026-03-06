@@ -456,8 +456,19 @@ func (self *ConfirmationHelper) resizeAIChatPanel(_ types.Context) {
 	}
 	x0 := (width - panelWidth) / 2
 	y0 := (height - panelHeight) / 2
+
+	// 输入条高度：边框上(1) + 内容(1) + 边框下(1) = 3 行
+	const inputBarHeight = 3
+
+	// 历史视图：占满弹窗上方，留出底部给输入条
 	_, _ = self.c.GocuiGui().SetView(
-		self.c.Views().AIChat.Name(), x0, y0, x0+panelWidth, y0+panelHeight, 0,
+		self.c.Views().AIChat.Name(),
+		x0, y0, x0+panelWidth, y0+panelHeight-inputBarHeight, 0,
+	)
+	// 输入条视图：固定在弹窗底部
+	_, _ = self.c.GocuiGui().SetView(
+		self.c.Views().AIChatInput.Name(),
+		x0, y0+panelHeight-inputBarHeight, x0+panelWidth, y0+panelHeight, 0,
 	)
 }
 

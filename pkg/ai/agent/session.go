@@ -13,12 +13,14 @@ import (
 type MessageKind string
 
 const (
-	KindSystem    MessageKind = "system"
-	KindUser      MessageKind = "user"
-	KindAssistant MessageKind = "assistant"
-	KindToolCall  MessageKind = "tool_call"   // agent called a tool
-	KindToolResult MessageKind = "tool_result" // tool execution result
-	KindError     MessageKind = "error"
+	KindSystem     MessageKind = "system"
+	KindUser       MessageKind = "user"
+	KindAssistant  MessageKind = "assistant"
+	KindToolCall   MessageKind = "tool_call"    // agent called a tool
+	KindToolResult MessageKind = "tool_result"  // tool execution result
+	KindError      MessageKind = "error"
+	KindPlan       MessageKind = "plan"         // 完整执行计划（TwoPhaseAgent 阶段一输出）
+	KindStepUpdate MessageKind = "step_update"  // 单步执行状态更新（TwoPhaseAgent 阶段二）
 )
 
 // UIMessage is a displayable record stored in the session.
@@ -37,10 +39,16 @@ type UIMessage struct {
 // It maintains two parallel views:
 //   - UIMessages: for rendering to the user (includes tool call details, errors…)
 //   - providerMessages: the conversation history sent to the LLM provider
+//
+// TwoPhaseAgent 额外使用 Phase 和 Plan 字段追踪两阶段状态。
 type Session struct {
 	systemPrompt     string
 	UIMessages       []UIMessage
 	providerMessages []provider.Message
+
+	// TwoPhaseAgent 专用字段
+	Phase AgentPhase
+	Plan  *ExecutionPlan
 }
 
 // NewSession creates a new Session with the given system prompt.
@@ -138,10 +146,63 @@ func (s *Session) LastAssistantContent() string {
 	return ""
 }
 
+// SetPhase 更新当前阶段并在 UI 消息流中记录阶段变化。
+func (s *Session) SetPhase(p AgentPhase) {
+	s.Phase = p
+}
+
+// SetPlan 保存执行计划并在 UI 消息流中追加一条 KindPlan 消息。
+// Content 包含完整的步骤列表，便于渲染层直接使用而无需额外访问 Plan 字段。
+func (s *Session) SetPlan(plan *ExecutionPlan) {
+	s.Plan = plan
+	var sb strings.Builder
+	sb.WriteString(plan.Summary)
+	for _, step := range plan.Steps {
+		sb.WriteString(fmt.Sprintf("\n  %s. %s", step.ID, step.Description))
+	}
+	s.UIMessages = append(s.UIMessages, UIMessage{
+		Kind:      KindPlan,
+		Content:   sb.String(),
+		Timestamp: time.Now(),
+	})
+}
+
+// UpdateStepStatus 更新指定步骤的状态并追加 KindStepUpdate 消息。
+func (s *Session) UpdateStepStatus(stepID string, status StepStatus, result, errMsg string) {
+	if s.Plan == nil {
+		return
+	}
+	for _, step := range s.Plan.Steps {
+		if step.ID != stepID {
+			continue
+		}
+		step.Status = status
+		step.Result = result
+		step.Error = errMsg
+		content := fmt.Sprintf("[%s] %s", status, step.Description)
+		if result != "" {
+			content += "\n" + result
+		}
+		if errMsg != "" {
+			content += "\n错误: " + errMsg
+		}
+		s.UIMessages = append(s.UIMessages, UIMessage{
+			Kind:        KindStepUpdate,
+			Content:     content,
+			ToolName:    step.ToolName,
+			ToolSuccess: status == StepDone,
+			Timestamp:   time.Now(),
+		})
+		return
+	}
+}
+
 // Reset clears all conversation history but preserves the system prompt.
 func (s *Session) Reset() {
 	s.UIMessages = nil
 	s.providerMessages = nil
+	s.Phase = PhasePlanning
+	s.Plan = nil
 }
 
 // Summary returns a compact text summary of the session for debugging.

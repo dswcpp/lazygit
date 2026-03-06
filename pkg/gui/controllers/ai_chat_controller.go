@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/jesseduffield/gocui"
 )
 
 // AIChatController 处理 AI 聊天弹窗的键盘绑定。
@@ -22,15 +23,16 @@ func NewAIChatController(c *ControllerCommon) *AIChatController {
 
 func (self *AIChatController) GetKeybindings(opts types.KeybindingsOpts) []*types.Binding {
 	return []*types.Binding{
+		// 'i' / Tab：把焦点切回输入条（从历史滚动视图返回输入）
 		{
-			Key:         opts.GetKey(opts.Config.Universal.Return),
-			Handler:     self.newMessage,
-			Description: "发送新消息",
+			Key:         'i',
+			Handler:     self.focusInput,
+			Description: "聚焦输入框",
 		},
 		{
-			Key:         'n',
-			Handler:     self.newMessage,
-			Description: "发送新消息",
+			Key:         gocui.KeyTab,
+			Handler:     self.focusInput,
+			Description: "聚焦输入框",
 		},
 		{
 			Key:         'c',
@@ -48,11 +50,6 @@ func (self *AIChatController) GetKeybindings(opts types.KeybindingsOpts) []*type
 			Description: "切换全屏模式",
 		},
 		{
-			Key:         opts.GetKey(opts.Config.Universal.Return),
-			Handler:     self.close,
-			Description: self.c.Tr.Close,
-		},
-		{
 			Key:         'q',
 			Handler:     self.close,
 			Description: self.c.Tr.Close,
@@ -60,14 +57,9 @@ func (self *AIChatController) GetKeybindings(opts types.KeybindingsOpts) []*type
 	}
 }
 
-// newMessage 通过标准 Prompt 弹出输入框，获取用户消息后发送给 AI
-func (self *AIChatController) newMessage() error {
-	self.c.Prompt(types.PromptOpts{
-		Title: "Ask AI",
-		HandleConfirm: func(content string) error {
-			return self.c.Helpers().AIChat.SendMessage(content)
-		},
-	})
+// focusInput 将 gocui 焦点切到输入条视图（光标出现，可以开始打字）
+func (self *AIChatController) focusInput() error {
+	_, _ = self.c.GocuiGui().SetCurrentView(self.c.Views().AIChatInput.Name())
 	return nil
 }
 

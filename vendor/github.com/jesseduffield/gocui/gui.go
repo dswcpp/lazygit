@@ -1355,13 +1355,19 @@ func (g *Gui) onKey(ev *GocuiEvent) error {
 				newY = 0
 				newCy = -v.oy
 			} else if newY >= len(v.lines) {
-				newY = len(v.lines) - 1
+				if len(v.lines) > 0 {
+					newY = len(v.lines) - 1
+				} else {
+					newY = 0
+				}
 				newCy = newY - v.oy
 			}
 
 			visibleLineWidth := 0
-			for _, c := range v.lines[newY] {
-				visibleLineWidth += c.width
+			if newY < len(v.lines) {
+				for _, c := range v.lines[newY] {
+					visibleLineWidth += c.width
+				}
 			}
 			if visibleLineWidth < newX {
 				newX = visibleLineWidth

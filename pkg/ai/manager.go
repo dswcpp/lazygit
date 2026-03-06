@@ -130,6 +130,54 @@ func (m *Manager) NewAgent(systemPrompt string, confirmFn agent.ConfirmFunc) *ag
 	return agent.NewAgent(m.prov, m.registry, session, confirmFn)
 }
 
+// NewTwoPhaseAgent 创建两阶段 Agent（规划 → 聊天确认 → 执行）。
+//
+// 规划阶段只使用只读工具（PermReadOnly），写操作工具在执行阶段才会被访问。
+// skillTools 为可选的 SkillTool 列表（通过 tools.NewSkillTool 构建），
+// 会被注入到规划阶段的只读注册表中，供 LLM 预计算提交信息、分支名等。
+//
+// 用户通过聊天输入 Y/N 或补充说明来完成确认，无需弹窗。
+func (m *Manager) NewTwoPhaseAgent(skillTools []tools.Tool) *agent.TwoPhaseAgent {
+	// 构建只读注册表：从完整注册表中筛选只读工具，再加入 SkillTool
+	readReg := tools.NewRegistry()
+	for _, t := range m.registry.ByMaxPermission(tools.PermReadOnly) {
+		readReg.Register(t)
+	}
+	for _, st := range skillTools {
+		readReg.Register(st)
+	}
+
+	session := agent.NewSession("") // TwoPhaseAgent 使用自己的 system prompt，此处留空
+	return agent.NewTwoPhaseAgent(m.prov, m.registry, readReg, session)
+}
+
+// DefaultSkillTools 从已注册的 Skill 构建默认 SkillTool 列表，
+// 用于注入规划阶段的只读注册表，让规划 LLM 能预计算提交信息、分支名等。
+func (m *Manager) DefaultSkillTools() []tools.Tool {
+	repoCtxFn := func() repocontext.RepoContext { return m.RepoContext() }
+	out := make([]tools.Tool, 0, 2)
+
+	if sk, ok := m.skillMap["commit_msg"]; ok {
+		out = append(out, tools.NewSkillTool(
+			sk, m.prov, repoCtxFn,
+			"根据暂存区的 diff 生成符合 Conventional Commits 规范的提交信息",
+			map[string]tools.ParamSchema{
+				"diff": {Type: "string", Required: true, Description: "git diff --staged 的输出"},
+			},
+		))
+	}
+	if sk, ok := m.skillMap["branch_name"]; ok {
+		out = append(out, tools.NewSkillTool(
+			sk, m.prov, repoCtxFn,
+			"根据功能描述生成合适的 Git 分支名（kebab-case，带类型前缀）",
+			map[string]tools.ParamSchema{
+				"description": {Type: "string", Required: true, Description: "分支要实现的功能或目的"},
+			},
+		))
+	}
+	return out
+}
+
 // LegacyClient returns a *Client that wraps this Manager's provider,
 // allowing existing code that depends on *Client to work unchanged
 // during the incremental migration.

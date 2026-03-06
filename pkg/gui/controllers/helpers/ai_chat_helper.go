@@ -28,14 +28,22 @@ type ChatMessage struct {
 type AIChatSession struct {
 	c              *HelperCommon
 	aiHelper       *AIHelper
-	messages       []ChatMessage   // welcome + user messages (pre-agent)
-	agentSession   *agent.Session  // current agent session; nil when idle
+	messages       []ChatMessage        // 已完成轮次的历史消息
+	twoPhaseAgent  *agent.TwoPhaseAgent // 当前两阶段 Agent；在 PhaseWaitingConfirm 时保持存活
 	isTyping       bool
 	ctx            context.Context
 	cancel         context.CancelFunc
 	inputHistory   []string
 	historyIndex   int
 	scrollToBottom bool // 新消息到来时置 true，render 后重置，允许用户自由向上滚动
+}
+
+// agentSession 返回当前 TwoPhaseAgent 的会话（可能为 nil）。
+func (s *AIChatSession) agentSession() *agent.Session {
+	if s.twoPhaseAgent == nil {
+		return nil
+	}
+	return s.twoPhaseAgent.Session()
 }
 
 // AIChatHelper 管理 AI 聊天弹窗
@@ -99,18 +107,26 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 		session.addAssistantMessage(followUpContext)
 	}
 
-	// 准备视图
+	// 历史视图设置
 	aiView := self.c.Views().AIChat
 	aiView.Clear()
 	aiView.Title = " AI Chat "
 	aiView.Wrap = true
 	aiView.Autoscroll = true
+	aiView.Visible = true
+
+	// 输入条设置：清空上次内容，显示可见
+	inputView := self.c.Views().AIChatInput
+	inputView.Clear()
+	inputView.SetCursor(0, 0)
+	inputView.Visible = true
 
 	// 渲染已有消息
 	session.render()
 
-	// 推入上下文（显示弹窗）
+	// 推入上下文（显示弹窗），焦点给输入条（gocui 会把光标渲染到 editable 视图）
 	self.c.Context().Push(self.c.Contexts().AIChat, types.OnFocusOpts{})
+	_, _ = self.c.GocuiGui().SetCurrentView(inputView.Name())
 	return nil
 }
 
@@ -219,6 +235,13 @@ func (s *AIChatSession) render() {
 		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint("正在思考..."))
 	}
 
+	// PhaseWaitingConfirm：在底部显示输入提示（不打断滚动）
+	if sess := s.agentSession(); sess != nil && sess.Phase == agent.PhaseWaitingConfirm && !s.isTyping {
+		fmt.Fprintln(aiView)
+		fmt.Fprintf(aiView, "  %s\n",
+			style.FgYellow.Sprint("▶ 输入 Y 确认执行，N 取消，或直接输入补充说明调整计划"))
+	}
+
 	// 仅在有新消息时才滚动到底部；用户手动向上滚动后不会被打断
 	if s.scrollToBottom {
 		aiView.ScrollDown(9999)
@@ -226,23 +249,29 @@ func (s *AIChatSession) render() {
 	}
 }
 
-// flushAgentSession moves all messages from the current agent session into s.messages
-// so they survive across turns, then clears agentSession.
+// flushAgentSession 把当前 Agent 轮次的消息合并到 s.messages（持久化），
+// 然后根据阶段决定是否清除 twoPhaseAgent：
+//   - PhaseWaitingConfirm → 保留（下一条消息还需要它）
+//   - 其他阶段 → 清除（本轮交互完成）
 func (s *AIChatSession) flushAgentSession() {
-	if s.agentSession == nil {
+	sess := s.agentSession()
+	if sess == nil {
 		return
 	}
 	s.messages = append(s.messages, s.agentUIMessages()...)
-	s.agentSession = nil
+	if sess.Phase != agent.PhaseWaitingConfirm {
+		s.twoPhaseAgent = nil
+	}
 }
 
-// agentUIMessages converts the current agent session's UIMessages to ChatMessages for rendering.
-// KindUser messages are skipped as the user message is already in s.messages.
+// agentUIMessages 把当前 Agent 会话的 UIMessages 转换为 ChatMessage 列表供渲染。
+// KindUser 消息跳过（已在 s.messages 中显示，避免重复）。
 func (s *AIChatSession) agentUIMessages() []ChatMessage {
-	if s.agentSession == nil {
+	sess := s.agentSession()
+	if sess == nil {
 		return nil
 	}
-	msgs := s.agentSession.UIMessages
+	msgs := sess.UIMessages
 	result := make([]ChatMessage, 0, len(msgs))
 	for _, m := range msgs {
 		switch m.Kind {
@@ -261,6 +290,15 @@ func (s *AIChatSession) agentUIMessages() []ChatMessage {
 			result = append(result, ChatMessage{Role: "system", Content: m.Content, Timestamp: m.Timestamp})
 		case agent.KindError:
 			result = append(result, ChatMessage{Role: "assistant", Content: m.Content, Timestamp: m.Timestamp, IsError: true})
+		case agent.KindPlan:
+			// 执行计划：用 "plan" 角色渲染（带边框和步骤列表）
+			result = append(result, ChatMessage{Role: "plan", Content: m.Content, Timestamp: m.Timestamp})
+		case agent.KindStepUpdate:
+			// 单步执行状态更新：用 "step" 角色渲染
+			result = append(result, ChatMessage{
+				Role: "step", Content: m.Content, Timestamp: m.Timestamp,
+				ActionSuccess: m.ToolSuccess, ActionType: m.ToolName,
+			})
 		}
 	}
 	return result
@@ -337,7 +375,7 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 		}
 
 	case "action":
-		// 操作执行结果
+		// 工具调用 / 结果
 		var indicator string
 		var lineColor style.TextStyle
 		if msg.ActionSuccess {
@@ -354,11 +392,47 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 				fmt.Fprintf(view, "    %s\n", style.FgDefault.Sprint(line))
 			}
 		}
+
+	case "plan":
+		// 执行计划：带边框，突出显示
+		lines := strings.Split(msg.Content, "\n")
+		summary := ""
+		stepLines := []string{}
+		for i, l := range lines {
+			if i == 0 {
+				summary = l
+			} else if strings.TrimSpace(l) != "" {
+				stepLines = append(stepLines, l)
+			}
+		}
+		fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint("┌─ 执行计划 "+timeStr+" "+"─"))
+		fmt.Fprintf(view, "  %s %s\n", style.FgYellow.Sprint("│"), summary)
+		for _, sl := range stepLines {
+			fmt.Fprintf(view, "  %s %s\n", style.FgYellow.Sprint("│"), style.FgDefault.Sprint(sl))
+		}
+		fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint("└"+"─────────────────────────────────────────────────────"))
+
+	case "step":
+		// 单步执行状态：一行简洁输出
+		var indicator string
+		var lineColor style.TextStyle
+		if msg.ActionSuccess {
+			indicator = "✓"
+			lineColor = style.FgGreen
+		} else {
+			indicator = "✗"
+			lineColor = style.FgRed
+		}
+		fmt.Fprintf(view, "  %s\n", lineColor.Sprint(fmt.Sprintf("%s %s", indicator, msg.Content)))
 	}
 }
 
-// getAIResponse 使用 Agent ReAct 循环异步处理用户消息。
-// 必须在 goroutine 中调用（非 UI 线程）。
+// getAIResponse 通过 TwoPhaseAgent 处理用户消息（必须在 goroutine 中调用）。
+//
+// 行为由当前阶段决定：
+//   - 无 Agent / PhaseDone / PhaseCancelled → 创建新 Agent，开始规划
+//   - PhaseWaitingConfirm → 复用现有 Agent，处理 Y/N/补充说明
+//   - PhaseExecuting → 忽略（执行中）
 func (s *AIChatSession) getAIResponse(userMessage string) {
 	s.isTyping = true
 
@@ -373,9 +447,25 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 		return
 	}
 
-	a := mgr.NewAgent("", agent.AutoApproveAll())
-	s.agentSession = a.Session()
+	// 需要新建 Agent 的条件：当前无 Agent，或上一轮已结束
+	sess := s.agentSession()
+	needNew := s.twoPhaseAgent == nil ||
+		sess == nil ||
+		sess.Phase == agent.PhaseDone ||
+		sess.Phase == agent.PhaseCancelled
 
+	if needNew {
+		// 上一轮结束时先 flush 历史
+		if s.twoPhaseAgent != nil {
+			s.c.GocuiGui().Update(func(*gocui.Gui) error {
+				s.flushAgentSession()
+				return nil
+			})
+		}
+		s.twoPhaseAgent = mgr.NewTwoPhaseAgent(mgr.DefaultSkillTools())
+	}
+
+	a := s.twoPhaseAgent
 	repoCtx := mgr.RepoContext()
 
 	onUpdate := func() {
@@ -386,13 +476,18 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 		})
 	}
 
-	err := a.Run(s.ctx, userMessage, repoCtx, onUpdate)
+	err := a.Send(s.ctx, userMessage, repoCtx, onUpdate)
 
 	s.c.GocuiGui().Update(func(*gocui.Gui) error {
 		s.isTyping = false
-		s.flushAgentSession()
+		currentPhase := a.Session().Phase
+		// 执行完成或取消后立即 flush；等待确认时保留 Agent
+		if currentPhase == agent.PhaseDone || currentPhase == agent.PhaseCancelled {
+			s.flushAgentSession()
+		}
 		if err != nil && !errors.Is(err, context.Canceled) {
 			s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
+			s.flushAgentSession()
 		}
 		s.render()
 		return nil
@@ -439,7 +534,7 @@ func (s *AIChatSession) clearHistory() error {
 		Prompt: "确定要清空对话历史吗？此操作不可撤销。",
 		HandleConfirm: func() error {
 			s.messages = []ChatMessage{}
-			s.agentSession = nil
+			s.twoPhaseAgent = nil
 			s.addSystemMessage("对话历史已清空")
 			s.addAssistantMessage("有什么我可以帮助你的吗？")
 			s.render()
