@@ -3,6 +3,7 @@ package gui
 import (
 	"strings"
 
+	chathelpers "github.com/dswcpp/lazygit/pkg/gui/controllers/helpers"
 	"github.com/jesseduffield/gocui"
 )
 
@@ -33,8 +34,7 @@ func (gui *Gui) aiChatInputEditor(v *gocui.View, key gocui.Key, ch rune, mod goc
 		if content == "" {
 			return true
 		}
-		v.Clear()
-		v.SetCursor(0, 0)
+		chathelpers.ResetAIChatInputView(v)
 		// 在 UI goroutine 外发送（helpers.AIChat.SendMessage 内部会用 goroutine）
 		_ = gui.helpers.AIChat.SendMessage(content)
 		return true

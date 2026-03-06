@@ -36,6 +36,8 @@ type AIChatSession struct {
 	inputHistory   []string
 	historyIndex   int
 	scrollToBottom bool // 新消息到来时置 true，render 后重置，允许用户自由向上滚动
+	statusLabel    string
+	statusDetail   string
 }
 
 // agentSession 返回当前 TwoPhaseAgent 的会话（可能为 nil）。
@@ -69,6 +71,8 @@ func (self *AIChatHelper) GetOrCreateSession() *AIChatSession {
 			cancel:       cancel,
 			inputHistory: []string{},
 			historyIndex: -1,
+			statusLabel:  "空闲",
+			statusDetail: "可输入下一条指令",
 		}
 		self.session.addSystemMessage("欢迎使用 AI 助手！")
 		self.session.addAssistantMessage(
@@ -117,8 +121,7 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 
 	// 输入条设置：清空上次内容，显示可见
 	inputView := self.c.Views().AIChatInput
-	inputView.Clear()
-	inputView.SetCursor(0, 0)
+	ResetAIChatInputView(inputView)
 	inputView.Visible = true
 
 	// 渲染已有消息
@@ -137,6 +140,7 @@ func (self *AIChatHelper) SendMessage(content string) error {
 
 	session.inputHistory = append(session.inputHistory, content)
 	session.historyIndex = len(session.inputHistory)
+	session.setStatus("思考中", "正在分析并生成执行计划")
 
 	session.addUserMessage(content)
 	session.render()
@@ -236,9 +240,14 @@ func (s *AIChatSession) render() {
 		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint("正在思考..."))
 	}
 
+	status, detail := s.getStatusPresentation()
+	if total > 0 || s.isTyping {
+		fmt.Fprintln(aiView)
+	}
+	renderAIChatStatus(aiView, status, detail)
+
 	// PhaseWaitingConfirm：在底部显示输入提示（不打断滚动）
 	if sess := s.agentSession(); sess != nil && sess.Phase == agent.PhaseWaitingConfirm && !s.isTyping {
-		fmt.Fprintln(aiView)
 		fmt.Fprintf(aiView, "  %s\n",
 			style.FgYellow.Sprint("▶ 输入 Y 确认执行，N 取消，或直接输入补充说明调整计划"))
 	}
@@ -468,6 +477,7 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 
 	onUpdate := func() {
 		s.scrollToBottom = true
+		s.syncStatusFromCurrentState()
 		s.c.GocuiGui().Update(func(*gocui.Gui) error {
 			s.render()
 			return nil
@@ -484,9 +494,15 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 			s.flushAgentSession()
 		}
 		if err != nil && !errors.Is(err, context.Canceled) {
+			s.setStatus("失败", "AI 请求失败，可输入下一条指令")
 			s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
 			s.flushAgentSession()
+		} else if errors.Is(err, context.Canceled) {
+			s.setStatus("已取消", "已停止生成，可输入下一条指令")
+		} else {
+			s.setTerminalStatusForPhase(currentPhase)
 		}
+		s.syncStatusFromCurrentState()
 		s.render()
 		return nil
 	})
@@ -532,6 +548,7 @@ func (s *AIChatSession) clearHistory() error {
 		HandleConfirm: func() error {
 			s.messages = []ChatMessage{}
 			s.twoPhaseAgent = nil
+			s.setStatus("空闲", "可输入下一条指令")
 			s.addSystemMessage("对话历史已清空")
 			s.addAssistantMessage("有什么我可以帮助你的吗？")
 			s.render()
@@ -551,6 +568,7 @@ func (s *AIChatSession) stopGeneration() error {
 		}
 		s.isTyping = false
 		s.flushAgentSession()
+		s.setStatus("已取消", "已停止生成，可输入下一条指令")
 		s.addSystemMessage("已停止生成")
 		s.render()
 		s.c.Toast("已停止 AI 生成")
@@ -565,4 +583,128 @@ func applyAIChatAutoScroll(view *gocui.View, scrollToBottom *bool) {
 
 	view.ScrollDown(9999)
 	*scrollToBottom = false
+}
+
+func ResetAIChatInputView(view *gocui.View) {
+	if view == nil {
+		return
+	}
+
+	view.TextArea = &gocui.TextArea{}
+	view.RenderTextArea()
+	view.Clear()
+	view.SetCursor(0, 0)
+	view.SetOrigin(0, 0)
+}
+
+func (s *AIChatSession) setStatus(status, detail string) {
+	s.statusLabel = status
+	s.statusDetail = detail
+}
+
+func (s *AIChatSession) setTerminalStatusForPhase(phase agent.AgentPhase) {
+	switch phase {
+	case agent.PhaseDone:
+		s.setStatus("已完成", "可输入下一条指令")
+	case agent.PhaseCancelled:
+		s.setStatus("已取消", "可输入下一条指令")
+	}
+}
+
+func (s *AIChatSession) syncStatusFromCurrentState() {
+	s.statusLabel, s.statusDetail = deriveAIChatStatus(s.agentSession(), s.isTyping, s.statusLabel, s.statusDetail)
+}
+
+func (s *AIChatSession) getStatusPresentation() (string, string) {
+	s.syncStatusFromCurrentState()
+	return s.statusLabel, s.statusDetail
+}
+
+func deriveAIChatStatus(sess *agent.Session, isTyping bool, currentStatus string, currentDetail string) (string, string) {
+	if sess != nil {
+		switch sess.Phase {
+		case agent.PhaseWaitingConfirm:
+			return "等待确认", "输入 Y 执行，N 取消，或输入补充说明"
+		case agent.PhaseExecuting:
+			return "执行中", latestAgentActionDetail(sess, "正在执行计划")
+		case agent.PhasePlanning:
+			if isTyping {
+				return "思考中", latestAgentActionDetail(sess, "正在分析并生成执行计划")
+			}
+		case agent.PhaseDone:
+			return "已完成", "可输入下一条指令"
+		case agent.PhaseCancelled:
+			return "已取消", "可输入下一条指令"
+		}
+	}
+
+	if isTyping {
+		return "思考中", "正在生成回复"
+	}
+
+	if currentStatus != "" {
+		return currentStatus, currentDetail
+	}
+
+	return "空闲", "可输入下一条指令"
+}
+
+func latestAgentActionDetail(sess *agent.Session, fallback string) string {
+	if sess == nil {
+		return fallback
+	}
+
+	for i := len(sess.UIMessages) - 1; i >= 0; i-- {
+		msg := sess.UIMessages[i]
+		switch msg.Kind {
+		case agent.KindStepUpdate:
+			return firstNonEmptyLine(msg.Content, fallback)
+		case agent.KindToolCall:
+			if msg.ToolName != "" {
+				return "正在调用 " + msg.ToolName
+			}
+		case agent.KindToolResult:
+			if msg.ToolName != "" {
+				if msg.ToolSuccess {
+					return "已完成工具 " + msg.ToolName
+				}
+				return "工具 " + msg.ToolName + " 执行失败"
+			}
+		case agent.KindPlan:
+			return "执行计划已生成，等待确认"
+		case agent.KindError, agent.KindSystem:
+			return firstNonEmptyLine(msg.Content, fallback)
+		}
+	}
+
+	return fallback
+}
+
+func firstNonEmptyLine(content string, fallback string) string {
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			return line
+		}
+	}
+	return fallback
+}
+
+func renderAIChatStatus(view *gocui.View, status string, detail string) {
+	statusColor := style.FgGreen
+	switch status {
+	case "思考中", "等待确认":
+		statusColor = style.FgYellow
+	case "执行中":
+		statusColor = style.FgCyan
+	case "已取消":
+		statusColor = style.FgMagenta
+	case "失败":
+		statusColor = style.FgRed
+	}
+
+	fmt.Fprintf(view, "  %s %s\n", statusColor.Sprint("状态:"), statusColor.Sprint(status))
+	if detail != "" {
+		fmt.Fprintf(view, "  %s %s\n", style.FgDefault.Sprint("动作:"), style.FgDefault.Sprint(detail))
+	}
 }
