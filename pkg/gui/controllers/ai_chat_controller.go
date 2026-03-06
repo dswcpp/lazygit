@@ -22,6 +22,8 @@ func NewAIChatController(c *ControllerCommon) *AIChatController {
 }
 
 func (self *AIChatController) GetKeybindings(opts types.KeybindingsOpts) []*types.Binding {
+	historyViewName := self.Context().GetViewName()
+
 	return []*types.Binding{
 		// 'i' / Tab：把焦点切回输入条（从历史滚动视图返回输入）
 		{
@@ -50,6 +52,42 @@ func (self *AIChatController) GetKeybindings(opts types.KeybindingsOpts) []*type
 			Description: "切换全屏模式",
 		},
 		{
+			ViewName:    historyViewName,
+			Key:         gocui.KeyArrowUp,
+			Handler:     self.handleScrollUp,
+			Description: "向上滚动聊天历史",
+		},
+		{
+			ViewName:    historyViewName,
+			Key:         gocui.KeyArrowDown,
+			Handler:     self.handleScrollDown,
+			Description: "向下滚动聊天历史",
+		},
+		{
+			ViewName:    historyViewName,
+			Key:         gocui.KeyPgup,
+			Handler:     self.handlePageUp,
+			Description: "向上翻页",
+		},
+		{
+			ViewName:    historyViewName,
+			Key:         gocui.KeyPgdn,
+			Handler:     self.handlePageDown,
+			Description: "向下翻页",
+		},
+		{
+			ViewName:    historyViewName,
+			Key:         gocui.KeyHome,
+			Handler:     self.handleGoTop,
+			Description: "跳到顶部",
+		},
+		{
+			ViewName:    historyViewName,
+			Key:         gocui.KeyEnd,
+			Handler:     self.handleGoBottom,
+			Description: "跳到底部",
+		},
+		{
 			Key:         'q',
 			Handler:     self.close,
 			Description: self.c.Tr.Close,
@@ -61,6 +99,12 @@ func (self *AIChatController) GetKeybindings(opts types.KeybindingsOpts) []*type
 func (self *AIChatController) focusInput() error {
 	_, _ = self.c.GocuiGui().SetCurrentView(self.c.Views().AIChatInput.Name())
 	return nil
+}
+
+func (self *AIChatController) GetOnFocusLost() func(types.OnFocusLostOpts) {
+	return func(types.OnFocusLostOpts) {
+		hideAIChatPopupViews(self.c.Views())
+	}
 }
 
 func (self *AIChatController) copyToClipboard() error {
@@ -77,6 +121,36 @@ func (self *AIChatController) toggleZoom() error {
 	return nil
 }
 
+func (self *AIChatController) handleScrollUp() error {
+	scrollAIChatViewUp(self.c.Views().AIChat, resolveAIChatScrollHeight(self.c.UserConfig().Gui.ScrollHeight))
+	return nil
+}
+
+func (self *AIChatController) handleScrollDown() error {
+	scrollAIChatViewDown(self.c.Views().AIChat, resolveAIChatScrollHeight(self.c.UserConfig().Gui.ScrollHeight))
+	return nil
+}
+
+func (self *AIChatController) handlePageUp() error {
+	pageAIChatViewUp(self.c.Views().AIChat)
+	return nil
+}
+
+func (self *AIChatController) handlePageDown() error {
+	pageAIChatViewDown(self.c.Views().AIChat)
+	return nil
+}
+
+func (self *AIChatController) handleGoTop() error {
+	scrollAIChatViewToTop(self.c.Views().AIChat)
+	return nil
+}
+
+func (self *AIChatController) handleGoBottom() error {
+	scrollAIChatViewToBottom(self.c.Views().AIChat)
+	return nil
+}
+
 func (self *AIChatController) close() error {
 	self.c.Context().Pop()
 	return nil
@@ -84,4 +158,75 @@ func (self *AIChatController) close() error {
 
 func (self *AIChatController) Context() types.Context {
 	return self.c.Contexts().AIChat
+}
+
+func hideAIChatPopupViews(views types.Views) {
+	if views.AIChat != nil {
+		views.AIChat.Visible = false
+	}
+	if views.AIChatInput != nil {
+		views.AIChatInput.Visible = false
+	}
+}
+
+func resolveAIChatScrollHeight(scrollHeight int) int {
+	if scrollHeight < 1 {
+		return 1
+	}
+	return scrollHeight
+}
+
+func scrollAIChatViewUp(view *gocui.View, scrollHeight int) {
+	if view == nil {
+		return
+	}
+	view.ScrollUp(resolveAIChatScrollHeight(scrollHeight))
+}
+
+func scrollAIChatViewDown(view *gocui.View, scrollHeight int) {
+	if view == nil {
+		return
+	}
+	view.ScrollDown(resolveAIChatScrollHeight(scrollHeight))
+}
+
+func pageAIChatViewUp(view *gocui.View) {
+	if view == nil {
+		return
+	}
+	view.ScrollUp(aiChatPageDelta(view))
+}
+
+func pageAIChatViewDown(view *gocui.View) {
+	if view == nil {
+		return
+	}
+	view.ScrollDown(aiChatPageDelta(view))
+}
+
+func scrollAIChatViewToTop(view *gocui.View) {
+	if view == nil {
+		return
+	}
+	view.ScrollUp(view.ViewLinesHeight())
+}
+
+func scrollAIChatViewToBottom(view *gocui.View) {
+	if view == nil {
+		return
+	}
+	view.ScrollDown(view.ViewLinesHeight())
+}
+
+func aiChatPageDelta(view *gocui.View) int {
+	if view == nil {
+		return 1
+	}
+
+	delta := view.InnerHeight() - 1
+	if delta < 1 {
+		return 1
+	}
+
+	return delta
 }

@@ -39,6 +39,10 @@ func (gui *Gui) aiChatInputEditor(v *gocui.View, key gocui.Key, ch rune, mod goc
 		_ = gui.helpers.AIChat.SendMessage(content)
 		return true
 
+	case gocui.KeyTab:
+		_, _ = gui.g.SetCurrentView(gui.Views.AIChat.Name())
+		return true
+
 	case gocui.KeyEsc, gocui.KeyCtrlC:
 		gui.c.Context().Pop()
 		return true

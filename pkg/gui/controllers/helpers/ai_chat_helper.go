@@ -15,7 +15,7 @@ import (
 
 // ChatMessage 聊天消息
 type ChatMessage struct {
-	Role      string    // "user" | "assistant" | "system" | "action"
+	Role      string // "user" | "assistant" | "system" | "action"
 	Content   string
 	Timestamp time.Time
 	IsError   bool
@@ -112,7 +112,7 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 	aiView.Clear()
 	aiView.Title = " AI Chat "
 	aiView.Wrap = true
-	aiView.Autoscroll = true
+	aiView.Autoscroll = false
 	aiView.Visible = true
 
 	// 输入条设置：清空上次内容，显示可见
@@ -122,6 +122,7 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 	inputView.Visible = true
 
 	// 渲染已有消息
+	session.scrollToBottom = true
 	session.render()
 
 	// 推入上下文（显示弹窗），焦点给输入条（gocui 会把光标渲染到 editable 视图）
@@ -243,10 +244,7 @@ func (s *AIChatSession) render() {
 	}
 
 	// 仅在有新消息时才滚动到底部；用户手动向上滚动后不会被打断
-	if s.scrollToBottom {
-		aiView.ScrollDown(9999)
-		s.scrollToBottom = false
-	}
+	applyAIChatAutoScroll(aiView, &s.scrollToBottom)
 }
 
 // flushAgentSession 把当前 Agent 轮次的消息合并到 s.messages（持久化），
@@ -494,7 +492,6 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 	})
 }
 
-
 func (s *AIChatSession) copyLastResponse() error {
 	for i := len(s.messages) - 1; i >= 0; i-- {
 		msg := s.messages[i]
@@ -559,4 +556,13 @@ func (s *AIChatSession) stopGeneration() error {
 		s.c.Toast("已停止 AI 生成")
 	}
 	return nil
+}
+
+func applyAIChatAutoScroll(view *gocui.View, scrollToBottom *bool) {
+	if view == nil || scrollToBottom == nil || !*scrollToBottom {
+		return
+	}
+
+	view.ScrollDown(9999)
+	*scrollToBottom = false
 }
