@@ -356,3 +356,111 @@ func (t *Translator) ChatStoppedGeneration() string           { return t.tr.AICh
 func (t *Translator) ChatCallingToolPrefix() string           { return t.tr.AIChatCallingToolPrefix }
 func (t *Translator) ChatToolCompletedPrefix() string         { return t.tr.AIChatToolCompletedPrefix }
 func (t *Translator) ChatToolFailedPrefix() string            { return t.tr.AIChatToolFailedPrefix }
+
+// Two Phase Agent translations
+func (t *Translator) TwoPhaseAgentSystemPromptIntro() string        { return t.tr.AITwoPhaseAgentSystemPromptIntro }
+func (t *Translator) TwoPhaseAgentWorkflowTitle() string            { return t.tr.AITwoPhaseAgentWorkflowTitle }
+func (t *Translator) TwoPhaseAgentWorkflowStep1() string            { return t.tr.AITwoPhaseAgentWorkflowStep1 }
+func (t *Translator) TwoPhaseAgentWorkflowStep2() string            { return t.tr.AITwoPhaseAgentWorkflowStep2 }
+func (t *Translator) TwoPhaseAgentWorkflowStep2Sub1() string        { return t.tr.AITwoPhaseAgentWorkflowStep2Sub1 }
+func (t *Translator) TwoPhaseAgentWorkflowStep2Sub2() string        { return t.tr.AITwoPhaseAgentWorkflowStep2Sub2 }
+func (t *Translator) TwoPhaseAgentWorkflowStep2Sub3() string        { return t.tr.AITwoPhaseAgentWorkflowStep2Sub3 }
+func (t *Translator) TwoPhaseAgentWorkflowStep3() string            { return t.tr.AITwoPhaseAgentWorkflowStep3 }
+func (t *Translator) TwoPhaseAgentWorkflowStep3Sub1() string        { return t.tr.AITwoPhaseAgentWorkflowStep3Sub1 }
+func (t *Translator) TwoPhaseAgentWorkflowStep3Sub2() string        { return t.tr.AITwoPhaseAgentWorkflowStep3Sub2 }
+func (t *Translator) TwoPhaseAgentWorkflowStep4() string            { return t.tr.AITwoPhaseAgentWorkflowStep4 }
+func (t *Translator) TwoPhaseAgentWorkflowStep5() string            { return t.tr.AITwoPhaseAgentWorkflowStep5 }
+func (t *Translator) TwoPhaseAgentWorkflowStep6() string            { return t.tr.AITwoPhaseAgentWorkflowStep6 }
+func (t *Translator) TwoPhaseAgentToolNameTitle() string            { return t.tr.AITwoPhaseAgentToolNameTitle }
+func (t *Translator) TwoPhaseAgentToolNameIntro() string            { return t.tr.AITwoPhaseAgentToolNameIntro }
+func (t *Translator) TwoPhaseAgentToolNameStageFile() string        { return t.tr.AITwoPhaseAgentToolNameStageFile }
+func (t *Translator) TwoPhaseAgentToolNameDontUseAdd() string       { return t.tr.AITwoPhaseAgentToolNameDontUseAdd }
+func (t *Translator) TwoPhaseAgentToolNameCommit() string           { return t.tr.AITwoPhaseAgentToolNameCommit }
+func (t *Translator) TwoPhaseAgentToolNameDontUseGitCommit() string { return t.tr.AITwoPhaseAgentToolNameDontUseGitCommit }
+func (t *Translator) TwoPhaseAgentToolNameCheckout() string         { return t.tr.AITwoPhaseAgentToolNameCheckout }
+func (t *Translator) TwoPhaseAgentToolNameDontUseSwitch() string    { return t.tr.AITwoPhaseAgentToolNameDontUseSwitch }
+func (t *Translator) TwoPhaseAgentToolNameCreateBranch() string     { return t.tr.AITwoPhaseAgentToolNameCreateBranch }
+func (t *Translator) TwoPhaseAgentToolNameDontUseBranch() string    { return t.tr.AITwoPhaseAgentToolNameDontUseBranch }
+func (t *Translator) TwoPhaseAgentSpecialToolTitle() string         { return t.tr.AITwoPhaseAgentSpecialToolTitle }
+func (t *Translator) TwoPhaseAgentSpecialToolIntro() string         { return t.tr.AITwoPhaseAgentSpecialToolIntro }
+func (t *Translator) TwoPhaseAgentSpecialToolUsage1() string        { return t.tr.AITwoPhaseAgentSpecialToolUsage1 }
+func (t *Translator) TwoPhaseAgentSpecialToolUsage2() string        { return t.tr.AITwoPhaseAgentSpecialToolUsage2 }
+func (t *Translator) TwoPhaseAgentSpecialToolUsage3() string        { return t.tr.AITwoPhaseAgentSpecialToolUsage3 }
+func (t *Translator) TwoPhaseAgentSpecialToolExample() string       { return t.tr.AITwoPhaseAgentSpecialToolExample }
+func (t *Translator) TwoPhaseAgentSpecialToolExampleReturn() string { return t.tr.AITwoPhaseAgentSpecialToolExampleReturn }
+func (t *Translator) TwoPhaseAgentSpecialToolExamplePlan() string   { return t.tr.AITwoPhaseAgentSpecialToolExamplePlan }
+func (t *Translator) TwoPhaseAgentPlanFormatTitle() string          { return t.tr.AITwoPhaseAgentPlanFormatTitle }
+func (t *Translator) TwoPhaseAgentPlanFormatExample() string        { return t.tr.AITwoPhaseAgentPlanFormatExample }
+func (t *Translator) TwoPhaseAgentNotesTitle() string               { return t.tr.AITwoPhaseAgentNotesTitle }
+func (t *Translator) TwoPhaseAgentNotesParam() string               { return t.tr.AITwoPhaseAgentNotesParam }
+func (t *Translator) TwoPhaseAgentNotesCriticalTrue() string        { return t.tr.AITwoPhaseAgentNotesCriticalTrue }
+func (t *Translator) TwoPhaseAgentNotesCriticalFalse() string       { return t.tr.AITwoPhaseAgentNotesCriticalFalse }
+func (t *Translator) TwoPhaseAgentNotesMinimal() string             { return t.tr.AITwoPhaseAgentNotesMinimal }
+func (t *Translator) TwoPhaseAgentExecuting() string                { return t.tr.AITwoPhaseAgentExecuting }
+func (t *Translator) TwoPhaseAgentRepoStatusTitle() string          { return t.tr.AITwoPhaseAgentRepoStatusTitle }
+func (t *Translator) TwoPhaseAgentUserInstructionTitle() string     { return t.tr.AITwoPhaseAgentUserInstructionTitle }
+func (t *Translator) TwoPhaseAgentPlanAdjustment() string           { return t.tr.AITwoPhaseAgentPlanAdjustment }
+func (t *Translator) TwoPhaseAgentExecutionCancelled() string       { return t.tr.AITwoPhaseAgentExecutionCancelled }
+func (t *Translator) TwoPhaseAgentPlanValidationFailed() string     { return t.tr.AITwoPhaseAgentPlanValidationFailed }
+func (t *Translator) TwoPhaseAgentPlanErrorsIntro() string          { return t.tr.AITwoPhaseAgentPlanErrorsIntro }
+func (t *Translator) TwoPhaseAgentPlanRegeneratePrompt() string     { return t.tr.AITwoPhaseAgentPlanRegeneratePrompt }
+func (t *Translator) TwoPhaseAgentContinueAnalysis() string         { return t.tr.AITwoPhaseAgentContinueAnalysis }
+func (t *Translator) TwoPhaseAgentSystemPrefix() string             { return t.tr.AITwoPhaseAgentSystemPrefix }
+
+func (t *Translator) TwoPhaseAgentToolCallWarning(tool string, count int) string {
+	return fmt.Sprintf(t.tr.AITwoPhaseAgentToolCallWarning, tool, count)
+}
+
+func (t *Translator) TwoPhaseAgentUserFeedbackPrompt(feedback string) string {
+	return fmt.Sprintf(t.tr.AITwoPhaseAgentUserFeedbackPrompt, feedback)
+}
+
+func (t *Translator) TwoPhaseAgentToolResultPrefix(toolName, output string) string {
+	return fmt.Sprintf(t.tr.AITwoPhaseAgentToolResultPrefix, toolName, output)
+}
+
+func (t *Translator) TwoPhaseAgentMaxStepsExceeded(maxSteps int) string {
+	return fmt.Sprintf(t.tr.AITwoPhaseAgentMaxStepsExceeded, maxSteps)
+}
+
+// BuildPlanningSystemPrompt builds the planning phase system prompt
+func (t *Translator) BuildPlanningSystemPrompt() string {
+	return t.TwoPhaseAgentSystemPromptIntro() +
+		t.TwoPhaseAgentWorkflowTitle() +
+		t.TwoPhaseAgentWorkflowStep1() +
+		t.TwoPhaseAgentWorkflowStep2() +
+		t.TwoPhaseAgentWorkflowStep2Sub1() +
+		t.TwoPhaseAgentWorkflowStep2Sub2() +
+		t.TwoPhaseAgentWorkflowStep2Sub3() +
+		t.TwoPhaseAgentWorkflowStep3() +
+		t.TwoPhaseAgentWorkflowStep3Sub1() +
+		t.TwoPhaseAgentWorkflowStep3Sub2() +
+		t.TwoPhaseAgentWorkflowStep4() +
+		t.TwoPhaseAgentWorkflowStep5() +
+		t.TwoPhaseAgentWorkflowStep6() +
+		t.TwoPhaseAgentToolNameTitle() +
+		t.TwoPhaseAgentToolNameIntro() +
+		t.TwoPhaseAgentToolNameStageFile() +
+		t.TwoPhaseAgentToolNameDontUseAdd() +
+		t.TwoPhaseAgentToolNameCommit() +
+		t.TwoPhaseAgentToolNameDontUseGitCommit() +
+		t.TwoPhaseAgentToolNameCheckout() +
+		t.TwoPhaseAgentToolNameDontUseSwitch() +
+		t.TwoPhaseAgentToolNameCreateBranch() +
+		t.TwoPhaseAgentToolNameDontUseBranch() +
+		t.TwoPhaseAgentSpecialToolTitle() +
+		t.TwoPhaseAgentSpecialToolIntro() +
+		t.TwoPhaseAgentSpecialToolUsage1() +
+		t.TwoPhaseAgentSpecialToolUsage2() +
+		t.TwoPhaseAgentSpecialToolUsage3() +
+		t.TwoPhaseAgentSpecialToolExample() +
+		t.TwoPhaseAgentSpecialToolExampleReturn() +
+		t.TwoPhaseAgentSpecialToolExamplePlan() +
+		t.TwoPhaseAgentPlanFormatTitle() +
+		t.TwoPhaseAgentPlanFormatExample() +
+		t.TwoPhaseAgentNotesTitle() +
+		t.TwoPhaseAgentNotesParam() +
+		t.TwoPhaseAgentNotesCriticalTrue() +
+		t.TwoPhaseAgentNotesCriticalFalse() +
+		t.TwoPhaseAgentNotesMinimal()
+}

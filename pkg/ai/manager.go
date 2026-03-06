@@ -117,6 +117,7 @@ func (m *Manager) RunSkill(ctx context.Context, name string, extra map[string]an
 	return sk.Execute(ctx, m.prov, skills.Input{
 		RepoCtx: m.RepoContext(),
 		Extra:   extra,
+		Tr:      m.tr,
 	})
 }
 

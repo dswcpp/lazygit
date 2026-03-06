@@ -13,7 +13,7 @@ import (
 )
 
 const defaultMaxPlanSteps = 15
-const defaultStepTimeout = 30 * time.Second // 每个步骤的默认超时时间
+const defaultStepTimeout = 30 * time.Second
 
 // toolAliases 工具名别名映射，用于容错常见的工具名错误
 var toolAliases = map[string]string{
@@ -23,81 +23,6 @@ var toolAliases = map[string]string{
 	"switch":   "checkout",
 	"branch":   "create_branch",
 }
-
-// planningSystemPrompt 是规划阶段专用的 system prompt。
-const planningSystemPrompt = `你是 lazygit 内置 AI，负责分析用户需求并制定 Git 操作计划。
-
-## 工作流程
-
-1. 调用只读工具（get_status、get_diff 等）收集必要信息
-2. **如需生成提交信息**：
-   - 先调用 get_staged_diff 获取暂存区 diff
-   - 然后调用 commit_msg 工具生成提交信息（返回的内容直接用作 commit 的 message 参数）
-   - **重要**：commit_msg 只能在规划阶段调用，不能放入执行计划
-3. **如需生成分支名**：
-   - 调用 branch_name 工具生成分支名
-   - **重要**：branch_name 只能在规划阶段调用，不能放入执行计划
-4. 信息收集完毕后，输出一个 ` + "```plan" + ` 块，内含完整执行计划
-5. ` + "```plan" + ` 块之后附上一段简短的自然语言说明，提示用户可以输入 Y 确认、N 取消，或补充说明
-6. 严禁在规划阶段调用任何写操作工具
-
-## 重要：工具名规范
-
-**必须使用下方工具列表中的准确工具名**，不要使用 git 命令名：
-- ✅ 暂存文件：stage_all（暂存所有）或 stage_file（暂存单个文件）
-- ❌ 不要使用：add、git_add
-- ✅ 提交：commit（参数 message）
-- ❌ 不要使用：git_commit
-- ✅ 切换分支：checkout
-- ❌ 不要使用：switch
-- ✅ 创建分支：create_branch
-- ❌ 不要使用：branch
-
-## 特殊工具说明
-
-**commit_msg 和 branch_name 是辅助工具，只能在规划阶段调用**：
-- 在规划阶段调用 commit_msg 获取提交信息
-- 将返回的提交信息作为 commit 工具的 message 参数
-- **不要**把 commit_msg 放入执行计划的 steps 中
-
-示例：
-` + "```tool" + `
-{"name": "commit_msg", "params": {"diff": "..."}}
-` + "```" + `
-返回: "feat: 添加用户登录功能"
-
-然后在执行计划中：
-` + "```plan" + `
-{
-  "steps": [
-    {"tool": "commit", "params": {"message": "feat: 添加用户登录功能"}}
-  ]
-}
-` + "```" + `
-
-## 计划格式
-
-` + "```plan" + `
-{
-  "summary": "整体描述（一句话）",
-  "steps": [
-    {
-      "id": "1",
-      "description": "步骤的人类可读描述",
-      "tool": "工具名",
-      "params": {"参数名": "具体值"},
-      "critical": true
-    }
-  ]
-}
-` + "```" + `
-
-## 注意事项
-
-- 所有步骤的 params 必须是具体值，不能留占位符
-- critical=true 表示该步骤失败则中止整个执行
-- critical=false 表示失败后跳过并继续
-- 只包含必要步骤`
 
 // confirmKeywords 触发执行的关键词（小写匹配）
 var confirmKeywords = []string{
@@ -139,23 +64,18 @@ func isDenyMsg(msg string) bool {
 //
 // 整个交互完全在聊天窗口中完成，不弹出任何对话框。
 type TwoPhaseAgent struct {
-	provider     provider.Provider
-	fullRegistry *tools.Registry // 完整注册表（执行阶段使用）
-	readRegistry *tools.Registry // 只读注册表（规划阶段使用）
-	session      *Session
-	tr           *aii18n.Translator  // i18n translator
-	maxPlanSteps int
-	stepTimeout  time.Duration // 每个步骤的超时时间
-	// planMessages 保存规划阶段的完整消息历史（含工具调用结果）。
-	// 在 replan 时直接追加用户反馈后继续循环，避免重复调用只读工具。
-	planMessages []provider.Message
-	// toolCallHistory 记录每个工具调用的次数，防止无限循环
+	provider        provider.Provider
+	fullRegistry    *tools.Registry    // 完整注册表（执行阶段使用）
+	readRegistry    *tools.Registry    // 只读注册表（规划阶段使用）
+	session         *Session
+	tr              *aii18n.Translator // i18n translator
+	maxPlanSteps    int
+	stepTimeout     time.Duration
+	planMessages    []provider.Message
 	toolCallHistory map[string]int
 }
 
 // NewTwoPhaseAgent 创建 TwoPhaseAgent。
-//   - fullRegistry: 包含所有工具的注册表（执行阶段使用）
-//   - readRegistry: 仅包含只读工具 + SkillTool 的注册表（规划阶段使用）
 func NewTwoPhaseAgent(
 	p provider.Provider,
 	fullRegistry *tools.Registry,
@@ -196,7 +116,7 @@ func (a *TwoPhaseAgent) Send(
 	case PhaseWaitingConfirm:
 		return a.handleConfirmation(ctx, userMsg, repoCtx, onUpdate)
 	case PhaseExecuting:
-		a.session.AddSystemNote("执行中，请稍候...")
+		a.session.AddSystemNote(a.tr.TwoPhaseAgentExecuting())
 		if onUpdate != nil {
 			onUpdate()
 		}
@@ -216,18 +136,19 @@ func (a *TwoPhaseAgent) startPlan(
 	// 重置状态
 	a.session.Reset()
 	a.planMessages = nil
-	a.toolCallHistory = make(map[string]int) // 重置工具调用历史
+	a.toolCallHistory = make(map[string]int)
 	a.session.SetPhase(PhasePlanning)
 
 	// 构建规划阶段 system prompt（含工具列表）
-	sysPrompt := planningSystemPrompt
+	sysPrompt := a.tr.BuildPlanningSystemPrompt()
 	if toolSection := a.readRegistry.SystemPromptSection(tools.PermReadOnly); toolSection != "" {
 		sysPrompt += "\n\n" + toolSection
 	}
 
 	// 初始用户消息：仓库上下文 + 用户指令
-	initMsg := fmt.Sprintf("## 当前仓库状态\n\n%s\n\n## 用户指令\n\n%s",
-		repoCtx.CompactString(a.tr), userMsg)
+	initMsg := fmt.Sprintf("%s%s\n\n%s%s",
+		a.tr.TwoPhaseAgentRepoStatusTitle(), repoCtx.CompactString(a.tr),
+		a.tr.TwoPhaseAgentUserInstructionTitle(), userMsg)
 
 	a.session.AddUserMessage(initMsg)
 	if onUpdate != nil {
@@ -261,7 +182,7 @@ func (a *TwoPhaseAgent) handleConfirmation(
 
 	case isDenyMsg(userMsg):
 		a.session.SetPhase(PhaseCancelled)
-		a.session.AddSystemNote("已取消执行计划。")
+		a.session.AddSystemNote(a.tr.TwoPhaseAgentExecutionCancelled())
 		if onUpdate != nil {
 			onUpdate()
 		}
@@ -274,14 +195,12 @@ func (a *TwoPhaseAgent) handleConfirmation(
 }
 
 // replan 在用户提供补充说明后，追加反馈到现有规划历史并继续规划循环。
-// 不重新收集只读工具数据，直接让 LLM 基于已有信息修改计划。
 func (a *TwoPhaseAgent) replan(ctx context.Context, feedback string, onUpdate func()) error {
 	a.session.SetPhase(PhasePlanning)
-	// 清除旧计划（session.Plan 置 nil）
 	a.session.Plan = nil
 
 	// 向规划历史追加用户反馈，让 LLM 修改计划
-	feedbackMsg := fmt.Sprintf("用户对上述计划有如下反馈，请根据反馈调整计划并重新输出 ```plan 块：\n\n%s", feedback)
+	feedbackMsg := a.tr.TwoPhaseAgentUserFeedbackPrompt(feedback)
 	a.planMessages = append(a.planMessages, provider.Message{
 		Role:    provider.RoleUser,
 		Content: feedbackMsg,
@@ -328,13 +247,13 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 
 			// 验证计划的有效性
 			if errors := a.validatePlan(plan); len(errors) > 0 {
-				errMsg := "❌ 计划包含以下错误，请修正：\n\n"
+				errMsg := a.tr.TwoPhaseAgentPlanErrorsIntro()
 				for i, err := range errors {
 					errMsg += fmt.Sprintf("%d. %s\n", i+1, err)
 				}
-				errMsg += "\n请重新生成正确的执行计划。"
+				errMsg += a.tr.TwoPhaseAgentPlanRegeneratePrompt()
 
-				a.session.AddSystemNote("计划验证失败")
+				a.session.AddSystemNote(a.tr.TwoPhaseAgentPlanValidationFailed())
 				a.planMessages = append(a.planMessages, provider.Message{
 					Role:    provider.RoleUser,
 					Content: errMsg,
@@ -389,7 +308,7 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 			// LLM 既没有调用工具也没有输出计划，给一个提示继续
 			hint := provider.Message{
 				Role:    provider.RoleUser,
-				Content: "请继续分析。收集到足够信息后，输出 ```plan 块。",
+				Content: a.tr.TwoPhaseAgentContinueAnalysis(),
 			}
 			a.planMessages = append(a.planMessages, hint)
 			continue
@@ -407,15 +326,12 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 
 			if a.toolCallHistory[callKey] > 3 {
 				// 同一个工具调用超过 3 次，给出警告
-				warnMsg := fmt.Sprintf(
-					"⚠️ 警告：工具 %s 已被调用 %d 次（参数相同）。\n"+
-						"请避免重复调用相同的工具。如果已收集足够信息，请直接输出 ```plan 块。",
-					call.Name, a.toolCallHistory[callKey])
+				warnMsg := a.tr.TwoPhaseAgentToolCallWarning(call.Name, a.toolCallHistory[callKey])
 
 				a.session.AddSystemNote(warnMsg)
 				a.planMessages = append(a.planMessages, provider.Message{
 					Role:    provider.RoleUser,
-					Content: "[系统] " + warnMsg,
+					Content: a.tr.TwoPhaseAgentSystemPrefix() + warnMsg,
 				})
 
 				if onUpdate != nil {
@@ -430,7 +346,7 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 				a.session.AddSystemNote(errMsg)
 				a.planMessages = append(a.planMessages, provider.Message{
 					Role:    provider.RoleUser,
-					Content: fmt.Sprintf("[系统] %s", errMsg),
+					Content: a.tr.TwoPhaseAgentSystemPrefix() + errMsg,
 				})
 				if onUpdate != nil {
 					onUpdate()
@@ -447,7 +363,7 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 			a.session.AddToolResult(toolResult, call.Name)
 			a.planMessages = append(a.planMessages, provider.Message{
 				Role:    provider.RoleUser,
-				Content: fmt.Sprintf("[工具结果 %s]\n%s", call.Name, toolResult.Output),
+				Content: a.tr.TwoPhaseAgentToolResultPrefix(call.Name, toolResult.Output),
 			})
 			if onUpdate != nil {
 				onUpdate()
@@ -455,7 +371,7 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 		}
 	}
 
-	return fmt.Errorf("规划阶段超过最大步数 (%d)，未能生成执行计划", a.maxPlanSteps)
+	return fmt.Errorf(a.tr.TwoPhaseAgentMaxStepsExceeded(a.maxPlanSteps))
 }
 
 // execute 执行阶段二：按计划逐步执行写操作。

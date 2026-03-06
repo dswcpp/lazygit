@@ -1459,6 +1459,60 @@ type TranslationSet struct {
 	AIChatCallingToolPrefix                  string
 	AIChatToolCompletedPrefix                string
 	AIChatToolFailedPrefix                   string
+
+	// AI Two Phase Agent
+	AITwoPhaseAgentSystemPromptIntro         string
+	AITwoPhaseAgentWorkflowTitle             string
+	AITwoPhaseAgentWorkflowStep1             string
+	AITwoPhaseAgentWorkflowStep2             string
+	AITwoPhaseAgentWorkflowStep2Sub1         string
+	AITwoPhaseAgentWorkflowStep2Sub2         string
+	AITwoPhaseAgentWorkflowStep2Sub3         string
+	AITwoPhaseAgentWorkflowStep3             string
+	AITwoPhaseAgentWorkflowStep3Sub1         string
+	AITwoPhaseAgentWorkflowStep3Sub2         string
+	AITwoPhaseAgentWorkflowStep4             string
+	AITwoPhaseAgentWorkflowStep5             string
+	AITwoPhaseAgentWorkflowStep6             string
+	AITwoPhaseAgentToolNameTitle             string
+	AITwoPhaseAgentToolNameIntro             string
+	AITwoPhaseAgentToolNameStageFile         string
+	AITwoPhaseAgentToolNameDontUseAdd        string
+	AITwoPhaseAgentToolNameCommit            string
+	AITwoPhaseAgentToolNameDontUseGitCommit  string
+	AITwoPhaseAgentToolNameCheckout          string
+	AITwoPhaseAgentToolNameDontUseSwitch     string
+	AITwoPhaseAgentToolNameCreateBranch      string
+	AITwoPhaseAgentToolNameDontUseBranch     string
+	AITwoPhaseAgentSpecialToolTitle          string
+	AITwoPhaseAgentSpecialToolIntro          string
+	AITwoPhaseAgentSpecialToolUsage1         string
+	AITwoPhaseAgentSpecialToolUsage2         string
+	AITwoPhaseAgentSpecialToolUsage3         string
+	AITwoPhaseAgentSpecialToolExample        string
+	AITwoPhaseAgentSpecialToolExampleReturn  string
+	AITwoPhaseAgentSpecialToolExamplePlan    string
+	AITwoPhaseAgentPlanFormatTitle           string
+	AITwoPhaseAgentPlanFormatExample         string
+	AITwoPhaseAgentNotesTitle                string
+	AITwoPhaseAgentNotesParam                string
+	AITwoPhaseAgentNotesCriticalTrue         string
+	AITwoPhaseAgentNotesCriticalFalse        string
+	AITwoPhaseAgentNotesMinimal              string
+	AITwoPhaseAgentExecuting                 string
+	AITwoPhaseAgentRepoStatusTitle           string
+	AITwoPhaseAgentUserInstructionTitle      string
+	AITwoPhaseAgentPlanAdjustment            string
+	AITwoPhaseAgentExecutionCancelled        string
+	AITwoPhaseAgentPlanValidationFailed      string
+	AITwoPhaseAgentPlanErrorsIntro           string
+	AITwoPhaseAgentPlanRegeneratePrompt      string
+	AITwoPhaseAgentContinueAnalysis          string
+	AITwoPhaseAgentToolCallWarning           string
+	AITwoPhaseAgentSystemPrefix              string
+	AITwoPhaseAgentUserFeedbackPrompt        string
+	AITwoPhaseAgentToolResultPrefix          string
+	AITwoPhaseAgentMaxStepsExceeded          string
 }
 
 type Bisect struct {
@@ -3306,5 +3360,59 @@ keybinding:
 		AIChatCallingToolPrefix:           "Calling",
 		AIChatToolCompletedPrefix:         "Completed tool",
 		AIChatToolFailedPrefix:            "Tool",
+
+		// AI Two Phase Agent
+		AITwoPhaseAgentSystemPromptIntro:        "You are the built-in AI for lazygit, responsible for analyzing user requirements and creating Git operation plans.\n\n",
+		AITwoPhaseAgentWorkflowTitle:            "## Workflow\n\n",
+		AITwoPhaseAgentWorkflowStep1:            "1. Call read-only tools (get_status, get_diff, etc.) to collect necessary information\n",
+		AITwoPhaseAgentWorkflowStep2:            "2. **If commit message generation is needed**:\n",
+		AITwoPhaseAgentWorkflowStep2Sub1:        "   - First call get_staged_diff to get staged changes\n",
+		AITwoPhaseAgentWorkflowStep2Sub2:        "   - Then call commit_msg tool to generate commit message (returned content is used directly as commit message parameter)\n",
+		AITwoPhaseAgentWorkflowStep2Sub3:        "   - **Important**: commit_msg can only be called during planning phase, not in execution plan\n",
+		AITwoPhaseAgentWorkflowStep3:            "3. **If branch name generation is needed**:\n",
+		AITwoPhaseAgentWorkflowStep3Sub1:        "   - Call branch_name tool to generate branch name\n",
+		AITwoPhaseAgentWorkflowStep3Sub2:        "   - **Important**: branch_name can only be called during planning phase, not in execution plan\n",
+		AITwoPhaseAgentWorkflowStep4:            "4. After information collection, output a ```plan``` block containing the complete execution plan\n",
+		AITwoPhaseAgentWorkflowStep5:            "5. After the ```plan``` block, add a brief natural language explanation, prompting the user to enter Y to confirm, N to cancel, or provide additional instructions\n",
+		AITwoPhaseAgentWorkflowStep6:            "6. Strictly prohibit calling any write operation tools during the planning phase\n\n",
+		AITwoPhaseAgentToolNameTitle:            "## Important: Tool Name Conventions\n\n",
+		AITwoPhaseAgentToolNameIntro:            "**Must use the exact tool names from the tool list below**, do not use git command names:\n",
+		AITwoPhaseAgentToolNameStageFile:        "- ✅ Stage files: stage_all (stage all) or stage_file (stage single file)\n",
+		AITwoPhaseAgentToolNameDontUseAdd:       "- ❌ Do not use: add, git_add\n",
+		AITwoPhaseAgentToolNameCommit:           "- ✅ Commit: commit (parameter message)\n",
+		AITwoPhaseAgentToolNameDontUseGitCommit: "- ❌ Do not use: git_commit\n",
+		AITwoPhaseAgentToolNameCheckout:         "- ✅ Switch branch: checkout\n",
+		AITwoPhaseAgentToolNameDontUseSwitch:    "- ❌ Do not use: switch\n",
+		AITwoPhaseAgentToolNameCreateBranch:     "- ✅ Create branch: create_branch\n",
+		AITwoPhaseAgentToolNameDontUseBranch:    "- ❌ Do not use: branch\n\n",
+		AITwoPhaseAgentSpecialToolTitle:         "## Special Tool Instructions\n\n",
+		AITwoPhaseAgentSpecialToolIntro:         "**commit_msg and branch_name are helper tools that can only be called during the planning phase**:\n",
+		AITwoPhaseAgentSpecialToolUsage1:        "- Call commit_msg during planning phase to get commit message\n",
+		AITwoPhaseAgentSpecialToolUsage2:        "- Use the returned commit message as the message parameter for the commit tool\n",
+		AITwoPhaseAgentSpecialToolUsage3:        "- **Do not** put commit_msg in the execution plan steps\n\n",
+		AITwoPhaseAgentSpecialToolExample:       "Example:\n```tool\n{\"name\": \"commit_msg\", \"params\": {\"diff\": \"...\"}}\n```\n",
+		AITwoPhaseAgentSpecialToolExampleReturn: "Returns: \"feat: add user login functionality\"\n\n",
+		AITwoPhaseAgentSpecialToolExamplePlan:   "Then in the execution plan:\n```plan\n{\n  \"steps\": [\n    {\"tool\": \"commit\", \"params\": {\"message\": \"feat: add user login functionality\"}}\n  ]\n}\n```\n\n",
+		AITwoPhaseAgentPlanFormatTitle:          "## Plan Format\n\n",
+		AITwoPhaseAgentPlanFormatExample:        "```plan\n{\n  \"summary\": \"Overall description (one sentence)\",\n  \"steps\": [\n    {\n      \"id\": \"1\",\n      \"description\": \"Human-readable step description\",\n      \"tool\": \"tool name\",\n      \"params\": {\"param name\": \"specific value\"},\n      \"critical\": true\n    }\n  ]\n}\n```\n\n",
+		AITwoPhaseAgentNotesTitle:               "## Notes\n\n",
+		AITwoPhaseAgentNotesParam:               "- All step params must be specific values, no placeholders\n",
+		AITwoPhaseAgentNotesCriticalTrue:        "- critical=true means abort entire execution if this step fails\n",
+		AITwoPhaseAgentNotesCriticalFalse:       "- critical=false means skip and continue if this step fails\n",
+		AITwoPhaseAgentNotesMinimal:             "- Only include necessary steps",
+		AITwoPhaseAgentExecuting:                "Executing, please wait...",
+		AITwoPhaseAgentRepoStatusTitle:          "## Current Repository Status\n\n",
+		AITwoPhaseAgentUserInstructionTitle:     "## User Instruction\n\n",
+		AITwoPhaseAgentPlanAdjustment:           "Plan adjustment feedback",
+		AITwoPhaseAgentExecutionCancelled:       "Execution cancelled",
+		AITwoPhaseAgentPlanValidationFailed:     "Plan validation failed",
+		AITwoPhaseAgentPlanErrorsIntro:          "❌ The plan contains the following errors, please correct them:\n\n",
+		AITwoPhaseAgentPlanRegeneratePrompt:     "\nPlease regenerate a correct execution plan.",
+		AITwoPhaseAgentContinueAnalysis:         "Please continue analysis. After collecting enough information, output a ```plan block.",
+		AITwoPhaseAgentToolCallWarning:          "⚠️ Warning: Tool %s has been called %d times (with same parameters).\nPlease avoid repeatedly calling the same tool. If enough information has been collected, please output a ```plan block directly.",
+		AITwoPhaseAgentSystemPrefix:             "[System] ",
+		AITwoPhaseAgentUserFeedbackPrompt:       "User has the following feedback on the above plan, please adjust the plan according to the feedback and output a new ```plan block:\n\n%s",
+		AITwoPhaseAgentToolResultPrefix:         "[Tool result %s]\n%s",
+		AITwoPhaseAgentMaxStepsExceeded:         "Planning phase exceeded maximum steps (%d), failed to generate execution plan",
 	}
 }

@@ -40,6 +40,12 @@ type AIChatSession struct {
 	scrollToBottom bool // 新消息到来时置 true，render 后重置，允许用户自由向上滚动
 	statusLabel    string
 	statusDetail   string
+	logoFrame      int // 动态 logo 帧索引
+}
+
+// AI Chat 动态 logo 字符序列
+var aiChatLogoFrames = []string{
+	"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏",
 }
 
 // agentSession 返回当前 TwoPhaseAgent 的会话（可能为 nil）。
@@ -110,7 +116,6 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 	// 历史视图设置
 	aiView := self.c.Views().AIChat
 	aiView.Clear()
-	aiView.Title = " AI Chat "
 	aiView.Wrap = true
 	aiView.Autoscroll = false
 	aiView.Visible = true
@@ -127,6 +132,10 @@ func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 	// 推入上下文（显示弹窗），焦点给输入条（gocui 会把光标渲染到 editable 视图）
 	self.c.Context().Push(self.c.Contexts().AIChat, types.OnFocusOpts{})
 	_, _ = self.c.GocuiGui().SetCurrentView(inputView.Name())
+
+	// 启动标题动画
+	go session.animateTitle()
+
 	return nil
 }
 
@@ -710,5 +719,40 @@ func (s *AIChatSession) renderStatus(view *gocui.View, status string, detail str
 	fmt.Fprintf(view, "  %s %s\n", statusColor.Sprint(s.tr.ChatStatusLabel()), statusColor.Sprint(status))
 	if detail != "" {
 		fmt.Fprintf(view, "  %s %s\n", style.FgDefault.Sprint(s.tr.ChatActionLabel()), style.FgDefault.Sprint(detail))
+	}
+}
+
+// animateTitle 动画更新标题中的 logo
+func (s *AIChatSession) animateTitle() {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-ticker.C:
+			s.c.GocuiGui().Update(func(*gocui.Gui) error {
+				aiView := s.c.Views().AIChat
+				if aiView == nil || !aiView.Visible {
+					return nil
+				}
+
+				// 更新 logo 帧
+				s.logoFrame = (s.logoFrame + 1) % len(aiChatLogoFrames)
+				logo := aiChatLogoFrames[s.logoFrame]
+
+				// 根据状态选择颜色
+				var coloredLogo string
+				if s.isTyping {
+					coloredLogo = style.FgYellow.Sprint(logo)
+				} else {
+					coloredLogo = style.FgCyan.Sprint(logo)
+				}
+
+				aiView.Title = fmt.Sprintf(" %s AI Chat ", coloredLogo)
+				return nil
+			})
+		}
 	}
 }
