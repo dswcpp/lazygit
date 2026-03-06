@@ -15,7 +15,7 @@ import (
 func RegisterGitTools(c *HelperCommon, mgr *ai.Manager) {
 	mgr.Registry().Clear()
 	deps := buildGitToolDeps(c)
-	gittools.RegisterAll(deps, mgr.Registry())
+	gittools.RegisterAll(deps, mgr.Registry(), mgr.Provider())
 }
 
 // buildGitToolDeps constructs a Deps that reads from the live GUI model and

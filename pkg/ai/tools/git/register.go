@@ -1,10 +1,14 @@
 package gittools
 
-import "github.com/dswcpp/lazygit/pkg/ai/tools"
+import (
+	"github.com/dswcpp/lazygit/pkg/ai/provider"
+	"github.com/dswcpp/lazygit/pkg/ai/tools"
+)
 
 // RegisterAll registers every built-in git tool into the given registry.
 // Call this once during GUI initialisation after building a Deps instance.
-func RegisterAll(d *Deps, r *tools.Registry) {
+// The provider parameter is optional; pass nil to skip AI-powered tools.
+func RegisterAll(d *Deps, r *tools.Registry, p provider.Provider) {
 	for _, t := range []tools.Tool{
 		// Read-only queries
 		NewGetStatusTool(d),
@@ -57,5 +61,10 @@ func RegisterAll(d *Deps, r *tools.Registry) {
 		NewPushForceTool(d),
 	} {
 		r.Register(t)
+	}
+
+	// AI-powered tools (only register if provider is available)
+	if p != nil {
+		r.Register(NewAnalyzeChangesTool(d, p))
 	}
 }

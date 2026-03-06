@@ -3,7 +3,7 @@ module github.com/dswcpp/lazygit
 go 1.25.0
 
 // This is necessary to ignore test files when executing gofumpt.
-ignore ./test
+// ignore ./test
 
 require (
 	dario.cat/mergo v1.0.1

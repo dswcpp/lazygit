@@ -12,16 +12,65 @@ import (
 
 const defaultMaxPlanSteps = 15
 
+// toolAliases 工具名别名映射，用于容错常见的工具名错误
+var toolAliases = map[string]string{
+	"add":      "stage_all",
+	"git_add":  "stage_all",
+	"unstage":  "unstage_all",
+	"switch":   "checkout",
+	"branch":   "create_branch",
+}
+
 // planningSystemPrompt 是规划阶段专用的 system prompt。
 const planningSystemPrompt = `你是 lazygit 内置 AI，负责分析用户需求并制定 Git 操作计划。
 
 ## 工作流程
 
 1. 调用只读工具（get_status、get_diff 等）收集必要信息
-2. 如需生成提交信息，调用 commit_msg 工具；如需生成分支名，调用 branch_name 工具
-3. 信息收集完毕后，输出一个 ` + "```plan" + ` 块，内含完整执行计划
-4. ` + "```plan" + ` 块之后附上一段简短的自然语言说明，提示用户可以输入 Y 确认、N 取消，或补充说明
-5. 严禁在规划阶段调用任何写操作工具
+2. **如需生成提交信息**：
+   - 先调用 get_staged_diff 获取暂存区 diff
+   - 然后调用 commit_msg 工具生成提交信息（返回的内容直接用作 commit 的 message 参数）
+   - **重要**：commit_msg 只能在规划阶段调用，不能放入执行计划
+3. **如需生成分支名**：
+   - 调用 branch_name 工具生成分支名
+   - **重要**：branch_name 只能在规划阶段调用，不能放入执行计划
+4. 信息收集完毕后，输出一个 ` + "```plan" + ` 块，内含完整执行计划
+5. ` + "```plan" + ` 块之后附上一段简短的自然语言说明，提示用户可以输入 Y 确认、N 取消，或补充说明
+6. 严禁在规划阶段调用任何写操作工具
+
+## 重要：工具名规范
+
+**必须使用下方工具列表中的准确工具名**，不要使用 git 命令名：
+- ✅ 暂存文件：stage_all（暂存所有）或 stage_file（暂存单个文件）
+- ❌ 不要使用：add、git_add
+- ✅ 提交：commit（参数 message）
+- ❌ 不要使用：git_commit
+- ✅ 切换分支：checkout
+- ❌ 不要使用：switch
+- ✅ 创建分支：create_branch
+- ❌ 不要使用：branch
+
+## 特殊工具说明
+
+**commit_msg 和 branch_name 是辅助工具，只能在规划阶段调用**：
+- 在规划阶段调用 commit_msg 获取提交信息
+- 将返回的提交信息作为 commit 工具的 message 参数
+- **不要**把 commit_msg 放入执行计划的 steps 中
+
+示例：
+` + "```tool" + `
+{"name": "commit_msg", "params": {"diff": "..."}}
+` + "```" + `
+返回: "feat: 添加用户登录功能"
+
+然后在执行计划中：
+` + "```plan" + `
+{
+  "steps": [
+    {"tool": "commit", "params": {"message": "feat: 添加用户登录功能"}}
+  ]
+}
+` + "```" + `
 
 ## 计划格式
 
@@ -360,9 +409,20 @@ func (a *TwoPhaseAgent) execute(
 			onUpdate()
 		}
 
-		tool, ok := a.fullRegistry.Get(step.ToolName)
+		toolName := step.ToolName
+
+		// 检查并应用工具名别名映射
+		if alias, ok := toolAliases[toolName]; ok {
+			toolName = alias
+		}
+
+		tool, ok := a.fullRegistry.Get(toolName)
 		if !ok {
 			errMsg := fmt.Sprintf("未知工具: %s", step.ToolName)
+			// 如果是别名映射后仍然找不到，提供更友好的错误信息
+			if step.ToolName != toolName {
+				errMsg = fmt.Sprintf("未知工具: %s（已尝试映射为 %s）", step.ToolName, toolName)
+			}
 			a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
 			if onUpdate != nil {
 				onUpdate()
@@ -375,7 +435,7 @@ func (a *TwoPhaseAgent) execute(
 
 		call := tools.ToolCall{
 			ID:     fmt.Sprintf("exec_%s", step.ID),
-			Name:   step.ToolName,
+			Name:   toolName, // 使用映射后的工具名
 			Params: step.Params,
 		}
 		result := tool.Execute(ctx, call)
