@@ -10,6 +10,7 @@ import (
 
 	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/ai"
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/config"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
@@ -334,7 +335,8 @@ func (self *AIHelper) saveAndReloadAI() error {
 		return err
 	}
 
-	newManager, err := ai.NewManager(self.c.UserConfig().AI, nil)
+	tr := aii18n.NewTranslator(self.c.Tr)
+	newManager, err := ai.NewManager(self.c.UserConfig().AI, nil, tr)
 	if err != nil {
 		return err
 	}
@@ -363,7 +365,8 @@ func (self *AIHelper) OpenAIAssistant() error {
 				return nil
 			}
 			self.loadingHelper.WithCenteredLoadingStatus(self.c.Tr.AIAssistantStatus, func(_ gocui.Task) error {
-				repoCtx := self.c.AIManager.RepoContext().CompactString()
+				tr := aii18n.NewTranslator(self.c.Tr)
+				repoCtx := self.c.AIManager.RepoContext().CompactString(tr)
 				prompt := fmt.Sprintf(
 					self.c.Tr.AIAssistantSystemPrompt+
 						self.c.Tr.AIAssistantRules+

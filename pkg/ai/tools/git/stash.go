@@ -26,7 +26,7 @@ func (t *StashTool) Schema() tools.ToolSchema {
 func (t *StashTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	msg := strParam(call.Params, "message", "AI stash")
 	if err := t.d.Stash.Push(msg); err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("stash 失败: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("Failed to stash: %v", err)}
 	}
 	t.d.Refresh(ScopeFiles, ScopeStash)
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已储藏变更: %s", msg)}
@@ -67,7 +67,7 @@ func (t *StashApplyTool) Schema() tools.ToolSchema {
 		Name:        "stash_apply",
 		Description: "应用指定 stash（保留 stash 条目）",
 		Params: map[string]tools.ParamSchema{
-			"index": {Type: "int", Description: "stash 索引，默认 0"},
+			"index": {Type: "int", Description: t.d.Tr.ToolStashIndex()},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -92,7 +92,7 @@ func (t *StashDropTool) Schema() tools.ToolSchema {
 		Name:        "stash_drop",
 		Description: "删除指定 stash 条目",
 		Params: map[string]tools.ParamSchema{
-			"index": {Type: "int", Description: "stash 索引，默认 0"},
+			"index": {Type: "int", Description: t.d.Tr.ToolStashIndex()},
 		},
 		Permission: tools.PermDestructive,
 	}

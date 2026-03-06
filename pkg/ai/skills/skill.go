@@ -3,6 +3,7 @@ package skills
 import (
 	"context"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
 )
@@ -13,6 +14,8 @@ type Input struct {
 	RepoCtx repocontext.RepoContext
 	// Extra holds skill-specific parameters (e.g. "diff", "from_branch", "command").
 	Extra map[string]any
+	// Tr is the translator for i18n
+	Tr *aii18n.Translator
 }
 
 // Output is the result returned by a Skill.

@@ -1131,6 +1131,334 @@ type TranslationSet struct {
 	UseCurrentChanges                        string
 	UseIncomingChanges                       string
 	UseBothChanges                           string
+
+	// AI Common
+	AICancel                                 string
+	AIOK                                     string
+	AIConfirm                                string
+	AIYes                                    string
+	AINo                                     string
+	AISuccess                                string
+	AIFailed                                 string
+	AIWarning                                string
+	AIUnknown                                string
+	AIExecuting                              string
+	AIThinking                               string
+	AIIdle                                   string
+	AICancelled                              string
+	AIThinkingInProgress                     string
+
+	// AI Agent
+	AIAgentToolNotAllowedInPlanning          string
+	AIAgentCriticalStepFailed                string
+	AIAgentStepTimeout                       string
+	AIAgentUserRejectedTool                  string
+	AIAgentResolveConflictManually           string
+	AIAgentSetUpstreamBranch                 string
+	AIAgentConflict                          string
+	AIAgentToolName                          string
+	AIAgentStageFilesFirst                   string
+	AIAgentPossibleReasons                   string
+	AIAgentExampleCommitMsg                  string
+	AIAgentDont                              string
+	AIAgentRepoStatusAndUserInstruction      string
+	AIAgentUnknownTool                       string
+	AIAgentUserRejectedExecution             string
+	AIAgentMaxStepsReached                   string
+	AIAgentToolLabel                         string
+	AIAgentDescriptionLabel                  string
+	AIAgentPermissionLabel                   string
+	AIAgentParamsLabel                       string
+
+	// AI Tools
+	AIToolMissingParam                       string
+	AIToolMissingNameParam                   string
+	AIToolMissingPathParam                   string
+	AIToolMissingMessageParam                string
+	AIToolMissingHashParam                   string
+	AIToolFilePath                           string
+	AIToolBranchName                         string
+	AIToolTagName                            string
+	AIToolCommitMessage                      string
+	AIToolNoChanges                          string
+	AIToolWorkingDir                         string
+	AIToolStagingArea                        string
+	AIToolTargetRefOrHash                    string
+	AIToolResetSteps                         string
+	AIToolStashIndex                         string
+	AIToolMaxLines                           string
+	AIToolTargetRef                          string
+	AIToolPushConfigError                    string
+	AIToolRebasedTo                          string
+	AIToolRenameFailed                       string
+	AIToolDiscardChangesFailed               string
+	AIToolParam                              string
+	AIToolValue                              string
+
+	// AI Skills
+	AISkillCurrentBranch                     string
+	AISkillBranchNameOnly                    string
+	AISkillBranchNameFormat                  string
+	AISkillWindowsGitBash                    string
+	AISkillRuntime                           string
+	AISkillOutputJSONArray                   string
+	AISkillExplanation                       string
+	AISkillCommitSubject                     string
+	AISkillTestScenario                      string
+	AISkillOutputCommitMsg                   string
+	AISkillRefactorScenario                  string
+	AISkillGeneratePRDesc                    string
+	AISkillPRSummary                         string
+	AISkillPRTesting                         string
+	AISkillCodeChanges                       string
+	AISkillDiffSummary                       string
+	AISkillRepoContext                       string
+	AISkillCodeChangesTitle                  string
+	AISkillBranchInfo                        string
+	AISkillCommitHistory                     string
+
+	// AI Chat (GUI)
+	AIChatNotEnabled                         string
+	AIChatCanInputNext                       string
+	AIChatGeneratingPlan                     string
+	AIChatTemplateBranchName                 string
+	AIChatTemplateTagName                    string
+	AIChatTemplateMessage                    string
+	AIChatPushingToRemote                    string
+	AIChatAbortMerge                         string
+	AIChatResolveConflict                    string
+	AIChatConflictFiles                      string
+	AIChatMergeConflict                      string
+	AIChatUncommittedChanges                 string
+	AIChatDeleteSuccess                      string
+	AIChatConfirmSuffix                      string
+
+	// AI Repository Context
+	AIMoreItems                              string
+	AIRepoWorkingDirClean                    string
+	AIRepoInProgress                         string
+	AIRepoRemoteSynced                       string
+	AIRepoChanges                            string
+	AIRepoRemoteAheadBehind                  string
+	AIRepoBranch                             string
+	AIRepoRecentCommits                      string
+	AIRepoStashCount                         string
+
+	// AI Manager
+	AIManagerGenerateBranchName              string
+	AIManagerParam                           string
+	AIManagerValue                           string
+	AIManagerStagedDiff                      string
+	AIManagerFeatureDesc                     string
+	AIManagerGenerateCommitMsg               string
+
+	// AI Analyze Tool
+	AIAnalyzeToolDescription                 string
+	AIAnalyzeToolStagedParam                 string
+	AIAnalyzeToolFocusParam                  string
+	AIAnalyzeWorkingDirClean                 string
+	AIAnalyzeNoChanges                       string
+	AIAnalyzeCancelled                       string
+	AIAnalyzeFailed                          string
+	AIAnalyzeReportTitle                     string
+	AIAnalyzeReportTitleWithFocus            string
+	AIAnalyzeFileCount                       string
+	AIAnalyzeTotalLines                      string
+	AIAnalyzeDetailedAnalysis                string
+	AIAnalyzeAnalysisFailed                  string
+	AIAnalyzeNoChangesInfo                   string
+	AIAnalyzeOverallSuggestions              string
+	AIAnalyzeSuggestion1                     string
+	AIAnalyzeSuggestion2                     string
+	AIAnalyzeSuggestion3                     string
+	AIAnalyzeCodeReviewExpert                string
+	AIAnalyzeFileLabel                       string
+	AIAnalyzePromptIntro                     string
+	AIAnalyzeFocusLabel                      string
+	AIAnalyzeMainChanges                     string
+	AIAnalyzePotentialIssues                 string
+	AIAnalyzeImprovementSuggestions          string
+
+	// Command Completion
+	CompletionBranch                         string
+	CompletionRemote                         string
+	CompletionCommitRef                      string
+	CompletionTag                            string
+	CompletionGitDesc                        string
+	CompletionCdDesc                         string
+	CompletionLsDesc                         string
+	CompletionPwdDesc                        string
+	CompletionCatDesc                        string
+	CompletionGrepDesc                       string
+	CompletionFindDesc                       string
+	CompletionGitAddDesc                     string
+	CompletionGitCommitDesc                  string
+	CompletionGitPushDesc                    string
+	CompletionGitPullDesc                    string
+	CompletionGitCheckoutDesc                string
+	CompletionGitSwitchDesc                  string
+	CompletionGitBranchDesc                  string
+	CompletionGitMergeDesc                   string
+	CompletionGitRebaseDesc                  string
+	CompletionGitResetDesc                   string
+	CompletionGitRevertDesc                  string
+	CompletionGitStashDesc                   string
+	CompletionGitLogDesc                     string
+	CompletionGitDiffDesc                    string
+	CompletionGitStatusDesc                  string
+	CompletionGitTagDesc                     string
+	CompletionGitFetchDesc                   string
+	CompletionGitCloneDesc                   string
+	CompletionGitInitDesc                    string
+	CompletionGitCleanDesc                   string
+	CompletionGitCherryPickDesc              string
+	CompletionGitShowDesc                    string
+	CompletionGitRmDesc                      string
+	CompletionGitMvDesc                      string
+	CompletionGitGrepDesc                    string
+	CompletionGitBisectDesc                  string
+	CompletionFlagAmendDesc                  string
+	CompletionFlagNoEditDesc                 string
+	CompletionFlagMDesc                      string
+	CompletionFlagADesc                      string
+	CompletionFlagAllDesc                    string
+	CompletionFlagFixupDesc                  string
+	CompletionFlagSignoffDesc                string
+	CompletionFlagSDesc                      string
+	CompletionFlagNoVerifyDesc               string
+	CompletionFlagAllowEmptyDesc             string
+	CompletionFlagForceDesc                  string
+	CompletionFlagForceWithLeaseDesc         string
+	CompletionFlagSetUpstreamDesc            string
+	CompletionFlagUDesc                      string
+	CompletionFlagTagsDesc                   string
+	CompletionFlagDeleteDesc                 string
+	CompletionFlagDryRunDesc                 string
+	CompletionFlagAllBranchesDesc            string
+	CompletionFlagSoftDesc                   string
+	CompletionFlagMixedDesc                  string
+	CompletionFlagHardDesc                   string
+	CompletionStatusConflicted               string
+	CompletionStatusPartiallyStaged          string
+	CompletionStatusStaged                   string
+	CompletionStatusModified                 string
+	CompletionStatusUntracked                string
+	CompletionStatusTracked                  string
+
+	// AI Command Helper
+	AICommandNotEnabled                      string
+	AICommandGenerationCancelled             string
+	AICommandInvalidFormat                   string
+	AICommandExplainPrompt                   string
+	AICommandExplainCancelled                string
+	AICommandRiskHardReset                   string
+	AICommandRiskCleanFdx                    string
+	AICommandRiskCleanFd                     string
+	AICommandRiskForcePush1                  string
+	AICommandRiskForcePush2                  string
+	AICommandRiskReflogExpire                string
+	AICommandRiskRmRf                        string
+	AICommandRiskBranchD                     string
+	AICommandRiskRebaseI                     string
+	AICommandRiskGcAggressive                string
+	AICommandSuggestionHardReset             string
+	AICommandSuggestionCleanFdx              string
+	AICommandSuggestionCleanFd               string
+	AICommandSuggestionForcePush1            string
+	AICommandSuggestionForcePush2            string
+	AICommandSuggestionBranchD               string
+
+	// AI Skills - Commit Message
+	AISkillCommitMsgSystemPrompt             string
+	AISkillCommitMsgRepoBackground           string
+	AISkillCommitMsgCodeChanges              string
+	AISkillCommitMsgOutputRules              string
+	AISkillCommitMsgFormatExample            string
+	AISkillCommitMsgTypeList                 string
+	AISkillCommitMsgSubjectRules             string
+	AISkillCommitMsgScopeOptional            string
+	AISkillCommitMsgBodyRequired             string
+	AISkillCommitMsgScenarioBugfix           string
+	AISkillCommitMsgScenarioRefactor         string
+	AISkillCommitMsgScenarioDocs             string
+	AISkillCommitMsgScenarioTest             string
+	AISkillCommitMsgScenarioDefault          string
+
+	// AI Skills - Branch Name
+	AISkillBranchNamePromptIntro             string
+	AISkillBranchNameStagedFiles             string
+	AISkillBranchNameUnstagedFiles           string
+	AISkillBranchNameMoreFiles               string
+	AISkillBranchNameDiffSummaryTitle        string
+	AISkillBranchNameRules                   string
+	AISkillBranchNameFormatRule              string
+	AISkillBranchNameTypeRule                string
+	AISkillBranchNameDescRule                string
+	AISkillBranchNameOutputRule              string
+	AISkillBranchNameSystemPrompt            string
+
+	// AI Skills - PR Description
+	AISkillPRDescSystemPrompt                string
+	AISkillPRDescBranchInfo                  string
+	AISkillPRDescCommitHistory               string
+	AISkillPRDescCodeChangesSection          string
+	AISkillPRDescGeneratePrompt              string
+	AISkillPRDescSummarySection              string
+	AISkillPRDescChangesSection              string
+	AISkillPRDescTestingSection              string
+
+	// AI Skills - Shell Command
+	AISkillShellCmdSystemPrompt              string
+	AISkillShellCmdRuntime                   string
+	AISkillShellCmdRepoStatus                string
+	AISkillShellCmdUserIntent                string
+	AISkillShellCmdOutputFormat              string
+	AISkillShellCmdCommandField              string
+	AISkillShellCmdExplanationField          string
+	AISkillShellCmdRiskLevelField            string
+	AISkillShellCmdAlternativesField         string
+	AISkillShellCmdOutputNote                string
+	AISkillShellCmdWindowsHint               string
+	AISkillShellCmdMacOSHint                 string
+	AISkillShellCmdLinuxHint                 string
+
+	// AI Chat Helper
+	AIChatWelcomeSystem                      string
+	AIChatWelcomeMessage                     string
+	AIChatConfigPrompt                       string
+	AIChatPreviousContext                    string
+	AIChatNoContentToCopy                    string
+	AIChatNoExecutableReply                  string
+	AIChatConfirmExecution                   string
+	AIChatExecutionPlan                      string
+	AIChatNotInitialized                     string
+	AIChatRequestFailed                      string
+	AIChatCopyFailed                         string
+	AIChatCopiedToClipboard                  string
+	AIChatNoCommandsFound                    string
+	AIChatClearHistoryTitle                  string
+	AIChatClearHistoryPrompt                 string
+	AIChatHistoryCleared                     string
+	AIChatHowCanIHelp                        string
+	AIChatGenerationStopped                  string
+	AIChatCompleted                          string
+	AIChatWaitingConfirm                     string
+	AIChatConfirmPrompt                      string
+	AIChatExecutingPlan                      string
+	AIChatGeneratingReply                    string
+	AIChatCallingTool                        string
+	AIChatToolCompleted                      string
+	AIChatToolFailed                         string
+	AIChatPlanGenerated                      string
+	AIChatStatusLabel                        string
+	AIChatActionLabel                        string
+	AIChatGreeting                           string
+	AIChatCapabilities                       string
+	AIChatInputPrompt                        string
+	AIChatStoppedGeneration                  string
+	AIChatCallingToolPrefix                  string
+	AIChatToolCompletedPrefix                string
+	AIChatToolFailedPrefix                   string
 }
 
 type Bisect struct {
@@ -2650,5 +2978,333 @@ keybinding:
 - The 'git.paging.useConfig' option has been removed. If you were relying on it to configure your pager, you'll have to explicitly set the pager again using the 'git.paging.pager' option.
 `,
 		},
+
+		// AI Common
+		AICancel:                            "Cancel",
+		AIOK:                                "OK",
+		AIConfirm:                           "Confirm",
+		AIYes:                               "Yes",
+		AINo:                                "No",
+		AISuccess:                           "Success",
+		AIFailed:                            "Failed",
+		AIWarning:                           "Warning",
+		AIUnknown:                           "Unknown",
+		AIExecuting:                         "Executing",
+		AIThinking:                          "Thinking",
+		AIIdle:                              "Idle",
+		AICancelled:                         "Cancelled",
+		AIThinkingInProgress:                "Thinking...",
+
+		// AI Agent
+		AIAgentToolNotAllowedInPlanning:     "Tool not allowed in planning phase: %s",
+		AIAgentCriticalStepFailed:           "Critical step failed: %s — %s",
+		AIAgentStepTimeout:                  "⏱️ Step execution timeout (%v): %s",
+		AIAgentUserRejectedTool:             "[User rejected] Tool %s was not executed, please adjust subsequent operations.",
+		AIAgentResolveConflictManually:      "Resolve conflict manually and continue",
+		AIAgentSetUpstreamBranch:            "Set upstream branch",
+		AIAgentConflict:                     "Conflict",
+		AIAgentToolName:                     "Tool name",
+		AIAgentStageFilesFirst:              "Stage files first (stage_all or stage_file)",
+		AIAgentPossibleReasons:              "\n\n💡 Possible reasons:",
+		AIAgentExampleCommitMsg:             "feat: add user login feature",
+		AIAgentDont:                         "Don't",
+		AIAgentRepoStatusAndUserInstruction: "## Current Repository Status\n\n%s\n\n## User Instruction\n\n%s",
+		AIAgentUnknownTool:                  "Unknown tool: %s",
+		AIAgentUserRejectedExecution:        "User rejected execution: %s",
+		AIAgentMaxStepsReached:              "Maximum steps (%d) reached, stopping execution.",
+		AIAgentToolLabel:                    "Tool: %s\nDescription: %s\nPermission: %s",
+		AIAgentDescriptionLabel:             "Description",
+		AIAgentPermissionLabel:              "Permission",
+		AIAgentParamsLabel:                  "Parameters",
+
+		// AI Tools
+		AIToolMissingParam:          "Missing %s parameter",
+		AIToolMissingNameParam:      "Missing name parameter",
+		AIToolMissingPathParam:      "Missing path parameter",
+		AIToolMissingMessageParam:   "Missing message parameter",
+		AIToolMissingHashParam:      "Missing hash parameter",
+		AIToolFilePath:              "File path",
+		AIToolBranchName:            "Branch name",
+		AIToolTagName:               "Tag name",
+		AIToolCommitMessage:         "Commit message",
+		AIToolNoChanges:             "No changes",
+		AIToolWorkingDir:            "Working directory",
+		AIToolStagingArea:           "Staging area",
+		AIToolTargetRefOrHash:       "Target ref or hash (preferred)",
+		AIToolResetSteps:            "Reset steps (used when ref is empty, default 1)",
+		AIToolStashIndex:            "Stash index, default 0",
+		AIToolMaxLines:              "Maximum lines to return (default 300, 0 for unlimited)",
+		AIToolTargetRef:             "Target ref (default HEAD)",
+		AIToolPushConfigError:       "Push configuration error: %v",
+		AIToolRebasedTo:             "Rebased current branch to %s",
+		AIToolRenameFailed:          "Rename failed: %v",
+		AIToolDiscardChangesFailed:  "Discard changes failed: %v",
+		AIToolParam:                 "Parameter",
+		AIToolValue:                 "Value",
+
+		// AI Skills
+		AISkillCurrentBranch:     "Current branch: %s\n",
+		AISkillBranchNameOnly:    "- Output branch name only, no explanation\n",
+		AISkillBranchNameFormat:  "- description: lowercase kebab-case, 2-5 words\n",
+		AISkillWindowsGitBash:    "Windows + Git Bash, use && to connect commands",
+		AISkillRuntime:           "Runtime environment: %s\n\n",
+		AISkillOutputJSONArray:   "Output JSON array, each element contains:\n",
+		AISkillExplanation:       "- explanation: Chinese explanation (1-2 sentences)\n",
+		AISkillCommitSubject:     "- subject: Chinese, verb-first, imperative, max 72 chars\n",
+		AISkillTestScenario:      "Scenario hint: This is test-related change, use test type.\n",
+		AISkillOutputCommitMsg:   "\nPlease output commit message directly:",
+		AISkillRefactorScenario:  "Scenario hint: This is refactoring, prefer refactor type.\n",
+		AISkillGeneratePRDesc:    "## Please generate PR description with the following sections\n",
+		AISkillPRSummary:         "### Summary\nOne sentence describing the purpose of this PR.\n\n",
+		AISkillPRTesting:         "### Testing\n- Explain how to verify these changes\n",
+		AISkillCodeChanges:       "## Code Changes\n```diff\n",
+		AISkillDiffSummary:       "\nDiff summary:\n```diff\n",
+		AISkillRepoContext:       "## Repository Context\n",
+		AISkillCodeChangesTitle:  "## Code Changes\n",
+		AISkillBranchInfo:        "## Branch Info\nMerging from `%s` to `%s`\n\n",
+		AISkillCommitHistory:     "## Commit History\n",
+
+		// AI Chat (GUI)
+		AIChatNotEnabled:         "AI not enabled",
+		AIChatCanInputNext:       "You can input the next command",
+		AIChatGeneratingPlan:     "Analyzing and generating execution plan",
+		AIChatTemplateBranchName: "branch-name: branch name",
+		AIChatTemplateTagName:    "tag-name: tag name",
+		AIChatTemplateMessage:    "message: commit message",
+		AIChatPushingToRemote:    "Pushing to remote repository...",
+		AIChatAbortMerge:         "Abort merge",
+		AIChatResolveConflict:    "Resolve conflict",
+		AIChatConflictFiles:      "Conflict files:\n",
+		AIChatMergeConflict:      "Merge conflict",
+		AIChatUncommittedChanges: "Uncommitted changes detected, how to handle?",
+		AIChatDeleteSuccess:      "Delete successful",
+		AIChatConfirmSuffix:      "?",
+
+		// AI Repository Context
+		AIMoreItems:             "... %d more\n",
+		AIRepoWorkingDirClean:   "Working directory: clean\n",
+		AIRepoInProgress:        "⚠ In progress: %s\n",
+		AIRepoRemoteSynced:      "Remote: %s [synced]\n",
+		AIRepoChanges:           "Changes: %d (staged %d, unstaged %d, untracked %d)\n",
+		AIRepoRemoteAheadBehind: "Remote: %s [↑%s ↓%s]\n",
+		AIRepoBranch:            "Branch: %s\n",
+		AIRepoRecentCommits:     "Recent commits:\n",
+		AIRepoStashCount:        "Stash: %d entries\n",
+
+		// AI Manager
+		AIManagerGenerateBranchName: "Generate appropriate Git branch name based on feature description (kebab-case with type prefix)",
+		AIManagerParam:              "Parameter",
+		AIManagerValue:              "Value",
+		AIManagerStagedDiff:         "Output of git diff --staged",
+		AIManagerFeatureDesc:        "Feature or purpose of the branch",
+		AIManagerGenerateCommitMsg:  "Generate commit message following Conventional Commits specification based on staged diff",
+
+		// AI Analyze Tool
+		AIAnalyzeToolDescription:          "Intelligently analyze current changes: analyze diff file by file and integrate results (suitable for large change scenarios)",
+		AIAnalyzeToolStagedParam:          "true=analyze staging area, false=analyze working directory (default false)",
+		AIAnalyzeToolFocusParam:           "Analysis focus (e.g.: security issues, performance optimization, code quality, etc.), leave empty for comprehensive analysis",
+		AIAnalyzeWorkingDirClean:          "Working directory is clean, no changed files",
+		AIAnalyzeNoChanges:                "No changes in %s",
+		AIAnalyzeCancelled:                "Analysis cancelled",
+		AIAnalyzeFailed:                   "AI analysis failed: %w",
+		AIAnalyzeReportTitle:              "# Change Analysis Report\n\n",
+		AIAnalyzeReportTitleWithFocus:     "# Change Analysis Report (Focus: %s)\n\n",
+		AIAnalyzeFileCount:                "**File count**: %d files (successfully analyzed %d, failed %d)\n",
+		AIAnalyzeTotalLines:               "**Total changed lines**: approximately %d lines\n\n",
+		AIAnalyzeDetailedAnalysis:         "## Detailed Analysis\n\n",
+		AIAnalyzeAnalysisFailed:           "❌ **Analysis failed**: %s\n\n",
+		AIAnalyzeNoChangesInfo:            "ℹ️ No changes\n\n",
+		AIAnalyzeOverallSuggestions:       "## Overall Suggestions\n\n",
+		AIAnalyzeSuggestion1:              "1. Confirm all changes meet expectations\n",
+		AIAnalyzeSuggestion2:              "2. Run tests to ensure functionality is normal\n",
+		AIAnalyzeSuggestion3:              "3. Check for any missing files\n",
+		AIAnalyzeCodeReviewExpert:         "You are a code review expert, skilled at analyzing code changes. Please analyze the diff content concisely and accurately.",
+		AIAnalyzeFileLabel:                "## File: %s\n\n",
+		AIAnalyzePromptIntro:              "Please analyze the following diff and summarize in 2-3 sentences:\n",
+		AIAnalyzeFocusLabel:               "**Analysis focus**: %s\n\n",
+		AIAnalyzeMainChanges:              "- Main changes\n",
+		AIAnalyzePotentialIssues:          "- Potential issues (if any)\n",
+		AIAnalyzeImprovementSuggestions:   "- Improvement suggestions (if any)\n\n",
+
+		// Command Completion
+		CompletionBranch:                  "Branch",
+		CompletionRemote:                  "Remote",
+		CompletionCommitRef:               "Commit reference",
+		CompletionTag:                     "Tag",
+		CompletionGitDesc:                 "Version control system",
+		CompletionCdDesc:                  "Change directory",
+		CompletionLsDesc:                  "List files",
+		CompletionPwdDesc:                 "Print working directory",
+		CompletionCatDesc:                 "Display file content",
+		CompletionGrepDesc:                "Search text",
+		CompletionFindDesc:                "Find files",
+		CompletionGitAddDesc:              "Add files to staging area",
+		CompletionGitCommitDesc:           "Commit changes",
+		CompletionGitPushDesc:             "Push to remote",
+		CompletionGitPullDesc:             "Pull from remote",
+		CompletionGitCheckoutDesc:         "Switch branch",
+		CompletionGitSwitchDesc:           "Switch branch (new)",
+		CompletionGitBranchDesc:           "Manage branches",
+		CompletionGitMergeDesc:            "Merge branches",
+		CompletionGitRebaseDesc:           "Rebase",
+		CompletionGitResetDesc:            "Reset commits",
+		CompletionGitRevertDesc:           "Revert commits",
+		CompletionGitStashDesc:            "Stash working directory",
+		CompletionGitLogDesc:              "View commit history",
+		CompletionGitDiffDesc:             "View differences",
+		CompletionGitStatusDesc:           "View status",
+		CompletionGitTagDesc:              "Manage tags",
+		CompletionGitFetchDesc:            "Fetch remote updates",
+		CompletionGitCloneDesc:            "Clone repository",
+		CompletionGitInitDesc:             "Initialize repository",
+		CompletionGitCleanDesc:            "Clean untracked files",
+		CompletionGitCherryPickDesc:       "Cherry-pick commits",
+		CompletionGitShowDesc:             "Show commit details",
+		CompletionGitRmDesc:               "Remove files",
+		CompletionGitMvDesc:               "Move files",
+		CompletionGitGrepDesc:             "Search content",
+		CompletionGitBisectDesc:           "Binary search for problematic commit",
+		CompletionFlagAmendDesc:           "Amend last commit",
+		CompletionFlagNoEditDesc:          "Don't edit commit message",
+		CompletionFlagMDesc:               "Specify commit message",
+		CompletionFlagADesc:               "Commit all tracked files",
+		CompletionFlagAllDesc:             "Commit all tracked files",
+		CompletionFlagFixupDesc:           "Create fixup commit",
+		CompletionFlagSignoffDesc:         "Add Signed-off-by line",
+		CompletionFlagSDesc:               "GPG sign",
+		CompletionFlagNoVerifyDesc:        "Skip pre-commit hooks",
+		CompletionFlagAllowEmptyDesc:      "Allow empty commit",
+		CompletionFlagForceDesc:           "Force push",
+		CompletionFlagForceWithLeaseDesc:  "Safe force push",
+		CompletionFlagSetUpstreamDesc:     "Set upstream branch",
+		CompletionFlagUDesc:               "Set upstream branch",
+		CompletionFlagTagsDesc:            "Push tags",
+		CompletionFlagDeleteDesc:          "Delete remote branch",
+		CompletionFlagDryRunDesc:          "Preview push",
+		CompletionFlagAllBranchesDesc:     "Push all branches",
+		CompletionFlagSoftDesc:            "Keep staging area and working directory",
+		CompletionFlagMixedDesc:           "Keep working directory",
+		CompletionFlagHardDesc:            "Discard all changes",
+		CompletionStatusConflicted:        "Conflicted",
+		CompletionStatusPartiallyStaged:   "Partially staged",
+		CompletionStatusStaged:            "Staged",
+		CompletionStatusModified:          "Modified",
+		CompletionStatusUntracked:         "Untracked",
+		CompletionStatusTracked:           "Tracked",
+
+		// AI Command Helper
+		AICommandNotEnabled:               "AI feature is not enabled",
+		AICommandGenerationCancelled:      "AI command generation cancelled",
+		AICommandInvalidFormat:            "Invalid format returned by AI: %v\nResponse content: %s",
+		AICommandExplainPrompt:            "Explain what this shell command does, in concise Chinese:\n\nCommand: %s\n\nPlease explain:\n1. What this command does (1 line)\n2. What impact it will have (1-2 lines)\n3. Whether there are risks (if any, explain the risk points, 1 line)\n4. Suggestions or notes (optional, 1 line)\n\nKeep the answer concise (3-5 lines total).",
+		AICommandExplainCancelled:         "Command explanation cancelled",
+		AICommandRiskHardReset:            "⚠️ Will lose all uncommitted changes",
+		AICommandRiskCleanFdx:             "⚠️ Will delete all untracked and ignored files (including files in .gitignore)",
+		AICommandRiskCleanFd:              "⚠️ Will delete all untracked files and directories",
+		AICommandRiskForcePush1:           "⚠️ May overwrite remote branch history, affecting other collaborators",
+		AICommandRiskForcePush2:           "⚠️ May overwrite remote branch history, affecting other collaborators",
+		AICommandRiskReflogExpire:         "⚠️ Will permanently delete reflog records, cannot be recovered",
+		AICommandRiskRmRf:                 "⚠️ Dangerous: recursive file deletion, may delete important data",
+		AICommandRiskBranchD:              "⚠️ Force delete branch, even if branch is not merged",
+		AICommandRiskRebaseI:              "⚠️ Rewrite history, may cause collaboration issues",
+		AICommandRiskGcAggressive:         "⚠️ Aggressive garbage collection, may delete recent objects",
+		AICommandSuggestionHardReset:      "Suggestion: Use 'git stash' to save changes first, or use 'git reset --soft' to keep changes",
+		AICommandSuggestionCleanFdx:       "Suggestion: Use 'git clean -fdn' to preview files to be deleted first",
+		AICommandSuggestionCleanFd:        "Suggestion: Use 'git clean -fdn' to preview files to be deleted first",
+		AICommandSuggestionForcePush1:     "Suggestion: Use 'git push --force-with-lease' for safe force push",
+		AICommandSuggestionForcePush2:     "Suggestion: Use 'git push --force-with-lease' for safe force push",
+		AICommandSuggestionBranchD:        "Suggestion: Check if branch is merged first, use 'git branch -d' for safe deletion",
+
+		// AI Skills - Commit Message
+		AISkillCommitMsgSystemPrompt:      "You are an experienced software engineer specializing in writing high-quality Git commit messages.\nFollow the Conventional Commits specification (https://www.conventionalcommits.org/).\nOnly output the commit message itself, without any additional explanations, prefixes, or quotes.\nCommit messages (subject and body) must be in Chinese.",
+		AISkillCommitMsgRepoBackground:    "## Repository Background\n",
+		AISkillCommitMsgCodeChanges:       "## Code Changes\n",
+		AISkillCommitMsgOutputRules:       "## Output Rules\n",
+		AISkillCommitMsgFormatExample:     "- Format:\n  ```\n  <type>(<scope>): <subject>\n  \n  <body>\n  ```\n",
+		AISkillCommitMsgTypeList:          "- type: feat | fix | refactor | docs | test | chore | perf | style | ci | revert\n",
+		AISkillCommitMsgSubjectRules:      "- subject: Chinese, verb-first, imperative, max 72 characters\n",
+		AISkillCommitMsgScopeOptional:     "- scope is optional\n",
+		AISkillCommitMsgBodyRequired:      "- body: Required, leave one blank line between subject and body, explain the reason and main content of this change in Chinese (1-4 lines)\n\n",
+		AISkillCommitMsgScenarioBugfix:    "Scenario hint: This is a bug fix, prefer fix type.\n",
+		AISkillCommitMsgScenarioRefactor:  "Scenario hint: This is refactoring, prefer refactor type.\n",
+		AISkillCommitMsgScenarioDocs:      "Scenario hint: This is documentation update, use docs type.\n",
+		AISkillCommitMsgScenarioTest:      "Scenario hint: This is test-related change, use test type.\n",
+		AISkillCommitMsgScenarioDefault:   "Please output the commit message directly:",
+
+		// AI Skills - Branch Name
+		AISkillBranchNamePromptIntro:      "Recommend a branch name based on the following working directory changes.\n\n",
+		AISkillBranchNameStagedFiles:      "Staged files:\n",
+		AISkillBranchNameUnstagedFiles:    "Unstaged files:\n",
+		AISkillBranchNameMoreFiles:        "  ... %d more\n",
+		AISkillBranchNameDiffSummaryTitle: "\nDiff summary:\n```diff\n",
+		AISkillBranchNameRules:            "\nNaming rules:\n",
+		AISkillBranchNameFormatRule:       "- Format: <type>/<description> (e.g. feature/add-user-auth)\n",
+		AISkillBranchNameTypeRule:         "- type: feature | fix | refactor | docs | test | chore\n",
+		AISkillBranchNameDescRule:         "- description: lowercase kebab-case, 2-5 words\n",
+		AISkillBranchNameOutputRule:       "- Only output the branch name, no explanation\n",
+		AISkillBranchNameSystemPrompt:     "You are a Git branch naming expert. Recommend concise, descriptive branch names based on change content. Only output the branch name itself.",
+
+		// AI Skills - PR Description
+		AISkillPRDescSystemPrompt:         "You are a senior software engineer responsible for writing clear, professional Pull Request descriptions.\nOutput in Markdown format, including Summary, Changes, and Testing sections.\nUse concise Chinese.",
+		AISkillPRDescBranchInfo:           "## Branch Info\nMerging from `%s` to `%s`\n\n",
+		AISkillPRDescCommitHistory:        "## Commit History\n",
+		AISkillPRDescCodeChangesSection:   "## Code Changes\n```diff\n",
+		AISkillPRDescGeneratePrompt:       "## Please generate PR description with the following sections\n",
+		AISkillPRDescSummarySection:       "### Summary\nOne sentence describing the purpose of this PR.\n\n",
+		AISkillPRDescChangesSection:       "### Changes\n- List main changes (3-5 items)\n\n",
+		AISkillPRDescTestingSection:       "### Testing\n- Explain how to verify these changes\n",
+
+		// AI Skills - Shell Command
+		AISkillShellCmdSystemPrompt:       "You are a Git command expert. Generate precise shell commands based on user intent.\n\n",
+		AISkillShellCmdRuntime:            "Runtime environment: %s\n\n",
+		AISkillShellCmdRepoStatus:         "Repository status:\n%s\n\n",
+		AISkillShellCmdUserIntent:         "User intent: %s\n\n",
+		AISkillShellCmdOutputFormat:       "Output JSON array, each element contains:\n",
+		AISkillShellCmdCommandField:       "- command: Complete executable command\n",
+		AISkillShellCmdExplanationField:   "- explanation: Chinese explanation (1-2 sentences)\n",
+		AISkillShellCmdRiskLevelField:     "- risk_level: \"safe\" | \"medium\" | \"dangerous\"\n",
+		AISkillShellCmdAlternativesField:  "- alternatives: Alternative commands (optional)\n\n",
+		AISkillShellCmdOutputNote:         "Return 1-3 suggestions, sorted by recommendation. Only output JSON, no other content.",
+		AISkillShellCmdWindowsHint:        "Windows + Git Bash, use && to connect commands",
+		AISkillShellCmdMacOSHint:          "macOS + zsh/bash, use && to connect commands",
+		AISkillShellCmdLinuxHint:          "Linux + bash, use && to connect commands",
+
+		// AI Chat Helper
+		AIChatWelcomeSystem:               "Welcome to AI Assistant!",
+		AIChatWelcomeMessage:              "Hello! I'm your Git Agent\n\nI can directly help you operate the repository, for example:\n  • \"Help me commit current changes\"\n  • \"Create a feature/login branch\"\n  • \"View recent commit history\"\n  • \"Stash these changes and switch to main branch\"\n\nTell me what you want to do, and I'll execute it.",
+		AIChatConfigPrompt:                "Please enable and configure AI features in settings first.\nTip: Press 'o' to open settings menu",
+		AIChatPreviousContext:             "─── The following content is from the previous AI analysis, you can continue asking ───",
+		AIChatNoContentToCopy:             "No content to copy",
+		AIChatNoExecutableReply:           "No executable AI reply",
+		AIChatConfirmExecution:            "Confirm execution",
+		AIChatExecutionPlan:               "Execution plan",
+		AIChatNotInitialized:              "AI not initialized, please configure AI features first.",
+		AIChatRequestFailed:               "AI request failed, you can enter the next instruction",
+		AIChatCopyFailed:                  "Copy failed",
+		AIChatCopiedToClipboard:           "Copied to clipboard",
+		AIChatNoCommandsFound:             "No executable commands found in the last AI reply",
+		AIChatClearHistoryTitle:           "Confirm clear",
+		AIChatClearHistoryPrompt:          "Are you sure you want to clear the conversation history? This action cannot be undone.",
+		AIChatHistoryCleared:              "Conversation history cleared",
+		AIChatHowCanIHelp:                 "How can I help you?",
+		AIChatGenerationStopped:           "Generation stopped, you can enter the next instruction",
+		AIChatCompleted:                   "Completed",
+		AIChatWaitingConfirm:              "Waiting for confirmation",
+		AIChatConfirmPrompt:               "Enter Y to execute, N to cancel, or enter additional instructions to adjust the plan",
+		AIChatExecutingPlan:               "Executing plan",
+		AIChatGeneratingReply:             "Generating reply",
+		AIChatCallingTool:                 "Calling",
+		AIChatToolCompleted:               "Completed tool",
+		AIChatToolFailed:                  "Tool failed",
+		AIChatPlanGenerated:               "Execution plan generated, waiting for confirmation",
+		AIChatStatusLabel:                 "Status:",
+		AIChatActionLabel:                 "Action:",
+		AIChatGreeting:                    "Welcome to AI Assistant!",
+		AIChatCapabilities:                "I can directly help you operate the repository",
+		AIChatInputPrompt:                 "▶ Enter Y to confirm execution, N to cancel, or enter additional instructions to adjust the plan",
+		AIChatStoppedGeneration:           "Generation stopped",
+		AIChatCallingToolPrefix:           "Calling",
+		AIChatToolCompletedPrefix:         "Completed tool",
+		AIChatToolFailedPrefix:            "Tool",
 	}
 }

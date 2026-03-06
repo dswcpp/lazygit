@@ -69,7 +69,7 @@ func (t *GetStagedDiffTool) Schema() tools.ToolSchema {
 		Name:        "get_staged_diff",
 		Description: "获取暂存区（staged）diff",
 		Params: map[string]tools.ParamSchema{
-			"max_lines": {Type: "int", Description: "最多返回行数（默认 300，0 表示不限制）"},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -97,7 +97,7 @@ func (t *GetDiffTool) Schema() tools.ToolSchema {
 		Name:        "get_diff",
 		Description: "获取工作区未暂存的 diff",
 		Params: map[string]tools.ParamSchema{
-			"max_lines": {Type: "int", Description: "最多返回行数（默认 300，0 表示不限制）"},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -125,7 +125,7 @@ func (t *GetFileDiffTool) Schema() tools.ToolSchema {
 		Name:        "get_file_diff",
 		Description: "获取指定文件的 diff（可选择 staged 或 unstaged）",
 		Params: map[string]tools.ParamSchema{
-			"path":   {Type: "string", Description: "文件路径", Required: true},
+			"path":   {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
 			"staged": {Type: "bool", Description: "true=暂存区 diff，false=工作区 diff（默认 false）"},
 		},
 		Permission: tools.PermReadOnly,
@@ -135,7 +135,7 @@ func (t *GetFileDiffTool) Schema() tools.ToolSchema {
 func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	path := strParam(call.Params, "path", "")
 	if path == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 path 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingPathParam()}
 	}
 	staged := boolParam(call.Params, "staged", false)
 	for _, f := range t.d.GetFiles() {
@@ -144,7 +144,7 @@ func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.
 			if diff == "" {
 				label := "未暂存"
 				if staged {
-					label = "暂存区"
+					label = t.d.Tr.ToolStagingArea()
 				}
 				return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("%s 没有变更: %s", label, path)}
 			}

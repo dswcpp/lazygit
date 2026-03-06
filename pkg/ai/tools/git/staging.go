@@ -37,9 +37,9 @@ func NewStageFileTool(d *Deps) tools.Tool { return &StageFileTool{d} }
 func (t *StageFileTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "stage_file",
-		Description: "暂存指定文件",
+		Description: "Stage specified file",
 		Params: map[string]tools.ParamSchema{
-			"path": {Type: "string", Description: "文件路径", Required: true},
+			"path": {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -48,7 +48,7 @@ func (t *StageFileTool) Schema() tools.ToolSchema {
 func (t *StageFileTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	path := strParam(call.Params, "path", "")
 	if path == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 path 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingPathParam()}
 	}
 	if err := t.d.WorkingTree.StageFile(path); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("暂存文件失败: %v", err)}
@@ -87,9 +87,9 @@ func NewUnstageFileTool(d *Deps) tools.Tool { return &UnstageFileTool{d} }
 func (t *UnstageFileTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "unstage_file",
-		Description: "取消暂存指定文件",
+		Description: "Unstage specified file",
 		Params: map[string]tools.ParamSchema{
-			"path": {Type: "string", Description: "文件路径", Required: true},
+			"path": {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -98,7 +98,7 @@ func (t *UnstageFileTool) Schema() tools.ToolSchema {
 func (t *UnstageFileTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	path := strParam(call.Params, "path", "")
 	if path == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 path 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingPathParam()}
 	}
 	// Determine whether the file is tracked (affects unstage command)
 	tracked := true
@@ -109,7 +109,7 @@ func (t *UnstageFileTool) Execute(_ context.Context, call tools.ToolCall) tools.
 		}
 	}
 	if err := t.d.WorkingTree.UnStageFile([]string{path}, tracked); err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("取消暂存失败: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("Failed to unstage: %v", err)}
 	}
 	t.d.Refresh(ScopeFiles)
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已取消暂存: %s", path)}
@@ -125,7 +125,7 @@ func (t *DiscardFileTool) Schema() tools.ToolSchema {
 		Name:        "discard_file",
 		Description: "丢弃指定文件的所有变更（恢复到 HEAD）",
 		Params: map[string]tools.ParamSchema{
-			"path": {Type: "string", Description: "文件路径", Required: true},
+			"path": {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
 		},
 		Permission: tools.PermDestructive,
 	}
@@ -134,12 +134,12 @@ func (t *DiscardFileTool) Schema() tools.ToolSchema {
 func (t *DiscardFileTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	path := strParam(call.Params, "path", "")
 	if path == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 path 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingPathParam()}
 	}
 	for _, f := range t.d.GetFiles() {
 		if f.Path == path {
 			if err := t.d.WorkingTree.DiscardAllFileChanges(f); err != nil {
-				return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("丢弃变更失败: %v", err)}
+				return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolDiscardChangesFailed(err)}
 			}
 			t.d.Refresh(ScopeFiles)
 			return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("已丢弃 %s 的所有变更", path)}

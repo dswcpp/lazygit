@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
 	"github.com/dswcpp/lazygit/pkg/ai/tools"
@@ -21,10 +22,11 @@ type Agent struct {
 	session   *Session
 	confirmFn ConfirmFunc
 	maxSteps  int
+	tr        *aii18n.Translator
 }
 
 // NewAgent creates an Agent. If confirmFn is nil, all write operations are denied.
-func NewAgent(p provider.Provider, r *tools.Registry, session *Session, confirmFn ConfirmFunc) *Agent {
+func NewAgent(p provider.Provider, r *tools.Registry, session *Session, confirmFn ConfirmFunc, tr *aii18n.Translator) *Agent {
 	if confirmFn == nil {
 		confirmFn = AutoDenyWrite()
 	}
@@ -34,6 +36,7 @@ func NewAgent(p provider.Provider, r *tools.Registry, session *Session, confirmF
 		session:   session,
 		confirmFn: confirmFn,
 		maxSteps:  defaultMaxSteps,
+		tr:        tr,
 	}
 }
 
@@ -87,7 +90,7 @@ func (a *Agent) Run(ctx context.Context, userMsg string, repoCtx repocontext.Rep
 			if !ok {
 				a.session.AddToolResult(tools.ToolResult{
 					CallID: call.ID,
-					Output: fmt.Sprintf("未知工具: %s", call.Name),
+					Output: a.tr.AgentUnknownTool(call.Name),
 				}, call.Name)
 				if onUpdate != nil {
 					onUpdate()
@@ -103,7 +106,7 @@ func (a *Agent) Run(ctx context.Context, userMsg string, repoCtx repocontext.Rep
 
 			// Permission check
 			if schema.Permission.RequiresConfirm() {
-				preview := buildConfirmPreview(call, schema)
+				preview := a.buildConfirmPreview(call, schema)
 				approved, err := a.confirmFn(call.Name, schema.Permission, preview)
 				if err != nil {
 					return err
@@ -111,7 +114,7 @@ func (a *Agent) Run(ctx context.Context, userMsg string, repoCtx repocontext.Rep
 				if !approved {
 					a.session.AddToolResult(tools.ToolResult{
 						CallID: call.ID,
-						Output: fmt.Sprintf("用户拒绝执行: %s", call.Name),
+						Output: a.tr.AgentUserRejectedExecution(call.Name),
 					}, call.Name)
 					if onUpdate != nil {
 						onUpdate()
@@ -119,7 +122,7 @@ func (a *Agent) Run(ctx context.Context, userMsg string, repoCtx repocontext.Rep
 					// Tell the LLM the user declined so it can adapt
 					a.session.providerMessages = append(a.session.providerMessages, provider.Message{
 						Role:    provider.RoleUser,
-						Content: fmt.Sprintf("[用户拒绝] 工具 %s 未被执行，请据此调整后续操作。", call.Name),
+						Content: a.tr.AgentUserRejectedTool(call.Name),
 					})
 					continue
 				}
@@ -138,7 +141,7 @@ func (a *Agent) Run(ctx context.Context, userMsg string, repoCtx repocontext.Rep
 	}
 
 	// Max steps reached — add a note and stop
-	a.session.AddSystemNote(fmt.Sprintf("已达到最大步数 (%d)，停止执行。", a.maxSteps))
+	a.session.AddSystemNote(a.tr.AgentMaxStepsReached(a.maxSteps))
 	if onUpdate != nil {
 		onUpdate()
 	}
@@ -146,15 +149,16 @@ func (a *Agent) Run(ctx context.Context, userMsg string, repoCtx repocontext.Rep
 }
 
 // buildConfirmPreview builds a human-readable preview of what a tool will do.
-func buildConfirmPreview(call tools.ToolCall, schema tools.ToolSchema) string {
+func (a *Agent) buildConfirmPreview(call tools.ToolCall, schema tools.ToolSchema) string {
 	if len(call.Params) == 0 {
-		return fmt.Sprintf("工具: %s\n描述: %s\n权限: %s",
-			call.Name, schema.Description, schema.Permission)
+		return a.tr.AgentToolLabel(call.Name, schema.Description, schema.Permission.String())
 	}
 	params := ""
 	for k, v := range call.Params {
 		params += fmt.Sprintf("  %s: %v\n", k, v)
 	}
-	return fmt.Sprintf("工具: %s\n描述: %s\n权限: %s\n参数:\n%s",
-		call.Name, schema.Description, schema.Permission, params)
+	return fmt.Sprintf("%s\n%s:\n%s",
+		a.tr.AgentToolLabel(call.Name, schema.Description, schema.Permission.String()),
+		a.tr.AgentParamsLabel(),
+		params)
 }

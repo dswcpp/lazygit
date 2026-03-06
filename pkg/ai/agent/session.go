@@ -49,11 +49,18 @@ type Session struct {
 	// TwoPhaseAgent 专用字段
 	Phase AgentPhase
 	Plan  *ExecutionPlan
+
+	// 流式输出状态
+	streamingMessageIndex int  // 正在流式输出的消息索引（-1 表示无流式消息）
+	streamingBuffer       strings.Builder // 流式消息缓冲区
 }
 
 // NewSession creates a new Session with the given system prompt.
 func NewSession(systemPrompt string) *Session {
-	return &Session{systemPrompt: systemPrompt}
+	return &Session{
+		systemPrompt:          systemPrompt,
+		streamingMessageIndex: -1, // 初始无流式消息
+	}
 }
 
 // AddUserMessage records a user turn in both views.
@@ -77,6 +84,47 @@ func (s *Session) AddAssistantMessage(content string) {
 	s.providerMessages = append(s.providerMessages, provider.Message{
 		Role: provider.RoleAssistant, Content: content,
 	})
+}
+
+// StartStreamingMessage 开始一条新的流式 Assistant 消息。
+// 返回消息索引，用于后续追加内容。
+func (s *Session) StartStreamingMessage() int {
+	s.streamingBuffer.Reset()
+	s.UIMessages = append(s.UIMessages, UIMessage{
+		Kind: KindAssistant, Content: "", Timestamp: time.Now(),
+	})
+	s.streamingMessageIndex = len(s.UIMessages) - 1
+	return s.streamingMessageIndex
+}
+
+// AppendToStreamingMessage 向当前流式消息追加内容。
+// 必须先调用 StartStreamingMessage。
+func (s *Session) AppendToStreamingMessage(chunk string) {
+	if s.streamingMessageIndex < 0 || s.streamingMessageIndex >= len(s.UIMessages) {
+		return
+	}
+	s.streamingBuffer.WriteString(chunk)
+	s.UIMessages[s.streamingMessageIndex].Content = s.streamingBuffer.String()
+}
+
+// FinishStreamingMessage 完成流式消息，将其加入 provider 消息历史。
+func (s *Session) FinishStreamingMessage() {
+	if s.streamingMessageIndex < 0 {
+		return
+	}
+	content := s.streamingBuffer.String()
+	if content != "" {
+		s.providerMessages = append(s.providerMessages, provider.Message{
+			Role: provider.RoleAssistant, Content: content,
+		})
+	}
+	s.streamingMessageIndex = -1
+	s.streamingBuffer.Reset()
+}
+
+// IsStreaming 返回当前是否有流式消息正在进行。
+func (s *Session) IsStreaming() bool {
+	return s.streamingMessageIndex >= 0
 }
 
 // AddSystemNote adds a system-level note visible to the user but not sent to the LLM.
@@ -203,6 +251,8 @@ func (s *Session) Reset() {
 	s.providerMessages = nil
 	s.Phase = PhasePlanning
 	s.Plan = nil
+	s.streamingMessageIndex = -1
+	s.streamingBuffer.Reset()
 }
 
 // Summary returns a compact text summary of the session for debugging.

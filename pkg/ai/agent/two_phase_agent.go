@@ -4,13 +4,16 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
 	"github.com/dswcpp/lazygit/pkg/ai/tools"
 )
 
 const defaultMaxPlanSteps = 15
+const defaultStepTimeout = 30 * time.Second // 每个步骤的默认超时时间
 
 // toolAliases 工具名别名映射，用于容错常见的工具名错误
 var toolAliases = map[string]string{
@@ -140,10 +143,14 @@ type TwoPhaseAgent struct {
 	fullRegistry *tools.Registry // 完整注册表（执行阶段使用）
 	readRegistry *tools.Registry // 只读注册表（规划阶段使用）
 	session      *Session
+	tr           *aii18n.Translator  // i18n translator
 	maxPlanSteps int
+	stepTimeout  time.Duration // 每个步骤的超时时间
 	// planMessages 保存规划阶段的完整消息历史（含工具调用结果）。
 	// 在 replan 时直接追加用户反馈后继续循环，避免重复调用只读工具。
 	planMessages []provider.Message
+	// toolCallHistory 记录每个工具调用的次数，防止无限循环
+	toolCallHistory map[string]int
 }
 
 // NewTwoPhaseAgent 创建 TwoPhaseAgent。
@@ -154,13 +161,16 @@ func NewTwoPhaseAgent(
 	fullRegistry *tools.Registry,
 	readRegistry *tools.Registry,
 	session *Session,
+	tr *aii18n.Translator,
 ) *TwoPhaseAgent {
 	return &TwoPhaseAgent{
 		provider:     p,
 		fullRegistry: fullRegistry,
 		readRegistry: readRegistry,
 		session:      session,
+		tr:           tr,
 		maxPlanSteps: defaultMaxPlanSteps,
+		stepTimeout:  defaultStepTimeout,
 	}
 }
 
@@ -206,6 +216,7 @@ func (a *TwoPhaseAgent) startPlan(
 	// 重置状态
 	a.session.Reset()
 	a.planMessages = nil
+	a.toolCallHistory = make(map[string]int) // 重置工具调用历史
 	a.session.SetPhase(PhasePlanning)
 
 	// 构建规划阶段 system prompt（含工具列表）
@@ -216,7 +227,7 @@ func (a *TwoPhaseAgent) startPlan(
 
 	// 初始用户消息：仓库上下文 + 用户指令
 	initMsg := fmt.Sprintf("## 当前仓库状态\n\n%s\n\n## 用户指令\n\n%s",
-		repoCtx.CompactString(), userMsg)
+		repoCtx.CompactString(a.tr), userMsg)
 
 	a.session.AddUserMessage(initMsg)
 	if onUpdate != nil {
@@ -289,16 +300,52 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 			return ctx.Err()
 		}
 
-		result, err := a.provider.Complete(ctx, a.planMessages)
+		// 检查是否应该使用流式输出（当前没有工具调用历史时，可能是纯文本回复）
+		shouldStream := len(a.planMessages) > 1 && !a.hasRecentToolCalls()
+
+		var rawContent string
+		var err error
+
+		if shouldStream {
+			// 使用流式输出
+			rawContent, err = a.streamPlanResponse(ctx, onUpdate)
+		} else {
+			// 使用非流式输出（需要解析结构化内容）
+			result, completeErr := a.provider.Complete(ctx, a.planMessages)
+			err = completeErr
+			if err == nil {
+				rawContent = result.Content
+			}
+		}
+
 		if err != nil {
 			return err
 		}
 
-		rawContent := result.Content
-
 		// 检查是否输出了 plan 块
 		if parsed, ok := tools.ParsePlan(rawContent); ok {
 			plan := a.buildExecutionPlan(parsed)
+
+			// 验证计划的有效性
+			if errors := a.validatePlan(plan); len(errors) > 0 {
+				errMsg := "❌ 计划包含以下错误，请修正：\n\n"
+				for i, err := range errors {
+					errMsg += fmt.Sprintf("%d. %s\n", i+1, err)
+				}
+				errMsg += "\n请重新生成正确的执行计划。"
+
+				a.session.AddSystemNote("计划验证失败")
+				a.planMessages = append(a.planMessages, provider.Message{
+					Role:    provider.RoleUser,
+					Content: errMsg,
+				})
+
+				if onUpdate != nil {
+					onUpdate()
+				}
+				continue // 继续规划循环，让 AI 修正计划
+			}
+
 			a.session.SetPlan(plan)
 
 			// 展示 plan 块之外的自然语言说明（含提示用户输入 Y/N 的文字）
@@ -354,9 +401,32 @@ func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 				return ctx.Err()
 			}
 
+			// 检测重复调用，防止无限循环
+			callKey := fmt.Sprintf("%s:%v", call.Name, call.Params)
+			a.toolCallHistory[callKey]++
+
+			if a.toolCallHistory[callKey] > 3 {
+				// 同一个工具调用超过 3 次，给出警告
+				warnMsg := fmt.Sprintf(
+					"⚠️ 警告：工具 %s 已被调用 %d 次（参数相同）。\n"+
+						"请避免重复调用相同的工具。如果已收集足够信息，请直接输出 ```plan 块。",
+					call.Name, a.toolCallHistory[callKey])
+
+				a.session.AddSystemNote(warnMsg)
+				a.planMessages = append(a.planMessages, provider.Message{
+					Role:    provider.RoleUser,
+					Content: "[系统] " + warnMsg,
+				})
+
+				if onUpdate != nil {
+					onUpdate()
+				}
+				continue // 跳过这次调用
+			}
+
 			tool, ok := a.readRegistry.Get(call.Name)
 			if !ok {
-				errMsg := fmt.Sprintf("规划阶段不允许调用工具: %s", call.Name)
+				errMsg := a.tr.AgentToolNotAllowedInPlanning(call.Name)
 				a.session.AddSystemNote(errMsg)
 				a.planMessages = append(a.planMessages, provider.Message{
 					Role:    provider.RoleUser,
@@ -418,37 +488,62 @@ func (a *TwoPhaseAgent) execute(
 
 		tool, ok := a.fullRegistry.Get(toolName)
 		if !ok {
-			errMsg := fmt.Sprintf("未知工具: %s", step.ToolName)
-			// 如果是别名映射后仍然找不到，提供更友好的错误信息
-			if step.ToolName != toolName {
-				errMsg = fmt.Sprintf("未知工具: %s（已尝试映射为 %s）", step.ToolName, toolName)
-			}
+			errMsg := a.formatToolNotFoundError(step.ToolName, toolName)
 			a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
 			if onUpdate != nil {
 				onUpdate()
 			}
 			if step.Critical {
-				return fmt.Errorf("关键步骤失败: %s — %s", step.Description, errMsg)
+				return fmt.Errorf(a.tr.AgentCriticalStepFailed(step.Description, errMsg))
 			}
 			continue
 		}
+
+		// 为每个步骤创建带超时的 context
+		stepCtx, cancel := context.WithTimeout(ctx, a.stepTimeout)
 
 		call := tools.ToolCall{
 			ID:     fmt.Sprintf("exec_%s", step.ID),
 			Name:   toolName, // 使用映射后的工具名
 			Params: step.Params,
 		}
-		result := tool.Execute(ctx, call)
+
+		// 在 goroutine 中执行工具，支持超时
+		resultChan := make(chan tools.ToolResult, 1)
+		go func() {
+			resultChan <- tool.Execute(stepCtx, call)
+		}()
+
+		var result tools.ToolResult
+		select {
+		case result = <-resultChan:
+			cancel() // 正常完成，取消 context
+		case <-stepCtx.Done():
+			cancel()
+			if stepCtx.Err() == context.DeadlineExceeded {
+				errMsg := a.formatTimeoutError(step, a.stepTimeout)
+				a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
+				if onUpdate != nil {
+					onUpdate()
+				}
+				if step.Critical {
+					return fmt.Errorf("关键步骤超时: %s", step.Description)
+				}
+				continue
+			}
+			return stepCtx.Err()
+		}
 
 		if result.Success {
 			a.session.UpdateStepStatus(step.ID, StepDone, result.Output, "")
 		} else {
-			a.session.UpdateStepStatus(step.ID, StepFailed, "", result.Output)
+			errMsg := a.formatExecutionError(step, result.Output)
+			a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
 			if step.Critical {
 				if onUpdate != nil {
 					onUpdate()
 				}
-				return fmt.Errorf("关键步骤失败: %s — %s", step.Description, result.Output)
+				return fmt.Errorf(a.tr.AgentCriticalStepFailed(step.Description, errMsg))
 			}
 		}
 		if onUpdate != nil {
@@ -471,19 +566,116 @@ func (a *TwoPhaseAgent) execute(
 	return nil
 }
 
+// validatePlan 验证执行计划的有效性，返回错误列表。
+// 检查项：
+//   - 工具名是否存在（考虑别名映射）
+//   - 必需参数是否提供
+//   - 参数类型是否正确
+func (a *TwoPhaseAgent) validatePlan(plan *ExecutionPlan) []string {
+	var errors []string
+
+	for _, step := range plan.Steps {
+		toolName := step.ToolName
+
+		// 检查别名映射
+		if alias, ok := toolAliases[toolName]; ok {
+			toolName = alias
+		}
+
+		// 检查工具是否存在
+		tool, ok := a.fullRegistry.Get(toolName)
+		if !ok {
+			errors = append(errors, fmt.Sprintf(
+				"步骤 %s: 未知工具 '%s'（请使用工具列表中的准确名称）",
+				step.ID, step.ToolName))
+			continue
+		}
+
+		// 验证参数
+		if err := a.validateStepParams(step, tool); err != nil {
+			errors = append(errors, fmt.Sprintf(
+				"步骤 %s (%s): %s",
+				step.ID, step.ToolName, err.Error()))
+		}
+	}
+
+	return errors
+}
+
+// validateStepParams 验证步骤参数是否符合工具的 schema。
+func (a *TwoPhaseAgent) validateStepParams(step *PlanStep, tool tools.Tool) error {
+	schema := tool.Schema()
+
+	// 检查必需参数
+	for paramName, paramSchema := range schema.Params {
+		if !paramSchema.Required {
+			continue
+		}
+
+		value, ok := step.Params[paramName]
+		if !ok || value == nil {
+			return fmt.Errorf("缺少必需参数: %s", paramName)
+		}
+
+		// 检查空字符串
+		if paramSchema.Type == "string" {
+			if str, ok := value.(string); ok && strings.TrimSpace(str) == "" {
+				return fmt.Errorf("参数 %s 不能为空", paramName)
+			}
+		}
+
+		// 验证类型
+		if err := validateParamType(paramName, value, paramSchema.Type); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// validateParamType 验证参数类型是否匹配。
+func validateParamType(paramName string, value any, expectedType string) error {
+	switch expectedType {
+	case "string":
+		if _, ok := value.(string); !ok {
+			return fmt.Errorf("参数 %s 类型错误：期望 string，实际 %T", paramName, value)
+		}
+	case "int":
+		switch value.(type) {
+		case int, int64, float64:
+			// JSON 解析可能产生 float64，需要兼容
+		default:
+			return fmt.Errorf("参数 %s 类型错误：期望 int，实际 %T", paramName, value)
+		}
+	case "bool":
+		if _, ok := value.(bool); !ok {
+			return fmt.Errorf("参数 %s 类型错误：期望 bool，实际 %T", paramName, value)
+		}
+	}
+	return nil
+}
+
 // buildExecutionPlan 将 tools.ParsedPlan 转换为 ExecutionPlan，
 // 同时从工具注册表中查询每个步骤的权限级别。
 func (a *TwoPhaseAgent) buildExecutionPlan(parsed tools.ParsedPlan) *ExecutionPlan {
 	steps := make([]*PlanStep, 0, len(parsed.Steps))
 	for _, s := range parsed.Steps {
 		perm := tools.PermReadOnly
-		if tool, ok := a.fullRegistry.Get(s.ToolName); ok {
+		toolName := s.ToolName
+
+		// 应用别名映射
+		if alias, ok := toolAliases[toolName]; ok {
+			toolName = alias
+		}
+
+		if tool, ok := a.fullRegistry.Get(toolName); ok {
 			perm = tool.Schema().Permission
 		}
+
 		steps = append(steps, &PlanStep{
 			ID:          s.ID,
 			Description: s.Description,
-			ToolName:    s.ToolName,
+			ToolName:    s.ToolName, // 保留原始名称，执行时再映射
 			Params:      s.Params,
 			Permission:  perm,
 			Critical:    s.Critical,
@@ -506,3 +698,198 @@ func (a *TwoPhaseAgent) defaultConfirmPrompt(plan *ExecutionPlan) string {
 	sb.WriteString("\n输入 **Y** 确认执行，**N** 取消，或直接输入补充说明来调整计划。")
 	return sb.String()
 }
+
+// formatToolNotFoundError 格式化工具未找到错误，提供友好的错误信息和建议。
+func (a *TwoPhaseAgent) formatToolNotFoundError(originalName, mappedName string) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("❌ 未知工具: %s", originalName))
+
+	if originalName != mappedName {
+		sb.WriteString(fmt.Sprintf("（已尝试映射为 %s）", mappedName))
+	}
+
+	sb.WriteString("\n\n💡 可能的原因：")
+	sb.WriteString("\n  • 工具名拼写错误")
+	sb.WriteString("\n  • 该工具不存在于当前注册表中")
+
+	// 提供相似工具建议
+	if suggestions := a.findSimilarTools(originalName); len(suggestions) > 0 {
+		sb.WriteString("\n\n📝 您是否想使用以下工具？")
+		for _, s := range suggestions {
+			sb.WriteString(fmt.Sprintf("\n  • %s", s))
+		}
+	}
+
+	return sb.String()
+}
+
+// formatTimeoutError 格式化超时错误，提供友好的错误信息和建议。
+func (a *TwoPhaseAgent) formatTimeoutError(step *PlanStep, timeout time.Duration) string {
+	var sb strings.Builder
+	sb.WriteString(a.tr.AgentStepTimeout(timeout.String(), step.Description))
+	sb.WriteString(a.tr.AgentPossibleReasons())
+	sb.WriteString("\n  • 操作耗时过长（如大文件处理）")
+	sb.WriteString("\n  • 网络请求超时")
+	sb.WriteString("\n  • 工具内部阻塞")
+	sb.WriteString("\n\n🔧 建议：")
+	sb.WriteString("\n  • 检查网络连接")
+	sb.WriteString("\n  • 减小操作范围")
+	sb.WriteString("\n  • 重试该操作")
+	return sb.String()
+}
+
+// formatExecutionError 格式化执行错误，提供友好的错误信息和恢复建议。
+func (a *TwoPhaseAgent) formatExecutionError(step *PlanStep, rawError string) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("❌ 执行失败: %s", step.Description))
+	sb.WriteString(fmt.Sprintf("\n\n错误详情：\n%s", rawError))
+
+	// 根据工具类型提供特定建议
+	suggestions := a.getRecoverySuggestions(step.ToolName, rawError)
+	if len(suggestions) > 0 {
+		sb.WriteString("\n\n🔧 恢复建议：")
+		for _, s := range suggestions {
+			sb.WriteString(fmt.Sprintf("\n  • %s", s))
+		}
+	}
+
+	return sb.String()
+}
+
+// findSimilarTools 查找与给定名称相似的工具（简单的前缀匹配）。
+func (a *TwoPhaseAgent) findSimilarTools(name string) []string {
+	var similar []string
+	lowerName := strings.ToLower(name)
+
+	// 遍历所有工具，查找相似的
+	allTools := a.fullRegistry.All()
+	for _, tool := range allTools {
+		toolName := tool.Schema().Name
+		lowerToolName := strings.ToLower(toolName)
+
+		// 前缀匹配或包含关系
+		if strings.HasPrefix(lowerToolName, lowerName) ||
+			strings.HasPrefix(lowerName, lowerToolName) ||
+			strings.Contains(lowerToolName, lowerName) {
+			similar = append(similar, toolName)
+		}
+	}
+
+	// 最多返回 3 个建议
+	if len(similar) > 3 {
+		similar = similar[:3]
+	}
+
+	return similar
+}
+
+// getRecoverySuggestions 根据工具类型和错误信息提供恢复建议。
+func (a *TwoPhaseAgent) getRecoverySuggestions(toolName, errorMsg string) []string {
+	var suggestions []string
+	lowerError := strings.ToLower(errorMsg)
+
+	// 通用建议
+	if strings.Contains(lowerError, "permission") || strings.Contains(lowerError, "权限") {
+		suggestions = append(suggestions, "检查文件或目录权限")
+	}
+
+	if strings.Contains(lowerError, "not found") || strings.Contains(lowerError, "找不到") {
+		suggestions = append(suggestions, "确认文件或分支存在")
+	}
+
+	if strings.Contains(lowerError, "conflict") || strings.Contains(lowerError, "冲突") {
+		suggestions = append(suggestions, "解决冲突后重试")
+	}
+
+	// 工具特定建议
+	switch toolName {
+	case "commit", "git_commit":
+		if strings.Contains(lowerError, "nothing to commit") {
+			suggestions = append(suggestions, "先暂存文件（stage_all 或 stage_file）")
+		}
+		if strings.Contains(lowerError, "message") {
+			suggestions = append(suggestions, "提供有效的提交信息")
+		}
+
+	case "checkout", "switch":
+		if strings.Contains(lowerError, "uncommitted changes") ||
+			strings.Contains(lowerError, "would be overwritten") ||
+			strings.Contains(lowerError, "local changes") {
+			suggestions = append(suggestions, "先提交或暂存当前修改")
+		}
+
+	case "push":
+		if strings.Contains(lowerError, "rejected") ||
+			strings.Contains(lowerError, "failed to push") {
+			suggestions = append(suggestions, "先拉取远程更新（pull）")
+		}
+		if strings.Contains(lowerError, "no upstream") {
+			suggestions = append(suggestions, "设置上游分支")
+		}
+
+	case "merge":
+		if strings.Contains(lowerError, "conflict") {
+			suggestions = append(suggestions, "手动解决冲突后继续")
+		}
+	}
+
+	// 如果没有特定建议，提供通用建议
+	if len(suggestions) == 0 {
+		suggestions = append(suggestions, "检查操作参数是否正确")
+		suggestions = append(suggestions, "查看完整错误信息")
+	}
+
+	return suggestions
+}
+
+// hasRecentToolCalls 检查最近是否有工具调用（用于判断是否应该流式输出）。
+// 如果最近的消息包含工具调用，说明可能需要解析结构化内容，不适合流式。
+func (a *TwoPhaseAgent) hasRecentToolCalls() bool {
+	if len(a.planMessages) < 2 {
+		return false
+	}
+	// 检查最后一条消息是否包含工具调用标记
+	lastMsg := a.planMessages[len(a.planMessages)-1]
+	return strings.Contains(lastMsg.Content, "[工具结果")
+}
+
+// streamPlanResponse 使用流式输出获取 LLM 响应。
+// 适用于纯文本回复场景（无需解析 plan/tool 块）。
+func (a *TwoPhaseAgent) streamPlanResponse(ctx context.Context, onUpdate func()) (string, error) {
+	a.session.StartStreamingMessage()
+
+	// 节流控制：避免过于频繁的 UI 刷新
+	lastUpdateTime := time.Now()
+	updateInterval := 50 * time.Millisecond // 每 50ms 最多刷新一次
+
+	var fullContent strings.Builder
+
+	err := a.provider.CompleteStream(ctx, a.planMessages, func(chunk string) {
+		fullContent.WriteString(chunk)
+		a.session.AppendToStreamingMessage(chunk)
+
+		// 节流刷新
+		now := time.Now()
+		if now.Sub(lastUpdateTime) >= updateInterval {
+			if onUpdate != nil {
+				onUpdate()
+			}
+			lastUpdateTime = now
+		}
+	})
+
+	// 完成流式输出
+	a.session.FinishStreamingMessage()
+
+	// 最后一次刷新，确保显示完整内容
+	if onUpdate != nil {
+		onUpdate()
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	return fullContent.String(), nil
+}
+

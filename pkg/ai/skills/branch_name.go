@@ -21,7 +21,7 @@ func (s *BranchNameSkill) Execute(ctx context.Context, p provider.Provider, inpu
 	diff := extraStr(input.Extra, "diff")
 
 	var sb strings.Builder
-	sb.WriteString("根据以下工作区变更，为新分支推荐一个名称。\n\n")
+	sb.WriteString(input.Tr.SkillBranchNamePromptIntro())
 
 	// Files summary from context
 	staged := []string{}
@@ -35,20 +35,20 @@ func (s *BranchNameSkill) Execute(ctx context.Context, p provider.Provider, inpu
 	}
 
 	if len(staged) > 0 {
-		sb.WriteString("已暂存文件:\n")
+		sb.WriteString(input.Tr.SkillBranchNameStagedFiles())
 		for i, f := range staged {
 			if i >= 15 {
-				sb.WriteString(fmt.Sprintf("  ... 还有 %d 个\n", len(staged)-15))
+				sb.WriteString(input.Tr.SkillBranchNameMoreFiles(len(staged) - 15))
 				break
 			}
 			sb.WriteString(fmt.Sprintf("  - %s\n", f))
 		}
 	}
 	if len(unstaged) > 0 {
-		sb.WriteString("未暂存文件:\n")
+		sb.WriteString(input.Tr.SkillBranchNameUnstagedFiles())
 		for i, f := range unstaged {
 			if i >= 15 {
-				sb.WriteString(fmt.Sprintf("  ... 还有 %d 个\n", len(unstaged)-15))
+				sb.WriteString(input.Tr.SkillBranchNameMoreFiles(len(unstaged) - 15))
 				break
 			}
 			sb.WriteString(fmt.Sprintf("  - %s\n", f))
@@ -56,19 +56,19 @@ func (s *BranchNameSkill) Execute(ctx context.Context, p provider.Provider, inpu
 	}
 
 	if diff != "" {
-		sb.WriteString("\nDiff 摘要:\n```diff\n")
+		sb.WriteString(input.Tr.SkillBranchNameDiffSummaryTitle())
 		sb.WriteString(diff)
 		sb.WriteString("\n```\n")
 	}
 
-	sb.WriteString("\n命名规则:\n")
-	sb.WriteString("- 格式: <type>/<description>（如 feature/add-user-auth）\n")
-	sb.WriteString("- type: feature | fix | refactor | docs | test | chore\n")
-	sb.WriteString("- description: 小写 kebab-case，2-5 个单词\n")
-	sb.WriteString("- 只输出分支名，不要任何解释\n")
+	sb.WriteString(input.Tr.SkillBranchNameRules())
+	sb.WriteString(input.Tr.SkillBranchNameFormatRule())
+	sb.WriteString(input.Tr.SkillBranchNameTypeRule())
+	sb.WriteString(input.Tr.SkillBranchNameDescRule())
+	sb.WriteString(input.Tr.SkillBranchNameOutputRule())
 
 	messages := []provider.Message{
-		{Role: provider.RoleSystem, Content: "你是一个 Git 分支命名专家。根据变更内容推荐简洁、描述性强的分支名。只输出分支名本身。"},
+		{Role: provider.RoleSystem, Content: input.Tr.SkillBranchNameSystemPrompt()},
 		{Role: provider.RoleUser, Content: sb.String()},
 	}
 

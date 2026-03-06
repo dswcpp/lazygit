@@ -27,10 +27,10 @@ func (t *CommitTool) Schema() tools.ToolSchema {
 func (t *CommitTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	msg := strParam(call.Params, "message", "")
 	if msg == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 message 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingMessageParam()}
 	}
 	if err := t.d.Commit.CommitCmdObj(msg, "", false).Run(); err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("提交失败: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("Failed to commit: %v", err)}
 	}
 	t.d.Refresh(ScopeFiles, ScopeCommits)
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("提交成功: \"%s\"", msg)}
@@ -46,7 +46,7 @@ func (t *AmendHeadTool) Schema() tools.ToolSchema {
 		Name:        "amend_head",
 		Description: "修改最近一次提交的信息（git commit --amend）",
 		Params: map[string]tools.ParamSchema{
-			"message": {Type: "string", Description: "新的提交信息", Required: true},
+			"message": {Type: "string", Description: "New commit message", Required: true},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -55,7 +55,7 @@ func (t *AmendHeadTool) Schema() tools.ToolSchema {
 func (t *AmendHeadTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	msg := strParam(call.Params, "message", "")
 	if msg == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 message 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingMessageParam()}
 	}
 	if err := t.d.Commit.RewordLastCommit(msg, "").Run(); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("修改提交信息失败: %v", err)}
@@ -83,7 +83,7 @@ func (t *RevertCommitTool) Schema() tools.ToolSchema {
 func (t *RevertCommitTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	hash := strParam(call.Params, "hash", "")
 	if hash == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 hash 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingHashParam()}
 	}
 	if err := t.d.Commit.Revert([]string{hash}, false); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("revert 失败: %v", err)}
@@ -102,8 +102,8 @@ func (t *ResetSoftTool) Schema() tools.ToolSchema {
 		Name:        "reset_soft",
 		Description: "git reset --soft（保留变更到暂存区）",
 		Params: map[string]tools.ParamSchema{
-			"ref":   {Type: "string", Description: "目标 ref 或 hash（优先）"},
-			"steps": {Type: "int", Description: "回退步数（ref 为空时使用，默认 1）"},
+			"ref":   {Type: "string", Description: t.d.Tr.ToolTargetRefOrHash()},
+			"steps": {Type: "int", Description: t.d.Tr.ToolResetSteps()},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -135,8 +135,8 @@ func (t *ResetMixedTool) Schema() tools.ToolSchema {
 		Name:        "reset_mixed",
 		Description: "git reset --mixed（保留变更到工作区，不暂存）",
 		Params: map[string]tools.ParamSchema{
-			"ref":   {Type: "string", Description: "目标 ref 或 hash（优先）"},
-			"steps": {Type: "int", Description: "回退步数（ref 为空时使用，默认 1）"},
+			"ref":   {Type: "string", Description: t.d.Tr.ToolTargetRefOrHash()},
+			"steps": {Type: "int", Description: t.d.Tr.ToolResetSteps()},
 		},
 		Permission: tools.PermWriteLocal,
 	}
@@ -177,7 +177,7 @@ func (t *CherryPickTool) Schema() tools.ToolSchema {
 func (t *CherryPickTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	hash := strParam(call.Params, "hash", "")
 	if hash == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 hash 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingHashParam()}
 	}
 	commit := models.NewCommit(t.d.GetHashPool(), models.NewCommitOpts{Hash: hash})
 	if err := t.d.Rebase.CherryPickCommits([]*models.Commit{commit}); err != nil {

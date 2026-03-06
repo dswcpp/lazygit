@@ -19,7 +19,7 @@ func (gui *Gui) TestMessageBoxError() error {
 // TestMessageBoxWarning 测试警告消息框
 func (gui *Gui) TestMessageBoxWarning() error {
 	gui.ShowWarning(
-		"警告",
+		gui.c.Tr.AIWarning,
 		"你即将强制推送到远程分支 'main'，这将覆盖远程仓库的历史记录！",
 		"此操作不可撤销，请谨慎操作。",
 	)
@@ -78,8 +78,8 @@ func (gui *Gui) TestMessageBoxCustomButtons() error {
 	gui.ShowMessageBox(MessageBoxConfig{
 		Type:    MessageTypeQuestion,
 		Title:   "选择操作",
-		Message: "检测到未提交的更改，如何处理？",
-		Buttons: []string{"暂存", "丢弃", "取消"},
+		Message: gui.c.Tr.AIChatUncommittedChanges,
+		Buttons: []string{"暂存", "丢弃", gui.c.Tr.AICancel},
 	}, func(buttonIndex int) {
 		switch buttonIndex {
 		case 0:
@@ -129,9 +129,9 @@ func (gui *Gui) TestMessageBoxAllTypes() error {
 		message string
 	}{
 		{MessageTypeInfo, "信息", "这是一条信息消息"},
-		{MessageTypeSuccess, "成功", "操作已成功完成"},
-		{MessageTypeWarning, "警告", "请注意这个警告信息"},
-		{MessageTypeError, "错误", "发生了一个错误"},
+		{MessageTypeSuccess, gui.c.Tr.AISuccess, "操作已成功完成"},
+		{MessageTypeWarning, gui.c.Tr.AIWarning, "请注意这个警告信息"},
+		{MessageTypeError, gui.c.Tr.AIError, "发生了一个错误"},
 		{MessageTypeQuestion, "问题", "你确定要继续吗？"},
 	}
 
@@ -141,7 +141,7 @@ func (gui *Gui) TestMessageBoxAllTypes() error {
 			Type:    t.msgType,
 			Title:   t.title,
 			Message: t.message,
-			Buttons: []string{"确定"},
+			Buttons: []string{gui.c.Tr.AIOK},
 		}, nil)
 		time.Sleep(2 * time.Second)
 	}
@@ -166,7 +166,7 @@ func (gui *Gui) confirmForcePush(branch string) {
 		Type:    MessageTypeWarning,
 		Title:   "确认强制推送",
 		Message: "你即将强制推送到远程分支 '" + branch + "'，这将覆盖远程仓库的历史记录！此操作不可撤销。",
-		Buttons: []string{"确认", "取消"},
+		Buttons: []string{gui.c.Tr.AIConfirm, gui.c.Tr.AICancel},
 	}, func(buttonIndex int) {
 		if buttonIndex == 0 {
 			// 执行强制推送
@@ -194,17 +194,17 @@ func (gui *Gui) confirmDeleteBranch(branch string, hasRemote bool) {
 
 // showMergeConflict 显示合并冲突
 func (gui *Gui) showMergeConflict(conflictFiles []string) {
-	details := "冲突文件:\n"
+	details := gui.c.Tr.AIChatConflictFiles
 	for _, file := range conflictFiles {
 		details += "  - " + file + "\n"
 	}
 
 	gui.ShowMessageBox(MessageBoxConfig{
 		Type:    MessageTypeWarning,
-		Title:   "合并冲突",
+		Title:   gui.c.Tr.AIChatMergeConflict,
 		Message: "合并过程中发现冲突，请解决冲突后再提交。",
 		Details: details,
-		Buttons: []string{"解决冲突", "中止合并"},
+		Buttons: []string{gui.c.Tr.AIChatResolveConflict, gui.c.Tr.AIChatAbortMerge},
 	}, func(buttonIndex int) {
 		if buttonIndex == 0 {
 			// 打开冲突解决界面
@@ -221,8 +221,8 @@ func (gui *Gui) showStashOptions() {
 	gui.ShowMessageBox(MessageBoxConfig{
 		Type:    MessageTypeQuestion,
 		Title:   "未提交的更改",
-		Message: "检测到未提交的更改，如何处理？",
-		Buttons: []string{"暂存", "丢弃", "取消"},
+		Message: gui.c.Tr.AIChatUncommittedChanges,
+		Buttons: []string{"暂存", "丢弃", gui.c.Tr.AICancel},
 	}, func(buttonIndex int) {
 		switch buttonIndex {
 		case 0:
@@ -243,7 +243,7 @@ func (gui *Gui) showStashOptions() {
 func (gui *Gui) showOperationSuccess(operation, details string) {
 	gui.ShowAutoCloseMessage(
 		MessageTypeSuccess,
-		operation+"成功",
+		operation+gui.c.Tr.AISuccess,
 		details,
 		2*time.Second,
 	)

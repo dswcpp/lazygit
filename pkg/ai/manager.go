@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dswcpp/lazygit/pkg/ai/agent"
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
 	"github.com/dswcpp/lazygit/pkg/ai/skills"
@@ -23,6 +24,7 @@ type Manager struct {
 	registry   *tools.Registry
 	ctxBuilder repocontext.Builder
 	skillMap   map[string]skills.Skill
+	tr         *aii18n.Translator
 }
 
 // agentSystemPrompt is the default system prompt for the chat agent.
@@ -53,7 +55,7 @@ const agentSystemPrompt = `你是 lazygit 的内置 AI Agent，可以直接操�
 
 // NewManager creates a Manager from the user's active AI profile.
 // Returns nil, nil when AI is disabled or no active profile is configured.
-func NewManager(cfg config.AIConfig, ctxBuilder repocontext.Builder) (*Manager, error) {
+func NewManager(cfg config.AIConfig, ctxBuilder repocontext.Builder, tr *aii18n.Translator) (*Manager, error) {
 	prov, err := provider.NewFromConfig(cfg)
 	if err != nil {
 		return nil, err
@@ -66,6 +68,7 @@ func NewManager(cfg config.AIConfig, ctxBuilder repocontext.Builder) (*Manager, 
 		registry:   tools.NewRegistry(),
 		ctxBuilder: ctxBuilder,
 		skillMap:   make(map[string]skills.Skill),
+		tr:         tr,
 	}
 	// Register built-in skills
 	for _, sk := range []skills.Skill{
@@ -86,6 +89,9 @@ func (m *Manager) Provider() provider.Provider { return m.prov }
 // Registry returns the tool registry.
 // The GUI layer registers git tools here during initialisation.
 func (m *Manager) Registry() *tools.Registry { return m.registry }
+
+// Translator returns the translator for i18n.
+func (m *Manager) Translator() *aii18n.Translator { return m.tr }
 
 // SetContextBuilder injects the repository context builder.
 // Called by the GUI layer after the Manager is created, once the GUI model is available.
@@ -127,7 +133,7 @@ func (m *Manager) NewAgent(systemPrompt string, confirmFn agent.ConfirmFunc) *ag
 		systemPrompt += "\n\n" + toolSection
 	}
 	session := agent.NewSession(systemPrompt)
-	return agent.NewAgent(m.prov, m.registry, session, confirmFn)
+	return agent.NewAgent(m.prov, m.registry, session, confirmFn, m.tr)
 }
 
 // NewTwoPhaseAgent 创建两阶段 Agent（规划 → 聊天确认 → 执行）。
@@ -148,7 +154,7 @@ func (m *Manager) NewTwoPhaseAgent(skillTools []tools.Tool) *agent.TwoPhaseAgent
 	}
 
 	session := agent.NewSession("") // TwoPhaseAgent 使用自己的 system prompt，此处留空
-	return agent.NewTwoPhaseAgent(m.prov, m.registry, readReg, session)
+	return agent.NewTwoPhaseAgent(m.prov, m.registry, readReg, session, m.tr)
 }
 
 // DefaultSkillTools 从已注册的 Skill 构建默认 SkillTool 列表，

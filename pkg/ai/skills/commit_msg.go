@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 )
 
@@ -31,8 +32,8 @@ func (s *CommitMsgSkill) Execute(ctx context.Context, p provider.Provider, input
 	safetyNote := extraStr(input.Extra, "safety_note")
 	scenario := detectChangeScenario(diff)
 
-	systemPrompt := commitMsgSystemPrompt()
-	userPrompt := buildCommitMsgUserPrompt(diff, input.RepoCtx.CurrentBranch, projectType, scenario, safetyNote)
+	systemPrompt := input.Tr.SkillCommitMsgSystemPrompt()
+	userPrompt := buildCommitMsgUserPrompt(input.Tr, diff, input.RepoCtx.CurrentBranch, projectType, scenario, safetyNote)
 
 	messages := []provider.Message{
 		{Role: provider.RoleSystem, Content: systemPrompt},
@@ -52,26 +53,19 @@ func (s *CommitMsgSkill) Execute(ctx context.Context, p provider.Provider, input
 
 // ── prompt builders ────────────────────────────────────────────────────────
 
-func commitMsgSystemPrompt() string {
-	return `你是一名经验丰富的软件工程师，专门负责撰写高质量的 Git 提交信息。
-遵循 Conventional Commits 规范（https://www.conventionalcommits.org/）。
-只输出提交信息本身，不要任何额外说明、前缀或引号。
-提交信息（subject 和 body）必须使用中文。`
-}
-
-func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote string) string {
+func buildCommitMsgUserPrompt(tr *aii18n.Translator, diff, branch, projectType, scenario, safetyNote string) string {
 	var sb strings.Builder
 
-	sb.WriteString("## 仓库背景\n")
+	sb.WriteString(tr.SkillRepoBackground())
 	if branch != "" {
-		sb.WriteString(fmt.Sprintf("当前分支: %s\n", branch))
+		sb.WriteString(tr.SkillCurrentBranch(branch))
 	}
 	if projectType != "" && projectType != "Mixed" {
 		sb.WriteString(fmt.Sprintf("项目类型: %s\n", projectType))
 	}
 	sb.WriteString("\n")
 
-	sb.WriteString("## 代码变更\n")
+	sb.WriteString(tr.SkillCodeChangesSection())
 	sb.WriteString("```diff\n")
 	sb.WriteString(diff)
 	if safetyNote != "" {
@@ -79,32 +73,26 @@ func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote st
 	}
 	sb.WriteString("\n```\n\n")
 
-	sb.WriteString("## 输出规则\n")
-	sb.WriteString("- 格式:\n")
-	sb.WriteString("  ```\n")
-	sb.WriteString("  <type>(<scope>): <subject>\n")
-	sb.WriteString("  \n")
-	sb.WriteString("  <body>\n")
-	sb.WriteString("  ```\n")
-	sb.WriteString("- type: feat | fix | refactor | docs | test | chore | perf | style | ci | revert\n")
-	sb.WriteString("- subject: 中文，动词开头，祈使句，不超过 72 字符\n")
-	sb.WriteString("- scope 可省略\n")
-	sb.WriteString("- body: 必须包含，与 subject 之间空一行，用中文说明本次变更的原因和主要内容（1-4 行）\n\n")
+	sb.WriteString(tr.SkillOutputRules())
+	sb.WriteString(tr.SkillFormatExample())
+	sb.WriteString(tr.SkillTypeList())
+	sb.WriteString(tr.SkillSubjectRules())
+	sb.WriteString(tr.SkillScopeOptional())
+	sb.WriteString(tr.SkillBodyRequired())
 
 	switch scenario {
 	case "bugfix":
-		sb.WriteString("场景提示: 这是一个 bug 修复，优先使用 fix 类型。\n")
+		sb.WriteString(tr.SkillScenarioBugfix())
 	case "refactor":
-		sb.WriteString("场景提示: 这是重构，优先使用 refactor 类型。\n")
+		sb.WriteString(tr.SkillScenarioRefactor())
 	case "docs":
-		sb.WriteString("场景提示: 这是文档更新，使用 docs 类型。\n")
+		sb.WriteString(tr.SkillScenarioDocs())
 	case "test":
-		sb.WriteString("场景提示: 这是测试相关变更，使用 test 类型。\n")
-	case "large":
-		sb.WriteString("场景提示: 变更较大，body 须逐点列举主要变更，subject 保持简洁。\n")
+		sb.WriteString(tr.SkillScenarioTest())
+	default:
+		sb.WriteString(tr.SkillScenarioDefault())
 	}
 
-	sb.WriteString("\n请直接输出提交信息：")
 	return sb.String()
 }
 

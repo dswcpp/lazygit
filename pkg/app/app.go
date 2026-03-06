@@ -15,6 +15,7 @@ import (
 
 	appTypes "github.com/dswcpp/lazygit/pkg/app/types"
 	"github.com/dswcpp/lazygit/pkg/ai"
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
 	"github.com/dswcpp/lazygit/pkg/commands/oscommands"
 	"github.com/dswcpp/lazygit/pkg/common"
@@ -71,7 +72,8 @@ func NewCommon(config config.AppConfigurer) (*common.Common, error) {
 
 	// Manager is created without a context builder; the GUI layer injects one
 	// via AIManager.SetContextBuilder() once the GUI model is available.
-	aiManager, err := ai.NewManager(userConfig.AI, nil)
+	aiTr := aii18n.NewTranslator(tr)
+	aiManager, err := ai.NewManager(userConfig.AI, nil, aiTr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize AI manager: %w", err)
 	}

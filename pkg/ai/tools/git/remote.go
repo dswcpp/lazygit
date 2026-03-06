@@ -47,7 +47,7 @@ func (t *PushTool) Schema() tools.ToolSchema {
 func (t *PushTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	cmdObj, err := t.d.Sync.PushCmdObj(nil, git_commands.PushOpts{})
 	if err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("push 配置错误: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolPushConfigError(err)}
 	}
 	if err := cmdObj.Run(); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("push 失败: %v（请确认远程配置和认证）", err)}
@@ -73,7 +73,7 @@ func (t *PushForceTool) Schema() tools.ToolSchema {
 func (t *PushForceTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	cmdObj, err := t.d.Sync.PushCmdObj(nil, git_commands.PushOpts{ForceWithLease: true})
 	if err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("push 配置错误: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolPushConfigError(err)}
 	}
 	if err := cmdObj.Run(); err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("force push 失败: %v", err)}

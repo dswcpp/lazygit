@@ -67,7 +67,7 @@ func (e *CompletionEngine) completeMainCommand(partial string) []Completion {
 		if strings.HasPrefix(cmd, partial) {
 			completions = append(completions, Completion{
 				Text:        cmd,
-				Description: getCommandDescription(cmd),
+				Description: e.getCommandDescription(cmd),
 				Type:        "command",
 				Priority:    10,
 			})
@@ -85,7 +85,7 @@ func (e *CompletionEngine) completeGitSubcommand(partial string) []Completion {
 		if strings.HasPrefix(subcmd, partial) {
 			completions = append(completions, Completion{
 				Text:        subcmd,
-				Description: getGitSubcommandDescription(subcmd),
+				Description: e.getGitSubcommandDescription(subcmd),
 				Type:        "command",
 				Priority:    getPriorityForSubcommand(subcmd),
 			})
@@ -152,7 +152,7 @@ func (e *CompletionEngine) completeFlags(subcommand string, partial string) []Co
 		if strings.HasPrefix(flag, partial) {
 			completions = append(completions, Completion{
 				Text:        flag,
-				Description: getFlagDescription(subcommand, flag),
+				Description: e.getFlagDescription(subcommand, flag),
 				Type:        "flag",
 				Priority:    8,
 			})
@@ -171,7 +171,7 @@ func (e *CompletionEngine) completeBranches(partial string) []Completion {
 		if strings.HasPrefix(branch.Name, partial) || partial == "" {
 			completions = append(completions, Completion{
 				Text:        branch.Name,
-				Description: "分支",
+				Description: e.c.Tr.CompletionBranch,
 				Type:        "branch",
 				Priority:    9,
 			})
@@ -191,7 +191,7 @@ func (e *CompletionEngine) completeRemotesAndBranches(partial string) []Completi
 		if strings.HasPrefix(remote.Name, partial) || partial == "" {
 			completions = append(completions, Completion{
 				Text:        remote.Name,
-				Description: "远程仓库",
+				Description: e.c.Tr.CompletionRemote,
 				Type:        "remote",
 				Priority:    9,
 			})
@@ -214,7 +214,7 @@ func (e *CompletionEngine) completeCommitRefs(partial string) []Completion {
 		if strings.HasPrefix(ref, partial) || partial == "" {
 			completions = append(completions, Completion{
 				Text:        ref,
-				Description: "提交引用",
+				Description: e.c.Tr.CompletionCommitRef,
 				Type:        "ref",
 				Priority:    10,
 			})
@@ -251,7 +251,7 @@ func (e *CompletionEngine) completeTags(partial string) []Completion {
 		if strings.HasPrefix(tag.Name, partial) || partial == "" {
 			completions = append(completions, Completion{
 				Text:        tag.Name,
-				Description: "标签",
+				Description: e.c.Tr.CompletionTag,
 				Type:        "tag",
 				Priority:    8,
 			})
@@ -270,7 +270,7 @@ func (e *CompletionEngine) completeFiles(partial string) []Completion {
 		if strings.HasPrefix(file.Path, partial) || partial == "" {
 			completions = append(completions, Completion{
 				Text:        file.Path,
-				Description: getFileStatusDescription(file),
+				Description: e.getFileStatusDescription(file),
 				Type:        "file",
 				Priority:    7,
 			})
@@ -357,47 +357,47 @@ func GetGitFlagCompletions() map[string][]string {
 
 // Helper functions for descriptions
 
-func getCommandDescription(cmd string) string {
+func (e *CompletionEngine) getCommandDescription(cmd string) string {
 	descriptions := map[string]string{
-		"git":  "版本控制系统",
-		"cd":   "切换目录",
-		"ls":   "列出文件",
-		"pwd":  "显示当前目录",
-		"cat":  "显示文件内容",
-		"grep": "搜索文本",
-		"find": "查找文件",
+		"git":  e.c.Tr.CompletionGitDesc,
+		"cd":   e.c.Tr.CompletionCdDesc,
+		"ls":   e.c.Tr.CompletionLsDesc,
+		"pwd":  e.c.Tr.CompletionPwdDesc,
+		"cat":  e.c.Tr.CompletionCatDesc,
+		"grep": e.c.Tr.CompletionGrepDesc,
+		"find": e.c.Tr.CompletionFindDesc,
 	}
 	return descriptions[cmd]
 }
 
-func getGitSubcommandDescription(subcmd string) string {
+func (e *CompletionEngine) getGitSubcommandDescription(subcmd string) string {
 	descriptions := map[string]string{
-		"add":         "添加文件到暂存区",
-		"commit":      "提交更改",
-		"push":        "推送到远程",
-		"pull":        "从远程拉取",
-		"checkout":    "切换分支",
-		"switch":      "切换分支（新）",
-		"branch":      "管理分支",
-		"merge":       "合并分支",
-		"rebase":      "变基",
-		"reset":       "重置提交",
-		"revert":      "反转提交",
-		"stash":       "暂存工作区",
-		"log":         "查看提交历史",
-		"diff":        "查看差异",
-		"status":      "查看状态",
-		"tag":         "管理标签",
-		"fetch":       "获取远程更新",
-		"clone":       "克隆仓库",
-		"init":        "初始化仓库",
-		"clean":       "清理未跟踪文件",
-		"cherry-pick": "挑选提交",
-		"show":        "显示提交详情",
-		"rm":          "删除文件",
-		"mv":          "移动文件",
-		"grep":        "搜索内容",
-		"bisect":      "二分查找问题提交",
+		"add":         e.c.Tr.CompletionGitAddDesc,
+		"commit":      e.c.Tr.CompletionGitCommitDesc,
+		"push":        e.c.Tr.CompletionGitPushDesc,
+		"pull":        e.c.Tr.CompletionGitPullDesc,
+		"checkout":    e.c.Tr.CompletionGitCheckoutDesc,
+		"switch":      e.c.Tr.CompletionGitSwitchDesc,
+		"branch":      e.c.Tr.CompletionGitBranchDesc,
+		"merge":       e.c.Tr.CompletionGitMergeDesc,
+		"rebase":      e.c.Tr.CompletionGitRebaseDesc,
+		"reset":       e.c.Tr.CompletionGitResetDesc,
+		"revert":      e.c.Tr.CompletionGitRevertDesc,
+		"stash":       e.c.Tr.CompletionGitStashDesc,
+		"log":         e.c.Tr.CompletionGitLogDesc,
+		"diff":        e.c.Tr.CompletionGitDiffDesc,
+		"status":      e.c.Tr.CompletionGitStatusDesc,
+		"tag":         e.c.Tr.CompletionGitTagDesc,
+		"fetch":       e.c.Tr.CompletionGitFetchDesc,
+		"clone":       e.c.Tr.CompletionGitCloneDesc,
+		"init":        e.c.Tr.CompletionGitInitDesc,
+		"clean":       e.c.Tr.CompletionGitCleanDesc,
+		"cherry-pick": e.c.Tr.CompletionGitCherryPickDesc,
+		"show":        e.c.Tr.CompletionGitShowDesc,
+		"rm":          e.c.Tr.CompletionGitRmDesc,
+		"mv":          e.c.Tr.CompletionGitMvDesc,
+		"grep":        e.c.Tr.CompletionGitGrepDesc,
+		"bisect":      e.c.Tr.CompletionGitBisectDesc,
 	}
 	return descriptions[subcmd]
 }
@@ -421,34 +421,34 @@ func getPriorityForSubcommand(subcmd string) int {
 	return 6
 }
 
-func getFlagDescription(subcommand, flag string) string {
+func (e *CompletionEngine) getFlagDescription(subcommand, flag string) string {
 	descriptions := map[string]map[string]string{
 		"commit": {
-			"--amend":       "修改上次提交",
-			"--no-edit":     "不修改提交消息",
-			"-m":            "指定提交消息",
-			"-a":            "提交所有已跟踪文件",
-			"--all":         "提交所有已跟踪文件",
-			"--fixup":       "创建 fixup 提交",
-			"--signoff":     "添加 Signed-off-by 行",
-			"-S":            "GPG 签名",
-			"--no-verify":   "跳过 pre-commit 钩子",
-			"--allow-empty": "允许空提交",
+			"--amend":       e.c.Tr.CompletionFlagAmendDesc,
+			"--no-edit":     e.c.Tr.CompletionFlagNoEditDesc,
+			"-m":            e.c.Tr.CompletionFlagMDesc,
+			"-a":            e.c.Tr.CompletionFlagADesc,
+			"--all":         e.c.Tr.CompletionFlagAllDesc,
+			"--fixup":       e.c.Tr.CompletionFlagFixupDesc,
+			"--signoff":     e.c.Tr.CompletionFlagSignoffDesc,
+			"-S":            e.c.Tr.CompletionFlagSDesc,
+			"--no-verify":   e.c.Tr.CompletionFlagNoVerifyDesc,
+			"--allow-empty": e.c.Tr.CompletionFlagAllowEmptyDesc,
 		},
 		"push": {
-			"--force":            "强制推送",
-			"--force-with-lease": "安全强制推送",
-			"--set-upstream":     "设置上游分支",
-			"-u":                 "设置上游分支",
-			"--tags":             "推送标签",
-			"--delete":           "删除远程分支",
-			"--dry-run":          "预览推送",
-			"--all":              "推送所有分支",
+			"--force":            e.c.Tr.CompletionFlagForceDesc,
+			"--force-with-lease": e.c.Tr.CompletionFlagForceWithLeaseDesc,
+			"--set-upstream":     e.c.Tr.CompletionFlagSetUpstreamDesc,
+			"-u":                 e.c.Tr.CompletionFlagUDesc,
+			"--tags":             e.c.Tr.CompletionFlagTagsDesc,
+			"--delete":           e.c.Tr.CompletionFlagDeleteDesc,
+			"--dry-run":          e.c.Tr.CompletionFlagDryRunDesc,
+			"--all":              e.c.Tr.CompletionFlagAllBranchesDesc,
 		},
 		"reset": {
-			"--soft":  "保留暂存区和工作区",
-			"--mixed": "保留工作区",
-			"--hard":  "丢弃所有更改",
+			"--soft":  e.c.Tr.CompletionFlagSoftDesc,
+			"--mixed": e.c.Tr.CompletionFlagMixedDesc,
+			"--hard":  e.c.Tr.CompletionFlagHardDesc,
 		},
 	}
 
@@ -461,21 +461,21 @@ func getFlagDescription(subcommand, flag string) string {
 	return ""
 }
 
-func getFileStatusDescription(file *models.File) string {
+func (e *CompletionEngine) getFileStatusDescription(file *models.File) string {
 	if file.HasMergeConflicts {
-		return "冲突"
+		return e.c.Tr.CompletionStatusConflicted
 	}
 	if file.HasStagedChanges && file.HasUnstagedChanges {
-		return "部分暂存"
+		return e.c.Tr.CompletionStatusPartiallyStaged
 	}
 	if file.HasStagedChanges {
-		return "已暂存"
+		return e.c.Tr.CompletionStatusStaged
 	}
 	if file.HasUnstagedChanges {
-		return "已修改"
+		return e.c.Tr.CompletionStatusModified
 	}
 	if !file.Tracked {
-		return "未跟踪"
+		return e.c.Tr.CompletionStatusUntracked
 	}
-	return "已跟踪"
+	return e.c.Tr.CompletionStatusTracked
 }

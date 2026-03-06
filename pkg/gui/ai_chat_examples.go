@@ -50,7 +50,7 @@ func (gui *Gui) ExampleOpenAIChat() error {
 // Example4: 检查 AI 是否启用
 func (gui *Gui) ExampleCheckAIEnabled() error {
 	if gui.c.AIManager == nil {
-		gui.ShowError("AI 未启用", "请先在设置中启用并配置 AI 功能。")
+		gui.ShowError(gui.c.Tr.AIChatNotEnabled, "请先在设置中启用并配置 AI 功能。")
 		return nil
 	}
 	return gui.ShowAIChat()
