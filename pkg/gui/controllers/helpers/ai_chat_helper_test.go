@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dswcpp/lazygit/pkg/ai/agent"
 	"github.com/jesseduffield/gocui"
 	"github.com/stretchr/testify/assert"
 )
@@ -53,36 +52,8 @@ func TestResetAIChatInputView_ClearsTextAreaState(t *testing.T) {
 	assert.Equal(t, 0, originY)
 }
 
-func TestDeriveAIChatStatus_WaitingConfirmShowsExpectedPrompt(t *testing.T) {
-	sess := agent.NewSession("")
-	sess.SetPhase(agent.PhaseWaitingConfirm)
-
-	status, detail := deriveAIChatStatus(sess, false, "", "")
-
-	assert.Equal(t, "等待确认", status)
-	assert.Equal(t, "输入 Y 执行，N 取消，或输入补充说明", detail)
-}
-
-func TestDeriveAIChatStatus_ExecutingUsesLatestStepUpdate(t *testing.T) {
-	sess := agent.NewSession("")
-	sess.SetPhase(agent.PhaseExecuting)
-	sess.UIMessages = append(sess.UIMessages, agent.UIMessage{
-		Kind:    agent.KindStepUpdate,
-		Content: "[执行中] 正在提交当前修改\n更多细节",
-	})
-
-	status, detail := deriveAIChatStatus(sess, false, "", "")
-
-	assert.Equal(t, "执行中", status)
-	assert.Equal(t, "[执行中] 正在提交当前修改", detail)
-}
-
-func TestDeriveAIChatStatus_UsesStoredTerminalStatusWhenAgentIsGone(t *testing.T) {
-	status, detail := deriveAIChatStatus(nil, false, "已完成", "可输入下一条指令")
-
-	assert.Equal(t, "已完成", status)
-	assert.Equal(t, "可输入下一条指令", detail)
-}
+// Note: deriveAIChatStatus tests removed as the function has been refactored
+// into AIChatSession methods (deriveStatus, getStatusPresentation)
 
 func newFilledAIChatHelperView(name string, lineCount int) *gocui.View {
 	view := gocui.NewView(name, 0, 0, 40, 10, gocui.OutputNormal)

@@ -142,7 +142,7 @@ func (t *AnalyzeChangesTool) analyzeFile(ctx context.Context, path string, stage
 
 	result, err := t.provider.Complete(ctx, messages)
 	if err != nil {
-		return fileAnalysis{}, fmt.Errorf(t.d.Tr.AnalyzeFailed(err))
+		return fileAnalysis{}, fmt.Errorf("%s", t.d.Tr.AnalyzeFailed(err))
 	}
 
 	return fileAnalysis{

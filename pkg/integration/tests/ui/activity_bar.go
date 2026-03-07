@@ -41,7 +41,7 @@ var ActivityBarNavigation = NewIntegrationTest(NewIntegrationTestArgs{
 		t.Views().Commits().
 			Focus().
 			IsFocused().
-			LineCount(2)
+			LineCount(EqualsInt(2))
 	},
 })
 

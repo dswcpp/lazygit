@@ -14,6 +14,7 @@ import (
 
 const defaultMaxPlanSteps = 15
 const defaultStepTimeout = 30 * time.Second
+const maxPlanMessages = 50 // 最大规划消息历史数量，防止内存无限增长
 
 // toolAliases 工具名别名映射，用于容错常见的工具名错误
 var toolAliases = map[string]string{
@@ -84,13 +85,29 @@ func NewTwoPhaseAgent(
 	tr *aii18n.Translator,
 ) *TwoPhaseAgent {
 	return &TwoPhaseAgent{
-		provider:     p,
-		fullRegistry: fullRegistry,
-		readRegistry: readRegistry,
-		session:      session,
-		tr:           tr,
-		maxPlanSteps: defaultMaxPlanSteps,
-		stepTimeout:  defaultStepTimeout,
+		provider:        p,
+		fullRegistry:    fullRegistry,
+		readRegistry:    readRegistry,
+		session:         session,
+		tr:              tr,
+		maxPlanSteps:    defaultMaxPlanSteps,
+		stepTimeout:     defaultStepTimeout,
+		toolCallHistory: make(map[string]int),
+	}
+}
+
+// appendPlanMessage 追加消息到规划历史，并自动截断过长的历史。
+// 保留 system prompt（第一条消息）+ 最近的 N 条消息。
+func (a *TwoPhaseAgent) appendPlanMessage(msg provider.Message) {
+	a.planMessages = append(a.planMessages, msg)
+
+	// 如果消息数超过限制，保留 system prompt + 最近的消息
+	if len(a.planMessages) > maxPlanMessages {
+		// 保留第一条（system prompt）和最后 maxPlanMessages-1 条
+		a.planMessages = append(
+			a.planMessages[:1],
+			a.planMessages[len(a.planMessages)-maxPlanMessages+1:]...,
+		)
 	}
 }
 
@@ -201,7 +218,7 @@ func (a *TwoPhaseAgent) replan(ctx context.Context, feedback string, onUpdate fu
 
 	// 向规划历史追加用户反馈，让 LLM 修改计划
 	feedbackMsg := a.tr.TwoPhaseAgentUserFeedbackPrompt(feedback)
-	a.planMessages = append(a.planMessages, provider.Message{
+	a.appendPlanMessage(provider.Message{
 		Role:    provider.RoleUser,
 		Content: feedbackMsg,
 	})
@@ -214,164 +231,234 @@ func (a *TwoPhaseAgent) replan(ctx context.Context, feedback string, onUpdate fu
 
 // planLoop 是规划阶段的核心循环：LLM 调用只读工具 → 解析 plan 块 → 设置 PhaseWaitingConfirm。
 func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
+	emptyResponseCount := 0 // 连续空响应计数器
+
 	for step := 0; step < a.maxPlanSteps; step++ {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
 
-		// 检查是否应该使用流式输出（当前没有工具调用历史时，可能是纯文本回复）
-		shouldStream := len(a.planMessages) > 1 && !a.hasRecentToolCalls()
-
-		var rawContent string
-		var err error
-
-		if shouldStream {
-			// 使用流式输出
-			rawContent, err = a.streamPlanResponse(ctx, onUpdate)
-		} else {
-			// 使用非流式输出（需要解析结构化内容）
-			result, completeErr := a.provider.Complete(ctx, a.planMessages)
-			err = completeErr
-			if err == nil {
-				rawContent = result.Content
-			}
-		}
-
+		// 获取 AI 响应
+		rawContent, err := a.getAIResponse(ctx, onUpdate)
 		if err != nil {
 			return err
 		}
 
-		// 检查是否输出了 plan 块
-		if parsed, ok := tools.ParsePlan(rawContent); ok {
-			plan := a.buildExecutionPlan(parsed)
+		// 处理响应：可能是计划、工具调用或空响应
+		handled, err := a.handlePlanResponse(ctx, rawContent, &emptyResponseCount, onUpdate)
+		if err != nil {
+			return err
+		}
+		if handled {
+			return nil // 计划已生成，等待确认
+		}
+	}
 
-			// 验证计划的有效性
-			if errors := a.validatePlan(plan); len(errors) > 0 {
-				errMsg := a.tr.TwoPhaseAgentPlanErrorsIntro()
-				for i, err := range errors {
-					errMsg += fmt.Sprintf("%d. %s\n", i+1, err)
-				}
-				errMsg += a.tr.TwoPhaseAgentPlanRegeneratePrompt()
+	return fmt.Errorf("%s", a.tr.TwoPhaseAgentMaxStepsExceeded(a.maxPlanSteps))
+}
 
-				a.session.AddSystemNote(a.tr.TwoPhaseAgentPlanValidationFailed())
-				a.planMessages = append(a.planMessages, provider.Message{
-					Role:    provider.RoleUser,
-					Content: errMsg,
-				})
+// getAIResponse 获取 AI 的响应（流式或非流式）
+func (a *TwoPhaseAgent) getAIResponse(ctx context.Context, onUpdate func()) (string, error) {
+	// 检查是否应该使用流式输出
+	shouldStream := len(a.planMessages) > 1 && !a.hasRecentToolCalls()
 
-				if onUpdate != nil {
-					onUpdate()
-				}
-				continue // 继续规划循环，让 AI 修正计划
-			}
+	if shouldStream {
+		return a.streamPlanResponse(ctx, onUpdate)
+	}
 
-			a.session.SetPlan(plan)
+	// 使用非流式输出（需要解析结构化内容）
+	result, err := a.provider.Complete(ctx, a.planMessages)
+	if err != nil {
+		return "", err
+	}
+	return result.Content, nil
+}
 
-			// 展示 plan 块之外的自然语言说明（含提示用户输入 Y/N 的文字）
-			displayText := tools.StripPlanBlock(rawContent)
-			if displayText == "" {
-				displayText = a.defaultConfirmPrompt(plan)
-			}
-			a.session.AddAssistantMessage(displayText)
+// handlePlanResponse 处理 AI 响应，返回 (是否已完成, 错误)
+func (a *TwoPhaseAgent) handlePlanResponse(
+	ctx context.Context,
+	rawContent string,
+	emptyResponseCount *int,
+	onUpdate func(),
+) (bool, error) {
+	// 检查是否输出了 plan 块
+	if parsed, ok := tools.ParsePlan(rawContent); ok {
+		*emptyResponseCount = 0 // 重置计数器
+		return a.handlePlanBlock(parsed, rawContent, onUpdate)
+	}
 
-			// 保留 LLM 这轮完整回复到规划历史（供 replan 时参考）
-			a.planMessages = append(a.planMessages, provider.Message{
-				Role:    provider.RoleAssistant,
-				Content: rawContent,
-			})
+	// 解析工具调用
+	toolCalls := tools.ParseToolCalls(rawContent)
+	displayText := tools.StripToolBlocks(rawContent)
 
-			a.session.SetPhase(PhaseWaitingConfirm)
-			if onUpdate != nil {
-				onUpdate()
-			}
-			return nil
+	// 保存 AI 响应
+	a.appendPlanMessage(provider.Message{
+		Role:    provider.RoleAssistant,
+		Content: rawContent,
+	})
+
+	if displayText != "" {
+		a.session.AddAssistantMessage(displayText)
+	}
+	if onUpdate != nil {
+		onUpdate()
+	}
+
+	// 处理空响应
+	if len(toolCalls) == 0 {
+		return false, a.handleEmptyResponse(emptyResponseCount, onUpdate)
+	}
+
+	// 执行工具调用
+	*emptyResponseCount = 0
+	return false, a.executeToolCalls(ctx, toolCalls, onUpdate)
+}
+
+// handlePlanBlock 处理计划块，验证并设置等待确认状态
+func (a *TwoPhaseAgent) handlePlanBlock(
+	parsed tools.ParsedPlan,
+	rawContent string,
+	onUpdate func(),
+) (bool, error) {
+	plan := a.buildExecutionPlan(parsed)
+
+	// 验证计划的有效性
+	if errors := a.validatePlan(plan); len(errors) > 0 {
+		a.handlePlanValidationErrors(errors, onUpdate)
+		return false, nil // 继续循环，让 AI 修正计划
+	}
+
+	a.session.SetPlan(plan)
+
+	// 展示 plan 块之外的自然语言说明
+	displayText := tools.StripPlanBlock(rawContent)
+	if displayText == "" {
+		displayText = a.defaultConfirmPrompt(plan)
+	}
+	a.session.AddAssistantMessage(displayText)
+
+	// 保留 LLM 这轮完整回复到规划历史
+	a.appendPlanMessage(provider.Message{
+		Role:    provider.RoleAssistant,
+		Content: rawContent,
+	})
+
+	a.session.SetPhase(PhaseWaitingConfirm)
+	if onUpdate != nil {
+		onUpdate()
+	}
+	return true, nil
+}
+
+// handlePlanValidationErrors 处理计划验证错误
+func (a *TwoPhaseAgent) handlePlanValidationErrors(errors []string, onUpdate func()) {
+	var sb strings.Builder
+	sb.WriteString(a.tr.TwoPhaseAgentPlanErrorsIntro())
+	for i, err := range errors {
+		sb.WriteString(fmt.Sprintf("%d. %s\n", i+1, err))
+	}
+	sb.WriteString(a.tr.TwoPhaseAgentPlanRegeneratePrompt())
+	errMsg := sb.String()
+
+	a.session.AddSystemNote(a.tr.TwoPhaseAgentPlanValidationFailed())
+	a.appendPlanMessage(provider.Message{
+		Role:    provider.RoleUser,
+		Content: errMsg,
+	})
+
+	if onUpdate != nil {
+		onUpdate()
+	}
+}
+
+// handleEmptyResponse 处理空响应（无工具调用也无计划）
+func (a *TwoPhaseAgent) handleEmptyResponse(emptyResponseCount *int, onUpdate func()) error {
+	*emptyResponseCount++
+	if *emptyResponseCount >= 3 {
+		return fmt.Errorf("%s", a.tr.TwoPhaseAgentEmptyResponseError())
+	}
+
+	// 给一个提示继续
+	a.appendPlanMessage(provider.Message{
+		Role:    provider.RoleUser,
+		Content: a.tr.TwoPhaseAgentContinueAnalysis(),
+	})
+	return nil
+}
+
+// executeToolCalls 执行工具调用列表
+func (a *TwoPhaseAgent) executeToolCalls(
+	ctx context.Context,
+	toolCalls []tools.ToolCall,
+	onUpdate func(),
+) error {
+	for _, call := range toolCalls {
+		if ctx.Err() != nil {
+			return ctx.Err()
 		}
 
-		// 解析工具调用
-		toolCalls := tools.ParseToolCalls(rawContent)
-		displayText := tools.StripToolBlocks(rawContent)
-
-		// 把 LLM 的完整回复加入规划历史
-		a.planMessages = append(a.planMessages, provider.Message{
-			Role:    provider.RoleAssistant,
-			Content: rawContent,
-		})
-
-		if displayText != "" {
-			a.session.AddAssistantMessage(displayText)
+		// 检测重复调用
+		if err := a.checkToolCallLimit(call, onUpdate); err != nil {
+			continue // 跳过这次调用
 		}
+
+		// 获取工具
+		tool, ok := a.readRegistry.Get(call.Name)
+		if !ok {
+			a.handleToolNotFound(call.Name, onUpdate)
+			continue
+		}
+
+		// 执行工具
+		a.session.AddToolCall(call)
 		if onUpdate != nil {
 			onUpdate()
 		}
 
-		if len(toolCalls) == 0 {
-			// LLM 既没有调用工具也没有输出计划，给一个提示继续
-			hint := provider.Message{
-				Role:    provider.RoleUser,
-				Content: a.tr.TwoPhaseAgentContinueAnalysis(),
-			}
-			a.planMessages = append(a.planMessages, hint)
-			continue
-		}
-
-		// 执行只读工具调用，结果反馈给 LLM
-		for _, call := range toolCalls {
-			if ctx.Err() != nil {
-				return ctx.Err()
-			}
-
-			// 检测重复调用，防止无限循环
-			callKey := fmt.Sprintf("%s:%v", call.Name, call.Params)
-			a.toolCallHistory[callKey]++
-
-			if a.toolCallHistory[callKey] > 3 {
-				// 同一个工具调用超过 3 次，给出警告
-				warnMsg := a.tr.TwoPhaseAgentToolCallWarning(call.Name, a.toolCallHistory[callKey])
-
-				a.session.AddSystemNote(warnMsg)
-				a.planMessages = append(a.planMessages, provider.Message{
-					Role:    provider.RoleUser,
-					Content: a.tr.TwoPhaseAgentSystemPrefix() + warnMsg,
-				})
-
-				if onUpdate != nil {
-					onUpdate()
-				}
-				continue // 跳过这次调用
-			}
-
-			tool, ok := a.readRegistry.Get(call.Name)
-			if !ok {
-				errMsg := a.tr.AgentToolNotAllowedInPlanning(call.Name)
-				a.session.AddSystemNote(errMsg)
-				a.planMessages = append(a.planMessages, provider.Message{
-					Role:    provider.RoleUser,
-					Content: a.tr.TwoPhaseAgentSystemPrefix() + errMsg,
-				})
-				if onUpdate != nil {
-					onUpdate()
-				}
-				continue
-			}
-
-			a.session.AddToolCall(call)
-			if onUpdate != nil {
-				onUpdate()
-			}
-
-			toolResult := tool.Execute(ctx, call)
-			a.session.AddToolResult(toolResult, call.Name)
-			a.planMessages = append(a.planMessages, provider.Message{
-				Role:    provider.RoleUser,
-				Content: a.tr.TwoPhaseAgentToolResultPrefix(call.Name, toolResult.Output),
-			})
-			if onUpdate != nil {
-				onUpdate()
-			}
+		toolResult := tool.Execute(ctx, call)
+		a.session.AddToolResult(toolResult, call.Name)
+		a.appendPlanMessage(provider.Message{
+			Role:    provider.RoleUser,
+			Content: a.tr.TwoPhaseAgentToolResultPrefix(call.Name, toolResult.Output),
+		})
+		if onUpdate != nil {
+			onUpdate()
 		}
 	}
+	return nil
+}
 
-	return fmt.Errorf(a.tr.TwoPhaseAgentMaxStepsExceeded(a.maxPlanSteps))
+// checkToolCallLimit 检查工具调用次数限制
+func (a *TwoPhaseAgent) checkToolCallLimit(call tools.ToolCall, onUpdate func()) error {
+	callKey := fmt.Sprintf("%s:%v", call.Name, call.Params)
+	a.toolCallHistory[callKey]++
+
+	if a.toolCallHistory[callKey] > 3 {
+		warnMsg := a.tr.TwoPhaseAgentToolCallWarning(call.Name, a.toolCallHistory[callKey])
+		a.session.AddSystemNote(warnMsg)
+		a.appendPlanMessage(provider.Message{
+			Role:    provider.RoleUser,
+			Content: a.tr.TwoPhaseAgentSystemPrefix() + warnMsg,
+		})
+		if onUpdate != nil {
+			onUpdate()
+		}
+		return fmt.Errorf("tool call limit exceeded")
+	}
+	return nil
+}
+
+// handleToolNotFound 处理工具未找到的情况
+func (a *TwoPhaseAgent) handleToolNotFound(toolName string, onUpdate func()) {
+	errMsg := a.tr.AgentToolNotAllowedInPlanning(toolName)
+	a.session.AddSystemNote(errMsg)
+	a.appendPlanMessage(provider.Message{
+		Role:    provider.RoleUser,
+		Content: a.tr.TwoPhaseAgentSystemPrefix() + errMsg,
+	})
+	if onUpdate != nil {
+		onUpdate()
+	}
 }
 
 // execute 执行阶段二：按计划逐步执行写操作。
@@ -390,83 +477,134 @@ func (a *TwoPhaseAgent) execute(
 			return ctx.Err()
 		}
 
-		a.session.UpdateStepStatus(step.ID, StepRunning, "", "")
-		if onUpdate != nil {
-			onUpdate()
-		}
-
-		toolName := step.ToolName
-
-		// 检查并应用工具名别名映射
-		if alias, ok := toolAliases[toolName]; ok {
-			toolName = alias
-		}
-
-		tool, ok := a.fullRegistry.Get(toolName)
-		if !ok {
-			errMsg := a.formatToolNotFoundError(step.ToolName, toolName)
-			a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
-			if onUpdate != nil {
-				onUpdate()
-			}
-			if step.Critical {
-				return fmt.Errorf(a.tr.AgentCriticalStepFailed(step.Description, errMsg))
-			}
-			continue
-		}
-
-		// 为每个步骤创建带超时的 context
-		stepCtx, cancel := context.WithTimeout(ctx, a.stepTimeout)
-
-		call := tools.ToolCall{
-			ID:     fmt.Sprintf("exec_%s", step.ID),
-			Name:   toolName, // 使用映射后的工具名
-			Params: step.Params,
-		}
-
-		// 在 goroutine 中执行工具，支持超时
-		resultChan := make(chan tools.ToolResult, 1)
-		go func() {
-			resultChan <- tool.Execute(stepCtx, call)
-		}()
-
-		var result tools.ToolResult
-		select {
-		case result = <-resultChan:
-			cancel() // 正常完成，取消 context
-		case <-stepCtx.Done():
-			cancel()
-			if stepCtx.Err() == context.DeadlineExceeded {
-				errMsg := a.formatTimeoutError(step, a.stepTimeout)
-				a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
-				if onUpdate != nil {
-					onUpdate()
-				}
-				if step.Critical {
-					return fmt.Errorf("关键步骤超时: %s", step.Description)
-				}
-				continue
-			}
-			return stepCtx.Err()
-		}
-
-		if result.Success {
-			a.session.UpdateStepStatus(step.ID, StepDone, result.Output, "")
-		} else {
-			errMsg := a.formatExecutionError(step, result.Output)
-			a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
-			if step.Critical {
-				if onUpdate != nil {
-					onUpdate()
-				}
-				return fmt.Errorf(a.tr.AgentCriticalStepFailed(step.Description, errMsg))
-			}
-		}
-		if onUpdate != nil {
-			onUpdate()
+		if err := a.executeStep(ctx, step, onUpdate); err != nil {
+			return err
 		}
 	}
 
+	a.finishExecution(plan, onUpdate)
+	return nil
+}
+
+// executeStep 执行单个步骤
+func (a *TwoPhaseAgent) executeStep(
+	ctx context.Context,
+	step *PlanStep,
+	onUpdate func(),
+) error {
+	a.session.UpdateStepStatus(step.ID, StepRunning, "", "")
+	if onUpdate != nil {
+		onUpdate()
+	}
+
+	// 应用工具名别名映射
+	toolName := step.ToolName
+	if alias, ok := toolAliases[toolName]; ok {
+		toolName = alias
+	}
+
+	// 获取工具
+	tool, ok := a.fullRegistry.Get(toolName)
+	if !ok {
+		return a.handleStepToolNotFound(step, toolName, onUpdate)
+	}
+
+	// 执行工具（带超时）
+	return a.executeStepWithTimeout(ctx, step, tool, toolName, onUpdate)
+}
+
+// handleStepToolNotFound 处理步骤中工具未找到的情况
+func (a *TwoPhaseAgent) handleStepToolNotFound(
+	step *PlanStep,
+	toolName string,
+	onUpdate func(),
+) error {
+	errMsg := a.formatToolNotFoundError(step.ToolName, toolName)
+	a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
+	if onUpdate != nil {
+		onUpdate()
+	}
+	if step.Critical {
+		return fmt.Errorf("%s", a.tr.AgentCriticalStepFailed(step.Description, errMsg))
+	}
+	return nil
+}
+
+// executeStepWithTimeout 执行步骤（带超时控制）
+func (a *TwoPhaseAgent) executeStepWithTimeout(
+	ctx context.Context,
+	step *PlanStep,
+	tool tools.Tool,
+	toolName string,
+	onUpdate func(),
+) error {
+	// 为每个步骤创建带超时的 context
+	stepCtx, cancel := context.WithTimeout(ctx, a.stepTimeout)
+	defer cancel()
+
+	call := tools.ToolCall{
+		ID:     fmt.Sprintf("exec_%s", step.ID),
+		Name:   toolName,
+		Params: step.Params,
+	}
+
+	// 在 goroutine 中执行工具，支持超时
+	resultChan := make(chan tools.ToolResult, 1)
+	go func() {
+		resultChan <- tool.Execute(stepCtx, call)
+	}()
+
+	// 等待结果或超时
+	select {
+	case result := <-resultChan:
+		return a.handleStepResult(step, result, onUpdate)
+	case <-stepCtx.Done():
+		if stepCtx.Err() == context.DeadlineExceeded {
+			return a.handleStepTimeout(step, onUpdate)
+		}
+		return stepCtx.Err()
+	}
+}
+
+// handleStepResult 处理步骤执行结果
+func (a *TwoPhaseAgent) handleStepResult(
+	step *PlanStep,
+	result tools.ToolResult,
+	onUpdate func(),
+) error {
+	if result.Success {
+		a.session.UpdateStepStatus(step.ID, StepDone, result.Output, "")
+	} else {
+		errMsg := a.formatExecutionError(step, result.Output)
+		a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
+		if step.Critical {
+			if onUpdate != nil {
+				onUpdate()
+			}
+			return fmt.Errorf("%s", a.tr.AgentCriticalStepFailed(step.Description, errMsg))
+		}
+	}
+	if onUpdate != nil {
+		onUpdate()
+	}
+	return nil
+}
+
+// handleStepTimeout 处理步骤超时
+func (a *TwoPhaseAgent) handleStepTimeout(step *PlanStep, onUpdate func()) error {
+	errMsg := a.formatTimeoutError(step, a.stepTimeout)
+	a.session.UpdateStepStatus(step.ID, StepFailed, "", errMsg)
+	if onUpdate != nil {
+		onUpdate()
+	}
+	if step.Critical {
+		return fmt.Errorf("关键步骤超时: %s", step.Description)
+	}
+	return nil
+}
+
+// finishExecution 完成执行阶段，生成总结
+func (a *TwoPhaseAgent) finishExecution(plan *ExecutionPlan, onUpdate func()) {
 	a.session.SetPhase(PhaseDone)
 	done := plan.DoneCount()
 	total := len(plan.Steps)
@@ -479,7 +617,6 @@ func (a *TwoPhaseAgent) execute(
 	if onUpdate != nil {
 		onUpdate()
 	}
-	return nil
 }
 
 // validatePlan 验证执行计划的有效性，返回错误列表。

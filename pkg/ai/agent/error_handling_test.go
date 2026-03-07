@@ -6,9 +6,21 @@ import (
 	"testing"
 	"time"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/tools"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 	"github.com/stretchr/testify/assert"
 )
+
+// mockTranslator 创建一个用于测试的 Translator
+func mockTranslator() *aii18n.Translator {
+	return aii18n.NewTranslator(&i18n.TranslationSet{
+		AIAgentStepTimeout:          "⏱️ 步骤超时: %s\n\n步骤: %s",
+		AIAgentCriticalStepFailed:   "关键步骤失败: %s\n原因: %s",
+		AIAgentPossibleReasons:      "\n\n💡 可能的原因：",
+		AITwoPhaseAgentMaxStepsExceeded: "已达到最大规划步骤数 (%d)，请简化任务或分步执行",
+	})
+}
 
 // slowTool 模拟一个执行缓慢的工具
 type slowTool struct {
@@ -70,6 +82,7 @@ func TestExecuteWithTimeout(t *testing.T) {
 		provider:     &mockProvider{},
 		session:      NewSession("test"),
 		stepTimeout:  500 * time.Millisecond, // 超时设置为 500ms
+		tr:           mockTranslator(),
 	}
 
 	plan := &ExecutionPlan{
@@ -110,6 +123,7 @@ func TestExecuteWithTimeoutCriticalStep(t *testing.T) {
 		provider:     &mockProvider{},
 		session:      NewSession("test"),
 		stepTimeout:  500 * time.Millisecond,
+		tr:           mockTranslator(),
 	}
 
 	plan := &ExecutionPlan{
@@ -151,6 +165,7 @@ func TestFormatToolNotFoundError(t *testing.T) {
 	agent := &TwoPhaseAgent{
 		fullRegistry: registry,
 		provider:     &mockProvider{},
+		tr:           mockTranslator(),
 	}
 
 	// 测试相似工具建议
@@ -160,7 +175,9 @@ func TestFormatToolNotFoundError(t *testing.T) {
 }
 
 func TestFormatTimeoutError(t *testing.T) {
-	agent := &TwoPhaseAgent{}
+	agent := &TwoPhaseAgent{
+		tr: mockTranslator(),
+	}
 
 	step := &PlanStep{
 		ID:          "1",
@@ -176,7 +193,9 @@ func TestFormatTimeoutError(t *testing.T) {
 }
 
 func TestFormatExecutionError(t *testing.T) {
-	agent := &TwoPhaseAgent{}
+	agent := &TwoPhaseAgent{
+		tr: mockTranslator(),
+	}
 
 	tests := []struct {
 		name        string
@@ -246,6 +265,7 @@ func TestExecuteWithNonCriticalFailure(t *testing.T) {
 		provider:     &mockProvider{},
 		session:      NewSession("test"),
 		stepTimeout:  30 * time.Second,
+		tr:           mockTranslator(),
 	}
 
 	plan := &ExecutionPlan{
@@ -303,6 +323,7 @@ func TestExecuteWithCriticalFailure(t *testing.T) {
 		provider:     &mockProvider{},
 		session:      NewSession("test"),
 		stepTimeout:  30 * time.Second,
+		tr:           mockTranslator(),
 	}
 
 	plan := &ExecutionPlan{
@@ -351,6 +372,7 @@ func TestFindSimilarTools(t *testing.T) {
 
 	agent := &TwoPhaseAgent{
 		fullRegistry: registry,
+		tr:           mockTranslator(),
 	}
 
 	tests := []struct {
@@ -398,7 +420,9 @@ func TestFindSimilarTools(t *testing.T) {
 }
 
 func TestGetRecoverySuggestions(t *testing.T) {
-	agent := &TwoPhaseAgent{}
+	agent := &TwoPhaseAgent{
+		tr: mockTranslator(),
+	}
 
 	tests := []struct {
 		name        string

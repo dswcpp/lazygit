@@ -1513,6 +1513,7 @@ type TranslationSet struct {
 	AITwoPhaseAgentUserFeedbackPrompt        string
 	AITwoPhaseAgentToolResultPrefix          string
 	AITwoPhaseAgentMaxStepsExceeded          string
+	AITwoPhaseAgentEmptyResponseError        string
 }
 
 type Bisect struct {
@@ -3414,5 +3415,6 @@ keybinding:
 		AITwoPhaseAgentUserFeedbackPrompt:       "User has the following feedback on the above plan, please adjust the plan according to the feedback and output a new ```plan block:\n\n%s",
 		AITwoPhaseAgentToolResultPrefix:         "[Tool result %s]\n%s",
 		AITwoPhaseAgentMaxStepsExceeded:         "Planning phase exceeded maximum steps (%d), failed to generate execution plan",
+		AITwoPhaseAgentEmptyResponseError:       "AI produced no valid output (no tool calls or execution plan) 3 times in a row. Please rephrase your task or check AI configuration",
 	}
 }

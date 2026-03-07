@@ -59,7 +59,7 @@ var GitOperations = NewIntegrationTest(NewIntegrationTestArgs{
 		shell.
 			CreateFileAndAdd("file1.txt", "content1").
 			Commit("initial commit").
-			AddRemote("origin", "https://github.com/user/repo.git")
+			CloneIntoRemote("origin")
 	},
 	Run: func(t *TestDriver, keys config.KeybindingConfig) {
 		// TODO: 测试 pull, push, fetch, stash 等操作

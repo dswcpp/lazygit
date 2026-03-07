@@ -16,13 +16,22 @@ func NewRegistry() *Registry {
 	return &Registry{tools: make(map[string]Tool)}
 }
 
-// Register adds a tool to the registry. Panics on duplicate names.
-func (r *Registry) Register(tool Tool) {
+// Register adds a tool to the registry. Returns error on duplicate names.
+func (r *Registry) Register(tool Tool) error {
 	name := tool.Schema().Name
 	if _, exists := r.tools[name]; exists {
-		panic(fmt.Sprintf("ai/tools: duplicate tool registration: %q", name))
+		return fmt.Errorf("ai/tools: duplicate tool registration: %q", name)
 	}
 	r.tools[name] = tool
+	return nil
+}
+
+// MustRegister adds a tool to the registry and panics on duplicate names.
+// Use this only during initialization when errors should be fatal.
+func (r *Registry) MustRegister(tool Tool) {
+	if err := r.Register(tool); err != nil {
+		panic(err)
+	}
 }
 
 // Clear removes all registered tools. Call before re-registering tools

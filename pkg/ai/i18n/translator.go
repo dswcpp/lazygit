@@ -423,6 +423,10 @@ func (t *Translator) TwoPhaseAgentMaxStepsExceeded(maxSteps int) string {
 	return fmt.Sprintf(t.tr.AITwoPhaseAgentMaxStepsExceeded, maxSteps)
 }
 
+func (t *Translator) TwoPhaseAgentEmptyResponseError() string {
+	return t.tr.AITwoPhaseAgentEmptyResponseError
+}
+
 // BuildPlanningSystemPrompt builds the planning phase system prompt
 func (t *Translator) BuildPlanningSystemPrompt() string {
 	return t.TwoPhaseAgentSystemPromptIntro() +

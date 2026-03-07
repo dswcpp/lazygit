@@ -5,8 +5,10 @@ import (
 	"strings"
 	"testing"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,10 +45,12 @@ func TestCommitMsgSkill_Name(t *testing.T) {
 func TestCommitMsgSkill_EmptyDiff(t *testing.T) {
 	skill := NewCommitMsgSkill()
 	prov := &mockCommitMsgProvider{response: "feat: add feature"}
+	tr := aii18n.NewTranslator(i18n.EnglishTranslationSet())
 
 	input := Input{
 		RepoCtx: repocontext.RepoContext{CurrentBranch: "main"},
 		Extra:   map[string]any{"diff": ""},
+		Tr:      tr,
 	}
 
 	_, err := skill.Execute(context.Background(), prov, input)
@@ -57,6 +61,7 @@ func TestCommitMsgSkill_EmptyDiff(t *testing.T) {
 func TestCommitMsgSkill_ValidDiff(t *testing.T) {
 	skill := NewCommitMsgSkill()
 	prov := &mockCommitMsgProvider{response: "feat(auth): 添加用户登录功能\n\n实现了基于 JWT 的用户认证系统"}
+	tr := aii18n.NewTranslator(i18n.EnglishTranslationSet())
 
 	input := Input{
 		RepoCtx: repocontext.RepoContext{CurrentBranch: "feature/login"},
@@ -64,6 +69,7 @@ func TestCommitMsgSkill_ValidDiff(t *testing.T) {
 			"diff":         "+func Login() { ... }",
 			"project_type": "Go",
 		},
+		Tr: tr,
 	}
 
 	output, err := skill.Execute(context.Background(), prov, input)
@@ -75,10 +81,12 @@ func TestCommitMsgSkill_ValidDiff(t *testing.T) {
 func TestCommitMsgSkill_EmptyResponse(t *testing.T) {
 	skill := NewCommitMsgSkill()
 	prov := &mockCommitMsgProvider{response: "   "} // 空白响应
+	tr := aii18n.NewTranslator(i18n.EnglishTranslationSet())
 
 	input := Input{
 		RepoCtx: repocontext.RepoContext{},
 		Extra:   map[string]any{"diff": "+some changes"},
+		Tr:      tr,
 	}
 
 	_, err := skill.Execute(context.Background(), prov, input)
@@ -133,25 +141,27 @@ func TestDetectChangeScenario(t *testing.T) {
 }
 
 func TestBuildCommitMsgUserPrompt(t *testing.T) {
+	tr := aii18n.NewTranslator(i18n.EnglishTranslationSet())
 	diff := "+func Login() {}"
 	branch := "feature/auth"
 	projectType := "Go"
 	scenario := "normal"
 	safetyNote := ""
 
-	prompt := buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote)
+	prompt := buildCommitMsgUserPrompt(tr, diff, branch, projectType, scenario, safetyNote)
 
 	assert.Contains(t, prompt, "feature/auth")
 	assert.Contains(t, prompt, "Go")
 	assert.Contains(t, prompt, "+func Login() {}")
-	assert.Contains(t, prompt, "type:")
+	assert.Contains(t, prompt, "commit message")
 }
 
 func TestBuildCommitMsgUserPrompt_WithSafetyNote(t *testing.T) {
+	tr := aii18n.NewTranslator(i18n.EnglishTranslationSet())
 	diff := "+func Login() {}"
 	safetyNote := "注意：diff 已截断"
 
-	prompt := buildCommitMsgUserPrompt(diff, "", "", "normal", safetyNote)
+	prompt := buildCommitMsgUserPrompt(tr, diff, "", "", "normal", safetyNote)
 
 	assert.Contains(t, prompt, safetyNote)
 }
@@ -161,16 +171,17 @@ func TestBuildCommitMsgUserPrompt_ScenarioHints(t *testing.T) {
 		scenario     string
 		expectedHint string
 	}{
-		{"bugfix", "bug 修复"},
-		{"refactor", "重构"},
-		{"docs", "文档更新"},
-		{"test", "测试相关"},
-		{"large", "变更较大"},
+		{"bugfix", "bug fix"},
+		{"refactor", "refactor"},
+		{"docs", "documentation"},
+		{"test", "test"},
+		{"large", "commit message"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.scenario, func(t *testing.T) {
-			prompt := buildCommitMsgUserPrompt("+code", "", "", tt.scenario, "")
+			tr := aii18n.NewTranslator(i18n.EnglishTranslationSet())
+			prompt := buildCommitMsgUserPrompt(tr, "+code", "", "", tt.scenario, "")
 			assert.Contains(t, prompt, tt.expectedHint)
 		})
 	}

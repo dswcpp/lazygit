@@ -60,11 +60,11 @@ func RegisterAll(d *Deps, r *tools.Registry, p provider.Provider) {
 		NewPushTool(d),
 		NewPushForceTool(d),
 	} {
-		r.Register(t)
+		r.MustRegister(t)
 	}
 
 	// AI-powered tools (only register if provider is available)
 	if p != nil {
-		r.Register(NewAnalyzeChangesTool(d, p))
+		r.MustRegister(NewAnalyzeChangesTool(d, p))
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
@@ -42,6 +43,7 @@ type AIChatSession struct {
 	statusDetail   string
 	logoFrame      int  // 动态 logo 帧索引
 	isAnimating    bool // 标记动画是否正在运行
+	mu             sync.Mutex // 保护并发访问
 }
 
 // AI Chat 动态 logo 字符序列
@@ -89,6 +91,22 @@ func (self *AIChatHelper) GetOrCreateSession() *AIChatSession {
 		self.session.addAssistantMessage(tr.ChatWelcomeMessage())
 	}
 	return self.session
+}
+
+// CloseSession 关闭并清理当前会话
+func (self *AIChatHelper) CloseSession() {
+	if self.session != nil {
+		self.session.mu.Lock()
+		defer self.session.mu.Unlock()
+
+		// 取消 context，停止所有 goroutine
+		if self.session.cancel != nil {
+			self.session.cancel()
+		}
+
+		// 清空引用，帮助 GC
+		self.session = nil
+	}
 }
 
 // ShowChat 打开 AI 聊天弹窗
@@ -195,6 +213,8 @@ func (self *AIChatHelper) StopGeneration() error {
 // --- AIChatSession 内部方法 ---
 
 func (s *AIChatSession) addUserMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "user", Content: content, Timestamp: time.Now(),
 	})
@@ -202,6 +222,8 @@ func (s *AIChatSession) addUserMessage(content string) {
 }
 
 func (s *AIChatSession) addAssistantMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "assistant", Content: content, Timestamp: time.Now(),
 	})
@@ -209,12 +231,16 @@ func (s *AIChatSession) addAssistantMessage(content string) {
 }
 
 func (s *AIChatSession) addSystemMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "system", Content: content, Timestamp: time.Now(),
 	})
 }
 
 func (s *AIChatSession) addErrorMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "assistant", Content: content, Timestamp: time.Now(), IsError: true,
 	})
@@ -223,6 +249,8 @@ func (s *AIChatSession) addErrorMessage(content string) {
 
 // render 渲染所有消息到 AIChat 视图（包含 Agent 消息）
 func (s *AIChatSession) render() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	aiView := s.c.Views().AIChat
 	aiView.Clear()
 
@@ -255,7 +283,7 @@ func (s *AIChatSession) render() {
 		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint(s.c.Tr.AIThinkingInProgress))
 	}
 
-	status, detail := s.getStatusPresentation()
+	status, detail := s.deriveStatus()
 	if total > 0 || s.isTyping {
 		fmt.Fprintln(aiView)
 	}
@@ -605,14 +633,21 @@ func ResetAIChatInputView(view *gocui.View) {
 		return
 	}
 
-	view.TextArea = &gocui.TextArea{}
-	view.RenderTextArea()
+	// 先清空视图内容
 	view.Clear()
 	view.SetCursor(0, 0)
 	view.SetOrigin(0, 0)
+
+	// 重新初始化 TextArea（如果存在）
+	if view.TextArea != nil {
+		view.TextArea = &gocui.TextArea{}
+		view.RenderTextArea()
+	}
 }
 
 func (s *AIChatSession) setStatus(status, detail string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.statusLabel = status
 	s.statusDetail = detail
 }
@@ -627,11 +662,17 @@ func (s *AIChatSession) setTerminalStatusForPhase(phase agent.AgentPhase) {
 }
 
 func (s *AIChatSession) syncStatusFromCurrentState() {
-	s.statusLabel, s.statusDetail = s.deriveStatus()
+	status, detail := s.deriveStatus()
+	s.mu.Lock()
+	s.statusLabel = status
+	s.statusDetail = detail
+	s.mu.Unlock()
 }
 
 func (s *AIChatSession) getStatusPresentation() (string, string) {
 	s.syncStatusFromCurrentState()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.statusLabel, s.statusDetail
 }
 

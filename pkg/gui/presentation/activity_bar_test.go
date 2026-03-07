@@ -3,6 +3,7 @@ package presentation
 import (
 	"testing"
 
+	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/config"
 	guiModels "github.com/dswcpp/lazygit/pkg/gui/models"
@@ -185,35 +186,47 @@ type mockContext struct {
 	key types.ContextKey
 }
 
-func (m *mockContext) GetKey() types.ContextKey {
-	return m.key
-}
+// IBaseContext methods
+func (m *mockContext) GetKey() types.ContextKey                                                    { return m.key }
+func (m *mockContext) GetKind() types.ContextKind                                                  { return types.SIDE_CONTEXT }
+func (m *mockContext) GetViewName() string                                                         { return "" }
+func (m *mockContext) GetView() *gocui.View                                                        { return nil }
+func (m *mockContext) GetViewTrait() types.IViewTrait                                              { return nil }
+func (m *mockContext) GetWindowName() string                                                       { return "" }
+func (m *mockContext) SetWindowName(string)                                                        {}
+func (m *mockContext) IsFocusable() bool                                                           { return true }
+func (m *mockContext) IsTransient() bool                                                           { return false }
+func (m *mockContext) HasControlledBounds() bool                                                   { return true }
+func (m *mockContext) TotalContentHeight() int                                                     { return 0 }
+func (m *mockContext) NeedsRerenderOnWidthChange() types.NeedsRerenderOnWidthChangeLevel           { return types.NEEDS_RERENDER_ON_WIDTH_CHANGE_NONE }
+func (m *mockContext) NeedsRerenderOnHeightChange() bool                                           { return false }
+func (m *mockContext) Title() string                                                               { return "" }
+func (m *mockContext) GetOptionsMap() map[string]string                                            { return nil }
+func (m *mockContext) AddKeybindingsFn(types.KeybindingsFn)                                        {}
+func (m *mockContext) AddMouseKeybindingsFn(types.MouseKeybindingsFn)                              {}
+func (m *mockContext) ClearAllAttachedControllerFunctions()                                        {}
+func (m *mockContext) AddOnClickFn(func() error)                                                   {}
+func (m *mockContext) AddOnClickFocusedMainViewFn(func(string, int) error)                         {}
+func (m *mockContext) AddOnRenderToMainFn(func())                                                  {}
+func (m *mockContext) AddOnFocusFn(func(types.OnFocusOpts))                                        {}
+func (m *mockContext) AddOnFocusLostFn(func(types.OnFocusLostOpts))                                {}
 
-func (m *mockContext) GetKind() types.ContextKind                         { return types.SIDE_CONTEXT }
-func (m *mockContext) GetViewName() string                                { return "" }
-func (m *mockContext) GetWindowName() string                              { return "" }
-func (m *mockContext) HandleFocus(opts types.OnFocusOpts) error           { return nil }
-func (m *mockContext) HandleFocusLost(opts types.OnFocusLostOpts) error   { return nil }
-func (m *mockContext) HandleRender() error                                { return nil }
-func (m *mockContext) HandleRenderToMain() error                          { return nil }
-func (m *mockContext) Title() string                                      { return "" }
-func (m *mockContext) GetOptionsMap() map[string]string                   { return nil }
-func (m *mockContext) GetParentView() types.IViewTrait                    { return nil }
-func (m *mockContext) GetView() types.IViewTrait                          { return nil }
-func (m *mockContext) AddKeybindingsFn(fn types.KeybindingsFn)            {}
-func (m *mockContext) AddMouseKeybindingsFn(fn types.MouseKeybindingsFn)  {}
-func (m *mockContext) AddOnFocusFn(fn types.OnFocusFn)                    {}
-func (m *mockContext) AddOnFocusLostFn(fn types.OnFocusLostFn)            {}
-func (m *mockContext) AddOnRenderToMainFn(fn types.OnRenderToMainFn)      {}
-func (m *mockContext) IsFocusable() bool                                  { return true }
-func (m *mockContext) IsTransient() bool                                  { return false }
-func (m *mockContext) ModelSearchResults() []types.SearchResultsForModel  { return nil }
-func (m *mockContext) Keybindings() []*types.Binding                      { return nil }
-func (m *mockContext) AvailableActions() []types.AvailableAction          { return nil }
-func (m *mockContext) MarkSearchResultsCacheDirty(modelId string)         {}
-func (m *mockContext) ClearSearchResultsCache()                           {}
-func (m *mockContext) IsFiltered() bool                                   { return false }
-func (m *mockContext) SetHasUncontrolledBounds(hasUncontrolledBounds bool) {}
+// HasKeybindings methods
+func (m *mockContext) GetKeybindings(types.KeybindingsOpts) []*types.Binding                       { return nil }
+func (m *mockContext) GetMouseKeybindings(types.KeybindingsOpts) []*gocui.ViewMouseBinding         { return nil }
+func (m *mockContext) GetOnClick() func() error                                                    { return nil }
+func (m *mockContext) GetOnClickFocusedMainView() func(string, int) error                          { return nil }
+
+// ParentContexter methods
+func (m *mockContext) SetParentContext(types.Context)                                              {}
+func (m *mockContext) GetParentContext() types.Context                                             { return nil }
+
+// Context methods
+func (m *mockContext) HandleFocus(types.OnFocusOpts)                                              {}
+func (m *mockContext) HandleFocusLost(types.OnFocusLostOpts)                                      {}
+func (m *mockContext) FocusLine(bool)                                                             {}
+func (m *mockContext) HandleRender()                                                              {}
+func (m *mockContext) HandleRenderToMain()                                                        {}
 
 func mockActivityBarStatus(operationInProgress string) types.IActivityBarStatus {
 	s := guiModels.NewActivityBarStatus()

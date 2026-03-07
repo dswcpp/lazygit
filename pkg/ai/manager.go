@@ -148,10 +148,10 @@ func (m *Manager) NewTwoPhaseAgent(skillTools []tools.Tool) *agent.TwoPhaseAgent
 	// 构建只读注册表：从完整注册表中筛选只读工具，再加入 SkillTool
 	readReg := tools.NewRegistry()
 	for _, t := range m.registry.ByMaxPermission(tools.PermReadOnly) {
-		readReg.Register(t)
+		readReg.MustRegister(t)
 	}
 	for _, st := range skillTools {
-		readReg.Register(st)
+		readReg.MustRegister(st)
 	}
 
 	session := agent.NewSession("") // TwoPhaseAgent 使用自己的 system prompt，此处留空

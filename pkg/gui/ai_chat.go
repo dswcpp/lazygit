@@ -30,7 +30,14 @@ func (gui *Gui) ShowAIChatWithFollowUp(contextContent string) error {
 func (gui *Gui) aiChatInputEditor(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 	switch key {
 	case gocui.KeyEnter:
-		content := strings.TrimSpace(v.Buffer())
+		// 使用 TextArea 获取内容（如果可用），否则使用 Buffer
+		var content string
+		if v.TextArea != nil {
+			content = strings.TrimSpace(v.TextArea.GetContent())
+		} else {
+			content = strings.TrimSpace(v.Buffer())
+		}
+
 		if content == "" {
 			return true
 		}
@@ -48,6 +55,7 @@ func (gui *Gui) aiChatInputEditor(v *gocui.View, key gocui.Key, ch rune, mod goc
 		return true
 
 	default:
+		// 交给默认编辑器处理
 		return gocui.DefaultEditor.Edit(v, key, ch, mod)
 	}
 }
