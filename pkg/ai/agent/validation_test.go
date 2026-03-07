@@ -258,23 +258,23 @@ func TestValidateParamType(t *testing.T) {
 
 func TestToolCallHistory_PreventInfiniteLoop(t *testing.T) {
 	agent := &TwoPhaseAgent{
-		toolCallHistory: make(map[string]int),
+		state: GraphState{ToolCallHistory: make(map[string]int)},
 	}
 
 	// 模拟重复调用
 	callKey := "get_status:{}"
 
 	for i := 1; i <= 5; i++ {
-		agent.toolCallHistory[callKey]++
+		agent.state.ToolCallHistory[callKey]++
 
-		if agent.toolCallHistory[callKey] > 3 {
+		if agent.state.ToolCallHistory[callKey] > 3 {
 			// 应该被阻止
-			assert.Greater(t, agent.toolCallHistory[callKey], 3,
+			assert.Greater(t, agent.state.ToolCallHistory[callKey], 3,
 				"Should detect repeated calls")
 			break
 		}
 	}
 
-	assert.Equal(t, 4, agent.toolCallHistory[callKey],
+	assert.Equal(t, 4, agent.state.ToolCallHistory[callKey],
 		"Should stop after 3 successful calls")
 }

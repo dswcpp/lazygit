@@ -35,23 +35,20 @@ type UIMessage struct {
 	ToolSuccess   bool
 }
 
-// Session manages the full conversation state for one agent dialogue.
+// Session manages the conversation state for one agent dialogue.
 // It maintains two parallel views:
 //   - UIMessages: for rendering to the user (includes tool call details, errors…)
 //   - providerMessages: the conversation history sent to the LLM provider
 //
-// TwoPhaseAgent 额外使用 Phase 和 Plan 字段追踪两阶段状态。
+// Session is intentionally free of agent control-flow state (Phase, Plan).
+// Those live in GraphState, which TwoPhaseAgent owns exclusively.
 type Session struct {
 	systemPrompt     string
 	UIMessages       []UIMessage
 	providerMessages []provider.Message
 
-	// TwoPhaseAgent 专用字段
-	Phase AgentPhase
-	Plan  *ExecutionPlan
-
 	// 流式输出状态
-	streamingMessageIndex int  // 正在流式输出的消息索引（-1 表示无流式消息）
+	streamingMessageIndex int             // 正在流式输出的消息索引（-1 表示无流式消息）
 	streamingBuffer       strings.Builder // 流式消息缓冲区
 }
 
@@ -194,15 +191,9 @@ func (s *Session) LastAssistantContent() string {
 	return ""
 }
 
-// SetPhase 更新当前阶段并在 UI 消息流中记录阶段变化。
-func (s *Session) SetPhase(p AgentPhase) {
-	s.Phase = p
-}
-
-// SetPlan 保存执行计划并在 UI 消息流中追加一条 KindPlan 消息。
-// Content 包含完整的步骤列表，便于渲染层直接使用而无需额外访问 Plan 字段。
-func (s *Session) SetPlan(plan *ExecutionPlan) {
-	s.Plan = plan
+// AddPlanUIMessage adds a KindPlan UIMessage for the given plan.
+// The plan itself is stored in GraphState — Session only records the UI event.
+func (s *Session) AddPlanUIMessage(plan *ExecutionPlan) {
 	var sb strings.Builder
 	sb.WriteString(plan.Summary)
 	for _, step := range plan.Steps {
@@ -215,42 +206,33 @@ func (s *Session) SetPlan(plan *ExecutionPlan) {
 	})
 }
 
-// UpdateStepStatus 更新指定步骤的状态并追加 KindStepUpdate 消息。
-func (s *Session) UpdateStepStatus(stepID string, status StepStatus, result, errMsg string) {
-	if s.Plan == nil {
-		return
+// AddStepUpdate records a step execution event in UIMessages.
+//
+// Responsibility boundary: Session is pure UI — it does NOT mutate step fields.
+// The caller (agent code in two_phase_agent.go) is responsible for setting
+// step.Status, step.Result and step.Error before calling this method.
+func (s *Session) AddStepUpdate(step *PlanStep, status StepStatus, result, errMsg string) {
+	content := fmt.Sprintf("[%s] %s", status, step.Description)
+	if result != "" {
+		content += "\n" + result
 	}
-	for _, step := range s.Plan.Steps {
-		if step.ID != stepID {
-			continue
-		}
-		step.Status = status
-		step.Result = result
-		step.Error = errMsg
-		content := fmt.Sprintf("[%s] %s", status, step.Description)
-		if result != "" {
-			content += "\n" + result
-		}
-		if errMsg != "" {
-			content += "\n错误: " + errMsg
-		}
-		s.UIMessages = append(s.UIMessages, UIMessage{
-			Kind:        KindStepUpdate,
-			Content:     content,
-			ToolName:    step.ToolName,
-			ToolSuccess: status == StepDone,
-			Timestamp:   time.Now(),
-		})
-		return
+	if errMsg != "" {
+		content += "\n错误: " + errMsg
 	}
+	s.UIMessages = append(s.UIMessages, UIMessage{
+		Kind:        KindStepUpdate,
+		Content:     content,
+		ToolName:    step.ToolName,
+		ToolSuccess: status == StepDone,
+		Timestamp:   time.Now(),
+	})
 }
 
 // Reset clears all conversation history but preserves the system prompt.
+// Agent control-flow state (Phase, Plan) is managed by GraphState.Reset().
 func (s *Session) Reset() {
 	s.UIMessages = nil
 	s.providerMessages = nil
-	s.Phase = PhasePlanning
-	s.Plan = nil
 	s.streamingMessageIndex = -1
 	s.streamingBuffer.Reset()
 }

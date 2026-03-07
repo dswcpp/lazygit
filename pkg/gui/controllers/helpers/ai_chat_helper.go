@@ -290,7 +290,7 @@ func (s *AIChatSession) render() {
 	s.renderStatus(aiView, status, detail)
 
 	// PhaseWaitingConfirm：在底部显示输入提示（不打断滚动）
-	if sess := s.agentSession(); sess != nil && sess.Phase == agent.PhaseWaitingConfirm && !s.isTyping {
+	if s.twoPhaseAgent != nil && s.twoPhaseAgent.Phase() == agent.PhaseWaitingConfirm && !s.isTyping {
 		fmt.Fprintf(aiView, "  %s\n",
 			style.FgYellow.Sprint(s.tr.ChatInputPrompt()))
 	}
@@ -304,12 +304,11 @@ func (s *AIChatSession) render() {
 //   - PhaseWaitingConfirm → 保留（下一条消息还需要它）
 //   - 其他阶段 → 清除（本轮交互完成）
 func (s *AIChatSession) flushAgentSession() {
-	sess := s.agentSession()
-	if sess == nil {
+	if s.twoPhaseAgent == nil {
 		return
 	}
 	s.messages = append(s.messages, s.agentUIMessages()...)
-	if sess.Phase != agent.PhaseWaitingConfirm {
+	if s.twoPhaseAgent.Phase() != agent.PhaseWaitingConfirm {
 		s.twoPhaseAgent = nil
 	}
 }
@@ -498,11 +497,9 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 	}
 
 	// 需要新建 Agent 的条件：当前无 Agent，或上一轮已结束
-	sess := s.agentSession()
 	needNew := s.twoPhaseAgent == nil ||
-		sess == nil ||
-		sess.Phase == agent.PhaseDone ||
-		sess.Phase == agent.PhaseCancelled
+		s.twoPhaseAgent.Phase() == agent.PhaseDone ||
+		s.twoPhaseAgent.Phase() == agent.PhaseCancelled
 
 	if needNew {
 		// 上一轮结束时先 flush 历史
@@ -531,7 +528,7 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 
 	s.c.GocuiGui().Update(func(*gocui.Gui) error {
 		s.isTyping = false
-		currentPhase := a.Session().Phase
+		currentPhase := a.Phase()
 		// 执行完成或取消后立即 flush；等待确认时保留 Agent
 		if currentPhase == agent.PhaseDone || currentPhase == agent.PhaseCancelled {
 			s.flushAgentSession()
@@ -677,9 +674,9 @@ func (s *AIChatSession) getStatusPresentation() (string, string) {
 }
 
 func (s *AIChatSession) deriveStatus() (string, string) {
-	sess := s.agentSession()
-	if sess != nil {
-		switch sess.Phase {
+	if s.twoPhaseAgent != nil {
+		sess := s.twoPhaseAgent.Session() // needed for latestAgentActionDetail
+		switch s.twoPhaseAgent.Phase() {
 		case agent.PhaseWaitingConfirm:
 			return s.tr.ChatWaitingConfirm(), s.tr.ChatConfirmPrompt()
 		case agent.PhaseExecuting:

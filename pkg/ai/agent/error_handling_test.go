@@ -83,6 +83,7 @@ func TestExecuteWithTimeout(t *testing.T) {
 		session:      NewSession("test"),
 		stepTimeout:  500 * time.Millisecond, // 超时设置为 500ms
 		tr:           mockTranslator(),
+		state:        GraphState{ToolCallHistory: make(map[string]int)},
 	}
 
 	plan := &ExecutionPlan{
@@ -100,15 +101,16 @@ func TestExecuteWithTimeout(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	agent.session.SetPlan(plan) // 设置 plan 到 session
-	err := agent.execute(ctx, plan, nil)
+	agent.state.Plan = plan
+	agent.session.AddPlanUIMessage(plan)
+	err := agent.execute(ctx, nil)
 
 	// 应该成功完成（非关键步骤超时不会导致整体失败）
 	assert.NoError(t, err)
 
-	// 检查步骤状态（从 session 中获取）
-	assert.Equal(t, StepFailed, agent.session.Plan.Steps[0].Status)
-	assert.Contains(t, agent.session.Plan.Steps[0].Error, "超时")
+	// 检查步骤状态（从 state 中获取）
+	assert.Equal(t, StepFailed, agent.state.Plan.Steps[0].Status)
+	assert.Contains(t, agent.state.Plan.Steps[0].Error, "超时")
 }
 
 func TestExecuteWithTimeoutCriticalStep(t *testing.T) {
@@ -124,6 +126,7 @@ func TestExecuteWithTimeoutCriticalStep(t *testing.T) {
 		session:      NewSession("test"),
 		stepTimeout:  500 * time.Millisecond,
 		tr:           mockTranslator(),
+		state:        GraphState{ToolCallHistory: make(map[string]int)},
 	}
 
 	plan := &ExecutionPlan{
@@ -141,8 +144,9 @@ func TestExecuteWithTimeoutCriticalStep(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	agent.session.SetPlan(plan) // 设置 plan 到 session
-	err := agent.execute(ctx, plan, nil)
+	agent.state.Plan = plan
+	agent.session.AddPlanUIMessage(plan)
+	err := agent.execute(ctx, nil)
 
 	// 关键步骤超时应该返回错误
 	assert.Error(t, err)
@@ -266,6 +270,7 @@ func TestExecuteWithNonCriticalFailure(t *testing.T) {
 		session:      NewSession("test"),
 		stepTimeout:  30 * time.Second,
 		tr:           mockTranslator(),
+		state:        GraphState{ToolCallHistory: make(map[string]int)},
 	}
 
 	plan := &ExecutionPlan{
@@ -291,18 +296,19 @@ func TestExecuteWithNonCriticalFailure(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	agent.session.SetPlan(plan) // 设置 plan 到 session
-	err := agent.execute(ctx, plan, nil)
+	agent.state.Plan = plan
+	agent.session.AddPlanUIMessage(plan)
+	err := agent.execute(ctx, nil)
 
 	// 非关键步骤失败不应该导致整体失败
 	assert.NoError(t, err)
 
-	// 第一步应该失败（从 session 中获取）
-	assert.Equal(t, StepFailed, agent.session.Plan.Steps[0].Status)
-	assert.Contains(t, agent.session.Plan.Steps[0].Error, "operation failed")
+	// 第一步应该失败（从 state 中获取）
+	assert.Equal(t, StepFailed, agent.state.Plan.Steps[0].Status)
+	assert.Contains(t, agent.state.Plan.Steps[0].Error, "operation failed")
 
 	// 第二步应该成功
-	assert.Equal(t, StepDone, agent.session.Plan.Steps[1].Status)
+	assert.Equal(t, StepDone, agent.state.Plan.Steps[1].Status)
 }
 
 func TestExecuteWithCriticalFailure(t *testing.T) {
@@ -324,6 +330,7 @@ func TestExecuteWithCriticalFailure(t *testing.T) {
 		session:      NewSession("test"),
 		stepTimeout:  30 * time.Second,
 		tr:           mockTranslator(),
+		state:        GraphState{ToolCallHistory: make(map[string]int)},
 	}
 
 	plan := &ExecutionPlan{
@@ -349,18 +356,19 @@ func TestExecuteWithCriticalFailure(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	agent.session.SetPlan(plan) // 设置 plan 到 session
-	err := agent.execute(ctx, plan, nil)
+	agent.state.Plan = plan
+	agent.session.AddPlanUIMessage(plan)
+	err := agent.execute(ctx, nil)
 
 	// 关键步骤失败应该返回错误
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "关键步骤失败")
 
-	// 第一步应该失败（从 session 中获取）
-	assert.Equal(t, StepFailed, agent.session.Plan.Steps[0].Status)
+	// 第一步应该失败（从 state 中获取）
+	assert.Equal(t, StepFailed, agent.state.Plan.Steps[0].Status)
 
 	// 第二步不应该执行（仍然是 Pending）
-	assert.Equal(t, StepPending, agent.session.Plan.Steps[1].Status)
+	assert.Equal(t, StepPending, agent.state.Plan.Steps[1].Status)
 }
 
 func TestFindSimilarTools(t *testing.T) {
