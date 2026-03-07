@@ -123,8 +123,9 @@ func (t *GetFileDiffTool) Schema() tools.ToolSchema {
 		Name:        "get_file_diff",
 		Description: t.d.Tr.ToolGetFileDiffDesc(),
 		Params: map[string]tools.ParamSchema{
-			"path":   {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
-			"staged": {Type: "bool", Description: t.d.Tr.ToolGetFileDiffStagedParam()},
+			"path":      {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
+			"staged":    {Type: "bool", Description: t.d.Tr.ToolGetFileDiffStagedParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -136,6 +137,7 @@ func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.
 		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingPathParam()}
 	}
 	staged := boolParam(call.Params, "staged", false)
+	maxLines := intParam(call.Params, "max_lines", 300)
 	for _, f := range t.d.GetFiles() {
 		if f.Path == path {
 			diff := t.d.WorkingTree.WorktreeFileDiff(f, true, staged)
@@ -146,7 +148,7 @@ func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.
 				}
 				return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("%s: %s — %s", label, path, t.d.Tr.ToolNoChanges())}
 			}
-			return tools.ToolResult{CallID: call.ID, Success: true, Output: diff}
+			return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
 		}
 	}
 	return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolFileNotInWorkdir(path)}
@@ -355,7 +357,8 @@ func (t *GetCommitDiffTool) Schema() tools.ToolSchema {
 		Name:        "get_commit_diff",
 		Description: t.d.Tr.ToolGetCommitDiffDesc(),
 		Params: map[string]tools.ParamSchema{
-			"hash": {Type: "string", Description: t.d.Tr.ToolGetCommitDiffHashParam()},
+			"hash":      {Type: "string", Description: t.d.Tr.ToolGetCommitDiffHashParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -363,11 +366,50 @@ func (t *GetCommitDiffTool) Schema() tools.ToolSchema {
 
 func (t *GetCommitDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	hash := strParam(call.Params, "hash", "HEAD")
+	maxLines := intParam(call.Params, "max_lines", 300)
 	diff, err := t.d.Commit.GetCommitDiff(hash)
 	if err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetCommitDiffFailed(err)}
 	}
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: diff}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
+}
+
+// GetBranchDiffTool returns the diff between two branches or refs.
+type GetBranchDiffTool struct{ d *Deps }
+
+func NewGetBranchDiffTool(d *Deps) tools.Tool { return &GetBranchDiffTool{d} }
+
+func (t *GetBranchDiffTool) Schema() tools.ToolSchema {
+	return tools.ToolSchema{
+		Name:        "get_branch_diff",
+		Description: t.d.Tr.ToolGetBranchDiffDesc(),
+		Params: map[string]tools.ParamSchema{
+			"base":      {Type: "string", Description: t.d.Tr.ToolGetBranchDiffBaseParam(), Required: true},
+			"target":    {Type: "string", Description: t.d.Tr.ToolGetBranchDiffTargetParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
+		},
+		Permission: tools.PermReadOnly,
+	}
+}
+
+func (t *GetBranchDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
+	base := strParam(call.Params, "base", "")
+	if base == "" {
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingParam("base")}
+	}
+	target := strParam(call.Params, "target", "HEAD")
+	maxLines := intParam(call.Params, "max_lines", 300)
+
+	// three-dot syntax: changes on target since it diverged from base
+	refRange := base + "..." + target
+	diff, err := t.d.Diff.GetDiff(false, refRange, "--")
+	if err != nil {
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetBranchDiffFailed(base, target, err)}
+	}
+	if diff == "" {
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolGetBranchDiffEmpty(base, target)}
+	}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────

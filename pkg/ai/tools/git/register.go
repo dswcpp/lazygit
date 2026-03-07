@@ -22,6 +22,7 @@ func RegisterAll(d *Deps, r *tools.Registry, p provider.Provider) {
 		NewGetRemotesTool(d),
 		NewGetTagsTool(d),
 		NewGetCommitDiffTool(d),
+		NewGetBranchDiffTool(d),
 
 		// Staging
 		NewStageAllTool(d),

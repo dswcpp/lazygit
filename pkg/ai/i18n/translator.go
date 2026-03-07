@@ -322,6 +322,9 @@ func (t *Translator) ToolGetStashDiffDesc() string           { return t.tr.AIToo
 func (t *Translator) ToolGetStashDiffIndexParam() string     { return t.tr.AIToolGetStashDiffIndexParam }
 func (t *Translator) ToolGetCommitDiffDesc() string          { return t.tr.AIToolGetCommitDiffDesc }
 func (t *Translator) ToolGetCommitDiffHashParam() string     { return t.tr.AIToolGetCommitDiffHashParam }
+func (t *Translator) ToolGetBranchDiffDesc() string          { return t.tr.AIToolGetBranchDiffDesc }
+func (t *Translator) ToolGetBranchDiffBaseParam() string     { return t.tr.AIToolGetBranchDiffBaseParam }
+func (t *Translator) ToolGetBranchDiffTargetParam() string   { return t.tr.AIToolGetBranchDiffTargetParam }
 func (t *Translator) ToolStageAllDesc() string               { return t.tr.AIToolStageAllDesc }
 func (t *Translator) ToolStageFileDesc() string              { return t.tr.AIToolStageFileDesc }
 func (t *Translator) ToolUnstageAllDesc() string             { return t.tr.AIToolUnstageAllDesc }
@@ -483,6 +486,12 @@ func (t *Translator) ToolGetStashDiffFailed(idx int, err error) string {
 }
 func (t *Translator) ToolGetCommitDiffFailed(err error) string {
 	return fmt.Sprintf(t.tr.AIToolGetCommitDiffFailed, err)
+}
+func (t *Translator) ToolGetBranchDiffFailed(base, target string, err error) string {
+	return fmt.Sprintf(t.tr.AIToolGetBranchDiffFailed, base, target, err)
+}
+func (t *Translator) ToolGetBranchDiffEmpty(base, target string) string {
+	return fmt.Sprintf(t.tr.AIToolGetBranchDiffEmpty, base, target)
 }
 func (t *Translator) ToolStageAllFailed(err error) string {
 	return fmt.Sprintf(t.tr.AIToolStageAllFailed, err)

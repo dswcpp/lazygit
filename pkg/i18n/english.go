@@ -1187,6 +1187,7 @@ type TranslationSet struct {
 	AIToolResetSteps                         string
 	AIToolStashIndex                         string
 	AIToolMaxLines                           string
+	AIToolOffset                             string
 	AIToolTargetRef                          string
 	AIToolPushConfigError                    string
 	AIToolRebasedTo                          string
@@ -1211,6 +1212,10 @@ type TranslationSet struct {
 	AIToolGetStashDiffIndexParam     string
 	AIToolGetCommitDiffDesc          string
 	AIToolGetCommitDiffHashParam     string
+	AIToolGetBranchDiffDesc          string
+	AIToolGetBranchDiffBaseParam     string
+	AIToolGetBranchDiffTargetParam   string
+	AIToolGetBranchDiffEmpty         string
 	AIToolStageAllDesc               string
 	AIToolStageFileDesc              string
 	AIToolUnstageAllDesc             string
@@ -1306,6 +1311,7 @@ type TranslationSet struct {
 	AIToolGetDiffFailed         string
 	AIToolGetStashDiffFailed    string
 	AIToolGetCommitDiffFailed   string
+	AIToolGetBranchDiffFailed   string
 	AIToolStageAllFailed        string
 	AIToolStageFileFailed       string
 	AIToolUnstageAllFailed      string
@@ -3249,6 +3255,7 @@ keybinding:
 		AIToolResetSteps:            "Reset steps (used when ref is empty, default 1)",
 		AIToolStashIndex:            "Stash index, default 0",
 		AIToolMaxLines:              "Maximum lines to return (default 300, 0 for unlimited)",
+		AIToolOffset:                "Starting line offset for pagination (0-based, default 0)",
 		AIToolTargetRef:             "Target ref (default HEAD)",
 		AIToolPushConfigError:       "Push configuration error: %v",
 		AIToolRebasedTo:             "Rebased current branch to %s",
@@ -3273,6 +3280,10 @@ keybinding:
 		AIToolGetStashDiffIndexParam:     "Stash index, default 0 (most recent stash)",
 		AIToolGetCommitDiffDesc:          "Get diff for a specific commit (default HEAD)",
 		AIToolGetCommitDiffHashParam:     "Commit hash; leave empty for HEAD",
+		AIToolGetBranchDiffDesc:        "Get diff between two branches or commits. Uses three-dot syntax (A...B): shows changes on target since it diverged from base",
+		AIToolGetBranchDiffBaseParam:   "Base ref: branch name, tag, or commit hash (e.g. main, v1.0)",
+		AIToolGetBranchDiffTargetParam: "Target ref to diff against base (default HEAD)",
+		AIToolGetBranchDiffEmpty:       "No differences between %s and %s",
 		AIToolStageAllDesc:               "Stage all working tree changes",
 		AIToolStageFileDesc:              "Stage a specific file",
 		AIToolUnstageAllDesc:             "Unstage all staged changes (git reset HEAD)",
@@ -3368,6 +3379,7 @@ keybinding:
 		AIToolGetDiffFailed:         "Failed to get diff: %v",
 		AIToolGetStashDiffFailed:    "Failed to get stash[%d] diff: %v",
 		AIToolGetCommitDiffFailed:   "Failed to get commit diff: %v",
+		AIToolGetBranchDiffFailed:   "Failed to get branch diff (%s...%s): %v",
 		AIToolStageAllFailed:        "Failed to stage all: %v",
 		AIToolStageFileFailed:       "Failed to stage file: %v",
 		AIToolUnstageAllFailed:      "Failed to unstage all: %v",

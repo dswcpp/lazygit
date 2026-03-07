@@ -61,7 +61,7 @@ func isDenyMsg(msg string) bool {
 //	阶段一（PhasePlanning）：LLM 使用只读工具 + SkillTool 收集信息，
 //	  输出执行计划后设置 PhaseWaitingConfirm 并返回，等待用户下一条消息。
 //
-//	阶段二（PhaseExecuting）：用户输入 Y 触发执行；输入 N 取消；
+//	阶段二（PhaseExecuting）：用户输入 Y/Yes 触发执行；输入 N/No 取消；
 //	  输入其他内容则视为补充说明，重新进入规划循环调整计划。
 //
 // 整个交互完全在聊天窗口中完成，不弹出任何对话框。
@@ -706,7 +706,7 @@ func (a *TwoPhaseAgent) defaultConfirmPrompt(plan *ExecutionPlan) string {
 	for _, s := range plan.Steps {
 		sb.WriteString(fmt.Sprintf("  %s. %s\n", s.ID, s.Description))
 	}
-	sb.WriteString("\n输入 **Y** 确认执行，**N** 取消，或直接输入补充说明来调整计划。")
+	sb.WriteString("\n输入 **Y / Yes** 确认执行，**N / No** 取消，或直接输入补充说明来调整计划。")
 	return sb.String()
 }
 
@@ -1014,8 +1014,8 @@ func (a *TwoPhaseAgent) nodeWaitHuman(_ context.Context, state GraphState, _ fun
 
 // nodeHandleConfirmation is the resume entry point after nodeWaitHuman.
 // It reads GraphState.HumanInput and routes to:
-//   - NodeExecuteStep  on confirm (Y / yes / 确认 / …)
-//   - NodeEnd          on deny    (N / no  / 取消 / …)
+//   - NodeExecuteStep  on confirm (y/Y/yes/Yes/YES / 确认 / …)
+//   - NodeEnd          on deny    (n/N/no/No/NO   / 取消 / …)
 //   - NodePlan         on any other text (user provided feedback → replan)
 func (a *TwoPhaseAgent) nodeHandleConfirmation(_ context.Context, state GraphState, onUpdate func()) (NodeID, GraphState, error) {
 	input := state.HumanInput
