@@ -265,6 +265,11 @@ func (t *Translator) SkillScenarioRefactor() string      { return t.tr.AISkillCo
 func (t *Translator) SkillScenarioDocs() string          { return t.tr.AISkillCommitMsgScenarioDocs }
 func (t *Translator) SkillScenarioTest() string          { return t.tr.AISkillCommitMsgScenarioTest }
 func (t *Translator) SkillScenarioDefault() string       { return t.tr.AISkillCommitMsgScenarioDefault }
+func (t *Translator) SkillScenarioLarge() string          { return t.tr.AISkillCommitMsgScenarioLarge }
+
+func (t *Translator) SkillCommitMsgProjectType(projectType string) string {
+	return fmt.Sprintf(t.tr.AISkillCommitMsgProjectType, projectType)
+}
 
 // Branch name skill translations
 func (t *Translator) SkillBranchNamePromptIntro() string      { return t.tr.AISkillBranchNamePromptIntro }
@@ -278,6 +283,10 @@ func (t *Translator) SkillBranchNameDescRule() string         { return t.tr.AISk
 func (t *Translator) SkillBranchNameOutputRule() string       { return t.tr.AISkillBranchNameOutputRule }
 func (t *Translator) SkillBranchNameSystemPrompt() string     { return t.tr.AISkillBranchNameSystemPrompt }
 
+func (t *Translator) SkillBranchNameDescriptionHint(desc string) string {
+	return fmt.Sprintf(t.tr.AISkillBranchNameDescriptionHint, desc)
+}
+
 func (t *Translator) SkillBranchNameMoreFiles(count int) string {
 	return fmt.Sprintf(t.tr.AISkillBranchNameMoreFiles, count)
 }
@@ -289,11 +298,291 @@ func (t *Translator) SkillPRDescCodeChangesSection() string { return t.tr.AISkil
 func (t *Translator) SkillPRDescGeneratePrompt() string     { return t.tr.AISkillPRDescGeneratePrompt }
 func (t *Translator) SkillPRDescSummarySection() string     { return t.tr.AISkillPRDescSummarySection }
 func (t *Translator) SkillPRDescChangesSection() string     { return t.tr.AISkillPRDescChangesSection }
+func (t *Translator) SkillPRDescBreakingSection() string    { return t.tr.AISkillPRDescBreakingSection }
 func (t *Translator) SkillPRDescTestingSection() string     { return t.tr.AISkillPRDescTestingSection }
+func (t *Translator) SkillPRDescChecklistSection() string   { return t.tr.AISkillPRDescChecklistSection }
 
 func (t *Translator) SkillPRDescBranchInfo(from, to string) string {
 	return fmt.Sprintf(t.tr.AISkillPRDescBranchInfo, from, to)
 }
+
+// AI Tools - Schema descriptions
+func (t *Translator) ToolGetStatusDesc() string              { return t.tr.AIToolGetStatusDesc }
+func (t *Translator) ToolGetStagedDiffDesc() string          { return t.tr.AIToolGetStagedDiffDesc }
+func (t *Translator) ToolGetDiffDesc() string                { return t.tr.AIToolGetDiffDesc }
+func (t *Translator) ToolGetFileDiffDesc() string            { return t.tr.AIToolGetFileDiffDesc }
+func (t *Translator) ToolGetFileDiffStagedParam() string     { return t.tr.AIToolGetFileDiffStagedParam }
+func (t *Translator) ToolGetLogDesc() string                 { return t.tr.AIToolGetLogDesc }
+func (t *Translator) ToolGetLogCountParam() string           { return t.tr.AIToolGetLogCountParam }
+func (t *Translator) ToolGetBranchesDesc() string            { return t.tr.AIToolGetBranchesDesc }
+func (t *Translator) ToolGetStashListDesc() string           { return t.tr.AIToolGetStashListDesc }
+func (t *Translator) ToolGetRemotesDesc() string             { return t.tr.AIToolGetRemotesDesc }
+func (t *Translator) ToolGetTagsDesc() string                { return t.tr.AIToolGetTagsDesc }
+func (t *Translator) ToolGetStashDiffDesc() string           { return t.tr.AIToolGetStashDiffDesc }
+func (t *Translator) ToolGetStashDiffIndexParam() string     { return t.tr.AIToolGetStashDiffIndexParam }
+func (t *Translator) ToolGetCommitDiffDesc() string          { return t.tr.AIToolGetCommitDiffDesc }
+func (t *Translator) ToolGetCommitDiffHashParam() string     { return t.tr.AIToolGetCommitDiffHashParam }
+func (t *Translator) ToolStageAllDesc() string               { return t.tr.AIToolStageAllDesc }
+func (t *Translator) ToolStageFileDesc() string              { return t.tr.AIToolStageFileDesc }
+func (t *Translator) ToolUnstageAllDesc() string             { return t.tr.AIToolUnstageAllDesc }
+func (t *Translator) ToolUnstageFileDesc() string            { return t.tr.AIToolUnstageFileDesc }
+func (t *Translator) ToolDiscardFileDesc() string            { return t.tr.AIToolDiscardFileDesc }
+func (t *Translator) ToolCommitDesc() string                 { return t.tr.AIToolCommitDesc }
+func (t *Translator) ToolCommitMsgParam() string             { return t.tr.AIToolCommitMsgParam }
+func (t *Translator) ToolAmendHeadDesc() string              { return t.tr.AIToolAmendHeadDesc }
+func (t *Translator) ToolAmendMsgParam() string              { return t.tr.AIToolAmendMsgParam }
+func (t *Translator) ToolRevertCommitDesc() string           { return t.tr.AIToolRevertCommitDesc }
+func (t *Translator) ToolRevertHashParam() string            { return t.tr.AIToolRevertHashParam }
+func (t *Translator) ToolResetSoftDesc() string              { return t.tr.AIToolResetSoftDesc }
+func (t *Translator) ToolResetMixedDesc() string             { return t.tr.AIToolResetMixedDesc }
+func (t *Translator) ToolResetHardDesc() string              { return t.tr.AIToolResetHardDesc }
+func (t *Translator) ToolCherryPickDesc() string             { return t.tr.AIToolCherryPickDesc }
+func (t *Translator) ToolCherryPickHashParam() string        { return t.tr.AIToolCherryPickHashParam }
+func (t *Translator) ToolCheckoutDesc() string               { return t.tr.AIToolCheckoutDesc }
+func (t *Translator) ToolCheckoutNameParam() string          { return t.tr.AIToolCheckoutNameParam }
+func (t *Translator) ToolCreateBranchDesc() string           { return t.tr.AIToolCreateBranchDesc }
+func (t *Translator) ToolCreateBranchNameParam() string      { return t.tr.AIToolCreateBranchNameParam }
+func (t *Translator) ToolCreateBranchBaseParam() string      { return t.tr.AIToolCreateBranchBaseParam }
+func (t *Translator) ToolCreateBranchCheckoutParam() string  { return t.tr.AIToolCreateBranchCheckoutParam }
+func (t *Translator) ToolDeleteBranchDesc() string           { return t.tr.AIToolDeleteBranchDesc }
+func (t *Translator) ToolDeleteBranchForceParam() string     { return t.tr.AIToolDeleteBranchForceParam }
+func (t *Translator) ToolRenameBranchDesc() string           { return t.tr.AIToolRenameBranchDesc }
+func (t *Translator) ToolRenameBranchOldParam() string       { return t.tr.AIToolRenameBranchOldParam }
+func (t *Translator) ToolMergeBranchDesc() string            { return t.tr.AIToolMergeBranchDesc }
+func (t *Translator) ToolMergeBranchNameParam() string       { return t.tr.AIToolMergeBranchNameParam }
+func (t *Translator) ToolRebaseBranchDesc() string           { return t.tr.AIToolRebaseBranchDesc }
+func (t *Translator) ToolRebaseBranchTargetParam() string    { return t.tr.AIToolRebaseBranchTargetParam }
+func (t *Translator) ToolStashDesc() string                  { return t.tr.AIToolStashDesc }
+func (t *Translator) ToolStashMsgParam() string              { return t.tr.AIToolStashMsgParam }
+func (t *Translator) ToolStashPopDesc() string               { return t.tr.AIToolStashPopDesc }
+func (t *Translator) ToolStashApplyDesc() string             { return t.tr.AIToolStashApplyDesc }
+func (t *Translator) ToolStashDropDesc() string              { return t.tr.AIToolStashDropDesc }
+func (t *Translator) ToolCreateTagDesc() string              { return t.tr.AIToolCreateTagDesc }
+func (t *Translator) ToolDeleteTagDesc() string              { return t.tr.AIToolDeleteTagDesc }
+func (t *Translator) ToolPullDesc() string                   { return t.tr.AIToolPullDesc }
+func (t *Translator) ToolPullRemoteParam() string            { return t.tr.AIToolPullRemoteParam }
+func (t *Translator) ToolPullBranchParam() string            { return t.tr.AIToolPullBranchParam }
+func (t *Translator) ToolFetchDesc() string                  { return t.tr.AIToolFetchDesc }
+func (t *Translator) ToolPushDesc() string                   { return t.tr.AIToolPushDesc }
+func (t *Translator) ToolPushForceDesc() string              { return t.tr.AIToolPushForceDesc }
+func (t *Translator) ToolAbortOperationDesc() string         { return t.tr.AIToolAbortOperationDesc }
+func (t *Translator) ToolAbortOperationTypeParam() string    { return t.tr.AIToolAbortOperationTypeParam }
+func (t *Translator) ToolContinueOperationDesc() string      { return t.tr.AIToolContinueOperationDesc }
+func (t *Translator) ToolContinueOperationTypeParam() string { return t.tr.AIToolContinueOperationTypeParam }
+
+// AI Tools - Output messages (success)
+func (t *Translator) ToolStagedDiffEmpty() string  { return t.tr.AIToolStagedDiffEmpty }
+func (t *Translator) ToolUnstagedDiffEmpty() string { return t.tr.AIToolUnstagedDiffEmpty }
+func (t *Translator) ToolNoStashEntries() string   { return t.tr.AIToolNoStashEntries }
+func (t *Translator) ToolNoRemotes() string        { return t.tr.AIToolNoRemotes }
+func (t *Translator) ToolNoTags() string           { return t.tr.AIToolNoTags }
+func (t *Translator) ToolStatusClean() string      { return t.tr.AIToolStatusClean }
+func (t *Translator) ToolStageAllSuccess() string  { return t.tr.AIToolStageAllSuccess }
+func (t *Translator) ToolUnstageAllSuccess() string { return t.tr.AIToolUnstageAllSuccess }
+func (t *Translator) ToolPullSuccess() string      { return t.tr.AIToolPullSuccess }
+func (t *Translator) ToolFetchSuccess() string     { return t.tr.AIToolFetchSuccess }
+func (t *Translator) ToolPushSuccess() string      { return t.tr.AIToolPushSuccess }
+func (t *Translator) ToolPushForceSuccess() string { return t.tr.AIToolPushForceSuccess }
+func (t *Translator) ToolMissingTargetParam() string    { return t.tr.AIToolMissingTargetParam }
+func (t *Translator) ToolMissingOldOrNameParam() string { return t.tr.AIToolMissingOldOrNameParam }
+
+func (t *Translator) ToolFileNotInWorkdir(path string) string {
+	return fmt.Sprintf(t.tr.AIToolFileNotInWorkdir, path)
+}
+func (t *Translator) ToolStashEntryEmpty(idx int) string {
+	return fmt.Sprintf(t.tr.AIToolStashEntryEmpty, idx)
+}
+func (t *Translator) ToolStatusFiles(total, staged, unstaged, untracked int) string {
+	return fmt.Sprintf(t.tr.AIToolStatusFiles, total, staged, unstaged, untracked)
+}
+func (t *Translator) ToolStatusInProgress(op string) string {
+	return fmt.Sprintf(t.tr.AIToolStatusInProgress, op)
+}
+func (t *Translator) ToolStageFileSuccess(path string) string {
+	return fmt.Sprintf(t.tr.AIToolStageFileSuccess, path)
+}
+func (t *Translator) ToolUnstageFileSuccess(path string) string {
+	return fmt.Sprintf(t.tr.AIToolUnstageFileSuccess, path)
+}
+func (t *Translator) ToolCommitSuccess(msg string) string {
+	return fmt.Sprintf(t.tr.AIToolCommitSuccess, msg)
+}
+func (t *Translator) ToolAmendSuccess(msg string) string {
+	return fmt.Sprintf(t.tr.AIToolAmendSuccess, msg)
+}
+func (t *Translator) ToolRevertSuccess(hash string) string {
+	return fmt.Sprintf(t.tr.AIToolRevertSuccess, hash)
+}
+func (t *Translator) ToolResetSoftSuccess(ref string) string {
+	return fmt.Sprintf(t.tr.AIToolResetSoftSuccess, ref)
+}
+func (t *Translator) ToolResetMixedSuccess(ref string) string {
+	return fmt.Sprintf(t.tr.AIToolResetMixedSuccess, ref)
+}
+func (t *Translator) ToolResetHardSuccess(ref string) string {
+	return fmt.Sprintf(t.tr.AIToolResetHardSuccess, ref)
+}
+func (t *Translator) ToolCherryPickSuccess(hash string) string {
+	return fmt.Sprintf(t.tr.AIToolCherryPickSuccess, hash)
+}
+func (t *Translator) ToolCheckoutSuccess(name string) string {
+	return fmt.Sprintf(t.tr.AIToolCheckoutSuccess, name)
+}
+func (t *Translator) ToolCreateBranchSuccess(name, base string) string {
+	return fmt.Sprintf(t.tr.AIToolCreateBranchSuccess, name, base)
+}
+func (t *Translator) ToolCreateBranchNoCheckoutSuccess(name, base string) string {
+	return fmt.Sprintf(t.tr.AIToolCreateBranchNoCheckoutSuccess, name, base)
+}
+func (t *Translator) ToolDeleteBranchSuccess(name string) string {
+	return fmt.Sprintf(t.tr.AIToolDeleteBranchSuccess, name)
+}
+func (t *Translator) ToolRenameBranchSuccess(old, name string) string {
+	return fmt.Sprintf(t.tr.AIToolRenameBranchSuccess, old, name)
+}
+func (t *Translator) ToolMergeBranchSuccess(name string) string {
+	return fmt.Sprintf(t.tr.AIToolMergeBranchSuccess, name)
+}
+func (t *Translator) ToolStashSuccess(msg string) string {
+	return fmt.Sprintf(t.tr.AIToolStashSuccess, msg)
+}
+func (t *Translator) ToolStashPopSuccess(idx int) string {
+	return fmt.Sprintf(t.tr.AIToolStashPopSuccess, idx)
+}
+func (t *Translator) ToolStashApplySuccess(idx int) string {
+	return fmt.Sprintf(t.tr.AIToolStashApplySuccess, idx)
+}
+func (t *Translator) ToolStashDropSuccess(idx int) string {
+	return fmt.Sprintf(t.tr.AIToolStashDropSuccess, idx)
+}
+func (t *Translator) ToolCreateTagSuccess(name, ref string) string {
+	return fmt.Sprintf(t.tr.AIToolCreateTagSuccess, name, ref)
+}
+func (t *Translator) ToolDeleteTagSuccess(name string) string {
+	return fmt.Sprintf(t.tr.AIToolDeleteTagSuccess, name)
+}
+func (t *Translator) ToolAbortSuccess(opType string) string {
+	return fmt.Sprintf(t.tr.AIToolAbortSuccess, opType)
+}
+func (t *Translator) ToolContinueSuccess(opType string) string {
+	return fmt.Sprintf(t.tr.AIToolContinueSuccess, opType)
+}
+func (t *Translator) ToolTruncated(total, shown int) string {
+	return fmt.Sprintf(t.tr.AIToolTruncated, total, shown)
+}
+
+// AI Tools - Error messages
+func (t *Translator) ToolGetStagedDiffFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolGetStagedDiffFailed, err)
+}
+func (t *Translator) ToolGetDiffFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolGetDiffFailed, err)
+}
+func (t *Translator) ToolGetStashDiffFailed(idx int, err error) string {
+	return fmt.Sprintf(t.tr.AIToolGetStashDiffFailed, idx, err)
+}
+func (t *Translator) ToolGetCommitDiffFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolGetCommitDiffFailed, err)
+}
+func (t *Translator) ToolStageAllFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolStageAllFailed, err)
+}
+func (t *Translator) ToolStageFileFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolStageFileFailed, err)
+}
+func (t *Translator) ToolUnstageAllFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolUnstageAllFailed, err)
+}
+func (t *Translator) ToolUnstageFileFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolUnstageFileFailed, err)
+}
+func (t *Translator) ToolCommitFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolCommitFailed, err)
+}
+func (t *Translator) ToolAmendFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolAmendFailed, err)
+}
+func (t *Translator) ToolRevertFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolRevertFailed, err)
+}
+func (t *Translator) ToolResetSoftFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolResetSoftFailed, err)
+}
+func (t *Translator) ToolResetMixedFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolResetMixedFailed, err)
+}
+func (t *Translator) ToolResetHardFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolResetHardFailed, err)
+}
+func (t *Translator) ToolCherryPickFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolCherryPickFailed, err)
+}
+func (t *Translator) ToolCheckoutFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolCheckoutFailed, err)
+}
+func (t *Translator) ToolCreateBranchFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolCreateBranchFailed, err)
+}
+func (t *Translator) ToolDeleteBranchFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolDeleteBranchFailed, err)
+}
+func (t *Translator) ToolMergeBranchFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolMergeBranchFailed, err)
+}
+func (t *Translator) ToolRebaseBranchFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolRebaseBranchFailed, err)
+}
+func (t *Translator) ToolStashFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolStashFailed, err)
+}
+func (t *Translator) ToolStashPopFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolStashPopFailed, err)
+}
+func (t *Translator) ToolStashApplyFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolStashApplyFailed, err)
+}
+func (t *Translator) ToolStashDropFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolStashDropFailed, err)
+}
+func (t *Translator) ToolCreateTagFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolCreateTagFailed, err)
+}
+func (t *Translator) ToolDeleteTagFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolDeleteTagFailed, err)
+}
+func (t *Translator) ToolPullFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolPullFailed, err)
+}
+func (t *Translator) ToolFetchFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolFetchFailed, err)
+}
+func (t *Translator) ToolPushFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolPushFailed, err)
+}
+func (t *Translator) ToolPushForceFailed(err error) string {
+	return fmt.Sprintf(t.tr.AIToolPushForceFailed, err)
+}
+func (t *Translator) ToolAbortFailed(opType string, err error) string {
+	return fmt.Sprintf(t.tr.AIToolAbortFailed, opType, err)
+}
+func (t *Translator) ToolContinueFailed(opType string, err error) string {
+	return fmt.Sprintf(t.tr.AIToolContinueFailed, opType, err)
+}
+func (t *Translator) ToolUnknownOperationType(got, supported string) string {
+	return fmt.Sprintf(t.tr.AIToolUnknownOperationType, got, supported)
+}
+
+// Code review skill translations
+func (t *Translator) SkillCodeReviewSystemPrompt() string { return t.tr.AISkillCodeReviewSystemPrompt }
+
+// Explain diff skill translations
+func (t *Translator) SkillExplainDiffSystemPrompt() string { return t.tr.AISkillExplainDiffSystemPrompt }
+
+// Release notes skill translations
+func (t *Translator) SkillReleaseNotesSystemPrompt() string { return t.tr.AISkillReleaseNotesSystemPrompt }
+
+// Stash name skill translations
+func (t *Translator) SkillStashNameSystemPrompt() string { return t.tr.AISkillStashNameSystemPrompt }
 
 // Shell command skill translations
 func (t *Translator) SkillShellCmdSystemPrompt() string       { return t.tr.AISkillShellCmdSystemPrompt }

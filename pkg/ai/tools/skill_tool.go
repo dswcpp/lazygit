@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/ai/repocontext"
 	"github.com/dswcpp/lazygit/pkg/ai/skills"
@@ -15,10 +16,11 @@ import (
 // 具体的值（例如提交信息、分支名），再将这些值写入执行计划的参数中。
 // 这样执行阶段只需按参数直接调用写工具，无需再次询问 LLM。
 type SkillTool struct {
-	skill      skills.Skill
-	prov       provider.Provider
-	repoCtxFn  func() repocontext.RepoContext
-	schema     ToolSchema
+	skill     skills.Skill
+	prov      provider.Provider
+	repoCtxFn func() repocontext.RepoContext
+	tr        *aii18n.Translator
+	schema    ToolSchema
 }
 
 // NewSkillTool 创建一个 SkillTool。
@@ -31,6 +33,7 @@ func NewSkillTool(
 	skill skills.Skill,
 	prov provider.Provider,
 	repoCtxFn func() repocontext.RepoContext,
+	tr *aii18n.Translator,
 	description string,
 	params map[string]ParamSchema,
 ) Tool {
@@ -38,6 +41,7 @@ func NewSkillTool(
 		skill:     skill,
 		prov:      prov,
 		repoCtxFn: repoCtxFn,
+		tr:        tr,
 		schema: ToolSchema{
 			Name:        skill.Name(),
 			Description: description,
@@ -59,6 +63,7 @@ func (t *SkillTool) Execute(ctx context.Context, call ToolCall) ToolResult {
 	out, err := t.skill.Execute(ctx, t.prov, skills.Input{
 		RepoCtx: t.repoCtxFn(),
 		Extra:   extra,
+		Tr:      t.tr,
 	})
 	if err != nil {
 		return ToolResult{

@@ -1195,6 +1195,149 @@ type TranslationSet struct {
 	AIToolParam                              string
 	AIToolValue                              string
 
+	// AI Tools - Schema descriptions
+	AIToolGetStatusDesc              string
+	AIToolGetStagedDiffDesc          string
+	AIToolGetDiffDesc                string
+	AIToolGetFileDiffDesc            string
+	AIToolGetFileDiffStagedParam     string
+	AIToolGetLogDesc                 string
+	AIToolGetLogCountParam           string
+	AIToolGetBranchesDesc            string
+	AIToolGetStashListDesc           string
+	AIToolGetRemotesDesc             string
+	AIToolGetTagsDesc                string
+	AIToolGetStashDiffDesc           string
+	AIToolGetStashDiffIndexParam     string
+	AIToolGetCommitDiffDesc          string
+	AIToolGetCommitDiffHashParam     string
+	AIToolStageAllDesc               string
+	AIToolStageFileDesc              string
+	AIToolUnstageAllDesc             string
+	AIToolUnstageFileDesc            string
+	AIToolDiscardFileDesc            string
+	AIToolCommitDesc                 string
+	AIToolCommitMsgParam             string
+	AIToolAmendHeadDesc              string
+	AIToolAmendMsgParam              string
+	AIToolRevertCommitDesc           string
+	AIToolRevertHashParam            string
+	AIToolResetSoftDesc              string
+	AIToolResetMixedDesc             string
+	AIToolResetHardDesc              string
+	AIToolCherryPickDesc             string
+	AIToolCherryPickHashParam        string
+	AIToolCheckoutDesc               string
+	AIToolCheckoutNameParam          string
+	AIToolCreateBranchDesc           string
+	AIToolCreateBranchNameParam      string
+	AIToolCreateBranchBaseParam      string
+	AIToolCreateBranchCheckoutParam  string
+	AIToolDeleteBranchDesc           string
+	AIToolDeleteBranchForceParam     string
+	AIToolRenameBranchDesc           string
+	AIToolRenameBranchOldParam       string
+	AIToolMergeBranchDesc            string
+	AIToolMergeBranchNameParam       string
+	AIToolRebaseBranchDesc           string
+	AIToolRebaseBranchTargetParam    string
+	AIToolStashDesc                  string
+	AIToolStashMsgParam              string
+	AIToolStashPopDesc               string
+	AIToolStashApplyDesc             string
+	AIToolStashDropDesc              string
+	AIToolCreateTagDesc              string
+	AIToolDeleteTagDesc              string
+	AIToolPullDesc                   string
+	AIToolPullRemoteParam            string
+	AIToolPullBranchParam            string
+	AIToolFetchDesc                  string
+	AIToolPushDesc                   string
+	AIToolPushForceDesc              string
+	AIToolAbortOperationDesc         string
+	AIToolAbortOperationTypeParam    string
+	AIToolContinueOperationDesc      string
+	AIToolContinueOperationTypeParam string
+
+	// AI Tools - Output messages (success)
+	AIToolStagedDiffEmpty               string
+	AIToolUnstagedDiffEmpty             string
+	AIToolNoStashEntries                string
+	AIToolNoRemotes                     string
+	AIToolNoTags                        string
+	AIToolFileNotInWorkdir              string
+	AIToolStashEntryEmpty               string
+	AIToolStatusFiles                   string
+	AIToolStatusClean                   string
+	AIToolStatusInProgress              string
+	AIToolStageAllSuccess               string
+	AIToolStageFileSuccess              string
+	AIToolUnstageAllSuccess             string
+	AIToolUnstageFileSuccess            string
+	AIToolCommitSuccess                 string
+	AIToolAmendSuccess                  string
+	AIToolRevertSuccess                 string
+	AIToolResetSoftSuccess              string
+	AIToolResetMixedSuccess             string
+	AIToolResetHardSuccess              string
+	AIToolCherryPickSuccess             string
+	AIToolCheckoutSuccess               string
+	AIToolCreateBranchSuccess           string
+	AIToolCreateBranchNoCheckoutSuccess string
+	AIToolDeleteBranchSuccess           string
+	AIToolRenameBranchSuccess           string
+	AIToolMergeBranchSuccess            string
+	AIToolStashSuccess                  string
+	AIToolStashPopSuccess               string
+	AIToolStashApplySuccess             string
+	AIToolStashDropSuccess              string
+	AIToolCreateTagSuccess              string
+	AIToolDeleteTagSuccess              string
+	AIToolPullSuccess                   string
+	AIToolFetchSuccess                  string
+	AIToolPushSuccess                   string
+	AIToolPushForceSuccess              string
+	AIToolAbortSuccess                  string
+	AIToolContinueSuccess               string
+	AIToolTruncated                     string
+
+	// AI Tools - Error messages
+	AIToolGetStagedDiffFailed   string
+	AIToolGetDiffFailed         string
+	AIToolGetStashDiffFailed    string
+	AIToolGetCommitDiffFailed   string
+	AIToolStageAllFailed        string
+	AIToolStageFileFailed       string
+	AIToolUnstageAllFailed      string
+	AIToolUnstageFileFailed     string
+	AIToolCommitFailed          string
+	AIToolAmendFailed           string
+	AIToolRevertFailed          string
+	AIToolResetSoftFailed       string
+	AIToolResetMixedFailed      string
+	AIToolResetHardFailed       string
+	AIToolCherryPickFailed      string
+	AIToolCheckoutFailed        string
+	AIToolCreateBranchFailed    string
+	AIToolDeleteBranchFailed    string
+	AIToolMergeBranchFailed     string
+	AIToolRebaseBranchFailed    string
+	AIToolStashFailed           string
+	AIToolStashPopFailed        string
+	AIToolStashApplyFailed      string
+	AIToolStashDropFailed       string
+	AIToolCreateTagFailed       string
+	AIToolDeleteTagFailed       string
+	AIToolPullFailed            string
+	AIToolFetchFailed           string
+	AIToolPushFailed            string
+	AIToolPushForceFailed       string
+	AIToolAbortFailed           string
+	AIToolContinueFailed        string
+	AIToolMissingTargetParam    string
+	AIToolMissingOldOrNameParam string
+	AIToolUnknownOperationType  string
+
 	// AI Skills
 	AISkillCurrentBranch                     string
 	AISkillBranchNameOnly                    string
@@ -1383,6 +1526,8 @@ type TranslationSet struct {
 	AISkillCommitMsgScenarioDocs             string
 	AISkillCommitMsgScenarioTest             string
 	AISkillCommitMsgScenarioDefault          string
+	AISkillCommitMsgScenarioLarge            string
+	AISkillCommitMsgProjectType              string
 
 	// AI Skills - Branch Name
 	AISkillBranchNamePromptIntro             string
@@ -1395,6 +1540,7 @@ type TranslationSet struct {
 	AISkillBranchNameTypeRule                string
 	AISkillBranchNameDescRule                string
 	AISkillBranchNameOutputRule              string
+	AISkillBranchNameDescriptionHint        string
 	AISkillBranchNameSystemPrompt            string
 
 	// AI Skills - PR Description
@@ -1405,7 +1551,9 @@ type TranslationSet struct {
 	AISkillPRDescGeneratePrompt              string
 	AISkillPRDescSummarySection              string
 	AISkillPRDescChangesSection              string
+	AISkillPRDescBreakingSection             string
 	AISkillPRDescTestingSection              string
+	AISkillPRDescChecklistSection            string
 
 	// AI Skills - Shell Command
 	AISkillShellCmdSystemPrompt              string
@@ -1421,6 +1569,18 @@ type TranslationSet struct {
 	AISkillShellCmdWindowsHint               string
 	AISkillShellCmdMacOSHint                 string
 	AISkillShellCmdLinuxHint                 string
+
+	// AI Skills - Code Review
+	AISkillCodeReviewSystemPrompt            string
+
+	// AI Skills - Explain Diff
+	AISkillExplainDiffSystemPrompt           string
+
+	// AI Skills - Release Notes
+	AISkillReleaseNotesSystemPrompt          string
+
+	// AI Skills - Stash Name
+	AISkillStashNameSystemPrompt             string
 
 	// AI Chat Helper
 	AIChatWelcomeSystem                      string
@@ -3097,6 +3257,149 @@ keybinding:
 		AIToolParam:                 "Parameter",
 		AIToolValue:                 "Value",
 
+		// AI Tools - Schema descriptions
+		AIToolGetStatusDesc:              "Get current repository status (branch, working tree files, rebase/merge progress)",
+		AIToolGetStagedDiffDesc:          "Get the staged diff",
+		AIToolGetDiffDesc:                "Get unstaged working tree diff",
+		AIToolGetFileDiffDesc:            "Get diff for a specific file (staged or unstaged)",
+		AIToolGetFileDiffStagedParam:     "true = staged diff, false = unstaged diff (default false)",
+		AIToolGetLogDesc:                 "Get recent commit history",
+		AIToolGetLogCountParam:           "Number of entries to return (default 15, max 50)",
+		AIToolGetBranchesDesc:            "List local branches (current branch marked with *)",
+		AIToolGetStashListDesc:           "List all stash entries",
+		AIToolGetRemotesDesc:             "List all configured remotes",
+		AIToolGetTagsDesc:                "List all tags",
+		AIToolGetStashDiffDesc:           "Show diff of a stash entry (useful for previewing before apply)",
+		AIToolGetStashDiffIndexParam:     "Stash index, default 0 (most recent stash)",
+		AIToolGetCommitDiffDesc:          "Get diff for a specific commit (default HEAD)",
+		AIToolGetCommitDiffHashParam:     "Commit hash; leave empty for HEAD",
+		AIToolStageAllDesc:               "Stage all working tree changes",
+		AIToolStageFileDesc:              "Stage a specific file",
+		AIToolUnstageAllDesc:             "Unstage all staged changes (git reset HEAD)",
+		AIToolUnstageFileDesc:            "Unstage a specific file",
+		AIToolDiscardFileDesc:            "Discard all changes in a file (restore to HEAD)",
+		AIToolCommitDesc:                 "Create a commit from staged changes. Call get_staged_diff first; generate the commit message yourself — do not ask the user",
+		AIToolCommitMsgParam:             "Conventional Commits message (AI-generated from diff, e.g. feat: add login page)",
+		AIToolAmendHeadDesc:              "Rewrite the most recent commit message (git commit --amend)",
+		AIToolAmendMsgParam:              "New commit message",
+		AIToolRevertCommitDesc:           "Revert a commit by creating a new reverse commit",
+		AIToolRevertHashParam:            "Hash of the commit to revert",
+		AIToolResetSoftDesc:              "git reset --soft (keep changes in the staging area)",
+		AIToolResetMixedDesc:             "git reset --mixed (keep changes in the working tree, unstaged)",
+		AIToolResetHardDesc:              "git reset --hard (discard ALL uncommitted changes — irreversible, use with caution)",
+		AIToolCherryPickDesc:             "Cherry-pick a specific commit onto the current branch",
+		AIToolCherryPickHashParam:        "Hash of the commit to cherry-pick",
+		AIToolCheckoutDesc:               "Switch to a branch, tag, or commit hash (hash enters detached HEAD state)",
+		AIToolCheckoutNameParam:          "Branch name, tag, or commit hash",
+		AIToolCreateBranchDesc:           "Create a new branch. AI generates the name from the user description (kebab-case, e.g. feature/user-login); do not ask the user. checkout=true (default) switches to the new branch",
+		AIToolCreateBranchNameParam:      "Branch name in type/description format (kebab-case), e.g. feature/user-login",
+		AIToolCreateBranchBaseParam:      "Base ref (default HEAD)",
+		AIToolCreateBranchCheckoutParam:  "Switch to the new branch after creation (default true)",
+		AIToolDeleteBranchDesc:           "Delete a local branch (must be fully merged unless force=true)",
+		AIToolDeleteBranchForceParam:     "Force delete even if unmerged (default false)",
+		AIToolRenameBranchDesc:           "Rename a local branch",
+		AIToolRenameBranchOldParam:       "Current branch name",
+		AIToolMergeBranchDesc:            "Merge a branch into the current branch",
+		AIToolMergeBranchNameParam:       "Name of the branch to merge",
+		AIToolRebaseBranchDesc:           "Rebase the current branch onto the target branch (git rebase <target>)",
+		AIToolRebaseBranchTargetParam:    "Target branch name or ref",
+		AIToolStashDesc:                  "Save working tree changes to the stash",
+		AIToolStashMsgParam:              "Stash description (optional)",
+		AIToolStashPopDesc:               "Restore a stash entry and remove it from the stash list",
+		AIToolStashApplyDesc:             "Apply a stash entry without removing it",
+		AIToolStashDropDesc:              "Delete a stash entry",
+		AIToolCreateTagDesc:              "Create a lightweight tag",
+		AIToolDeleteTagDesc:              "Delete a local tag",
+		AIToolPullDesc:                   "Pull from remote and merge into the current branch (git pull)",
+		AIToolPullRemoteParam:            "Remote name (default: current tracking remote)",
+		AIToolPullBranchParam:            "Remote branch name (default: current tracking branch)",
+		AIToolFetchDesc:                  "Fetch latest refs from all remotes (git fetch)",
+		AIToolPushDesc:                   "Push the current branch to its remote (git push). Use push_force for force-push",
+		AIToolPushForceDesc:              "Force-push using --force-with-lease (safer than --force; aborts if remote has unpulled commits). Still rewrites remote history — use with caution",
+		AIToolAbortOperationDesc:         "Abort an in-progress rebase, merge, or cherry-pick",
+		AIToolAbortOperationTypeParam:    `Operation type: "rebase" | "merge" | "cherry-pick"`,
+		AIToolContinueOperationDesc:      "Continue a paused rebase or merge after resolving conflicts",
+		AIToolContinueOperationTypeParam: `Operation type: "rebase" | "merge" (default rebase)`,
+
+		// AI Tools - Output messages (success)
+		AIToolStagedDiffEmpty:               "No staged changes",
+		AIToolUnstagedDiffEmpty:             "No unstaged changes",
+		AIToolNoStashEntries:                "No stash entries",
+		AIToolNoRemotes:                     "No remotes configured",
+		AIToolNoTags:                        "No tags",
+		AIToolFileNotInWorkdir:              "File not in working tree: %s",
+		AIToolStashEntryEmpty:               "stash[%d] is empty",
+		AIToolStatusFiles:                   "Changed files: %d (%d staged, %d unstaged, %d untracked)",
+		AIToolStatusClean:                   "Working tree: clean",
+		AIToolStatusInProgress:              "In progress: %s",
+		AIToolStageAllSuccess:               "Staged all changes",
+		AIToolStageFileSuccess:              "Staged: %s",
+		AIToolUnstageAllSuccess:             "Unstaged all changes",
+		AIToolUnstageFileSuccess:            "Unstaged: %s",
+		AIToolCommitSuccess:                 "Committed: \"%s\"",
+		AIToolAmendSuccess:                  "Amended commit message to: \"%s\"",
+		AIToolRevertSuccess:                 "Reverted commit: %s",
+		AIToolResetSoftSuccess:              "reset --soft to %s; changes are in the staging area",
+		AIToolResetMixedSuccess:             "reset --mixed to %s; changes are in the working tree",
+		AIToolResetHardSuccess:              "reset --hard to %s; all uncommitted changes discarded",
+		AIToolCherryPickSuccess:             "Cherry-picked: %s",
+		AIToolCheckoutSuccess:               "Switched to: %s",
+		AIToolCreateBranchSuccess:           "Created and switched to branch %s (from %s)",
+		AIToolCreateBranchNoCheckoutSuccess: "Created branch %s (from %s, not switched)",
+		AIToolDeleteBranchSuccess:           "Deleted local branch: %s",
+		AIToolRenameBranchSuccess:           "Renamed branch %s to %s",
+		AIToolMergeBranchSuccess:            "Merged %s into current branch",
+		AIToolStashSuccess:                  "Stashed changes: %s",
+		AIToolStashPopSuccess:               "Restored stash[%d]",
+		AIToolStashApplySuccess:             "Applied stash[%d] (entry kept)",
+		AIToolStashDropSuccess:              "Deleted stash[%d]",
+		AIToolCreateTagSuccess:              "Created tag %s (pointing to %s)",
+		AIToolDeleteTagSuccess:              "Deleted local tag: %s",
+		AIToolPullSuccess:                   "Pull successful",
+		AIToolFetchSuccess:                  "Fetch complete",
+		AIToolPushSuccess:                   "Push successful",
+		AIToolPushForceSuccess:              "Force push (--force-with-lease) successful",
+		AIToolAbortSuccess:                  "Aborted %s",
+		AIToolContinueSuccess:               "Resumed %s",
+		AIToolTruncated:                     "\n... (truncated, %d lines total, showing first %d)",
+
+		// AI Tools - Error messages
+		AIToolGetStagedDiffFailed:   "Failed to get staged diff: %v",
+		AIToolGetDiffFailed:         "Failed to get diff: %v",
+		AIToolGetStashDiffFailed:    "Failed to get stash[%d] diff: %v",
+		AIToolGetCommitDiffFailed:   "Failed to get commit diff: %v",
+		AIToolStageAllFailed:        "Failed to stage all: %v",
+		AIToolStageFileFailed:       "Failed to stage file: %v",
+		AIToolUnstageAllFailed:      "Failed to unstage all: %v",
+		AIToolUnstageFileFailed:     "Failed to unstage: %v",
+		AIToolCommitFailed:          "Commit failed: %v",
+		AIToolAmendFailed:           "Failed to amend commit: %v",
+		AIToolRevertFailed:          "Revert failed: %v",
+		AIToolResetSoftFailed:       "reset --soft failed: %v",
+		AIToolResetMixedFailed:      "reset --mixed failed: %v",
+		AIToolResetHardFailed:       "reset --hard failed: %v",
+		AIToolCherryPickFailed:      "Cherry-pick failed: %v",
+		AIToolCheckoutFailed:        "Checkout failed: %v",
+		AIToolCreateBranchFailed:    "Failed to create branch: %v",
+		AIToolDeleteBranchFailed:    "Failed to delete branch: %v (ensure branch is fully merged or use force=true)",
+		AIToolMergeBranchFailed:     "Merge failed: %v",
+		AIToolRebaseBranchFailed:    "Rebase failed: %v (resolve conflicts manually then continue)",
+		AIToolStashFailed:           "Failed to stash: %v",
+		AIToolStashPopFailed:        "stash pop failed: %v",
+		AIToolStashApplyFailed:      "stash apply failed: %v",
+		AIToolStashDropFailed:       "stash drop failed: %v",
+		AIToolCreateTagFailed:       "Failed to create tag: %v",
+		AIToolDeleteTagFailed:       "Failed to delete tag: %v",
+		AIToolPullFailed:            "Pull failed: %v",
+		AIToolFetchFailed:           "Fetch failed: %v",
+		AIToolPushFailed:            "Push failed: %v (check remote configuration and authentication)",
+		AIToolPushForceFailed:       "Force push failed: %v",
+		AIToolAbortFailed:           "Failed to abort %s: %v",
+		AIToolContinueFailed:        "Failed to resume %s: %v (ensure all conflicts are resolved and staged)",
+		AIToolMissingTargetParam:    "Missing target parameter",
+		AIToolMissingOldOrNameParam: "Missing old or name parameter",
+		AIToolUnknownOperationType:  `Unknown operation type: %q, supported: %s`,
+
 		// AI Skills
 		AISkillCurrentBranch:     "Current branch: %s\n",
 		AISkillBranchNameOnly:    "- Output branch name only, no explanation\n",
@@ -3285,6 +3588,8 @@ keybinding:
 		AISkillCommitMsgScenarioDocs:      "Scenario hint: This is documentation update, use docs type.\n",
 		AISkillCommitMsgScenarioTest:      "Scenario hint: This is test-related change, use test type.\n",
 		AISkillCommitMsgScenarioDefault:   "Please output the commit message directly:",
+		AISkillCommitMsgScenarioLarge:     "Scenario hint: This is a large changeset. Focus on the primary intent, mention key modules affected in the body. Be comprehensive but concise. Please output the commit message:\n",
+		AISkillCommitMsgProjectType:       "Project type: %s\n",
 
 		// AI Skills - Branch Name
 		AISkillBranchNamePromptIntro:      "Recommend a branch name based on the following working directory changes.\n\n",
@@ -3297,6 +3602,7 @@ keybinding:
 		AISkillBranchNameTypeRule:         "- type: feature | fix | refactor | docs | test | chore\n",
 		AISkillBranchNameDescRule:         "- description: lowercase kebab-case, 2-5 words\n",
 		AISkillBranchNameOutputRule:       "- Only output the branch name, no explanation\n",
+		AISkillBranchNameDescriptionHint:  "Intent description: %s\n\n",
 		AISkillBranchNameSystemPrompt:     "You are a Git branch naming expert. Recommend concise, descriptive branch names based on change content. Only output the branch name itself.",
 
 		// AI Skills - PR Description
@@ -3304,10 +3610,12 @@ keybinding:
 		AISkillPRDescBranchInfo:           "## Branch Info\nMerging from `%s` to `%s`\n\n",
 		AISkillPRDescCommitHistory:        "## Commit History\n",
 		AISkillPRDescCodeChangesSection:   "## Code Changes\n```diff\n",
-		AISkillPRDescGeneratePrompt:       "## Please generate PR description with the following sections\n",
-		AISkillPRDescSummarySection:       "### Summary\nOne sentence describing the purpose of this PR.\n\n",
-		AISkillPRDescChangesSection:       "### Changes\n- List main changes (3-5 items)\n\n",
-		AISkillPRDescTestingSection:       "### Testing\n- Explain how to verify these changes\n",
+		AISkillPRDescGeneratePrompt:       "## Please generate a PR description with the following sections\n\n",
+		AISkillPRDescSummarySection:       "### Summary\nOne sentence describing the purpose and motivation of this PR.\n\n",
+		AISkillPRDescChangesSection:       "### Changes\n- List main changes (3-5 items, be specific)\n\n",
+		AISkillPRDescBreakingSection:      "### Breaking Changes\nIf there are breaking changes, describe them and the migration steps. Otherwise write: None.\n\n",
+		AISkillPRDescTestingSection:       "### Testing\n- Describe how to verify these changes (manual steps or test commands)\n\n",
+		AISkillPRDescChecklistSection:     "### Checklist\n- [ ] Tests added or updated\n- [ ] Documentation updated\n- [ ] No breaking changes (or documented above)\n",
 
 		// AI Skills - Shell Command
 		AISkillShellCmdSystemPrompt:       "You are a Git command expert. Generate precise shell commands based on user intent.\n\n",
@@ -3323,6 +3631,18 @@ keybinding:
 		AISkillShellCmdWindowsHint:        "Windows + Git Bash, use && to connect commands",
 		AISkillShellCmdMacOSHint:          "macOS + zsh/bash, use && to connect commands",
 		AISkillShellCmdLinuxHint:          "Linux + bash, use && to connect commands",
+
+		// AI Skills - Code Review
+		AISkillCodeReviewSystemPrompt:     "You are a senior software engineer conducting a thorough code review.\nFocus on correctness, security, and maintainability.\nBe conservative: only report issues you are certain exist.\nOutput in Simplified Chinese.",
+
+		// AI Skills - Explain Diff
+		AISkillExplainDiffSystemPrompt:    "You are a technical writer who explains code changes clearly.\nDescribe what changed and why it matters — do not judge or assign severity.\nUse Simplified Chinese. Be concise: 2–4 sentences per section.",
+
+		// AI Skills - Release Notes
+		AISkillReleaseNotesSystemPrompt:   "You are a release manager writing a professional changelog.\nGroup commits by type, rewrite them as user-facing descriptions.\nUse Simplified Chinese. Output clean Markdown only.",
+
+		// AI Skills - Stash Name
+		AISkillStashNameSystemPrompt:      "You are a Git expert generating descriptive stash messages.\nOutput exactly one line: a concise stash message in Simplified Chinese.\nFormat: `<type>: <description>` — no quotes, no extra text.",
 
 		// AI Chat Helper
 		AIChatWelcomeSystem:               "Welcome to AI Assistant!",

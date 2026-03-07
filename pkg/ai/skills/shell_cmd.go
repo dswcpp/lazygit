@@ -37,10 +37,8 @@ func (s *ShellCmdSkill) Execute(ctx context.Context, p provider.Provider, input 
 	osHint := shellHint(input.Tr)
 	repoSummary := input.RepoCtx.CompactString(input.Tr)
 
-	prompt := input.Tr.SkillShellCmdSystemPrompt() +
-		input.Tr.SkillShellCmdRuntime(osHint) +
-		input.Tr.SkillShellCmdRepoStatus(repoSummary) +
-		input.Tr.SkillShellCmdUserIntent(intent) +
+	// System message: role + output format contract (stable, model-facing instructions)
+	systemMsg := input.Tr.SkillShellCmdSystemPrompt() +
 		input.Tr.SkillShellCmdOutputFormat() +
 		input.Tr.SkillShellCmdCommandField() +
 		input.Tr.SkillShellCmdExplanationField() +
@@ -48,8 +46,14 @@ func (s *ShellCmdSkill) Execute(ctx context.Context, p provider.Provider, input 
 		input.Tr.SkillShellCmdAlternativesField() +
 		input.Tr.SkillShellCmdOutputNote()
 
+	// User message: runtime context + the actual request
+	userMsg := input.Tr.SkillShellCmdRuntime(osHint) +
+		input.Tr.SkillShellCmdRepoStatus(repoSummary) +
+		input.Tr.SkillShellCmdUserIntent(intent)
+
 	messages := []provider.Message{
-		{Role: provider.RoleUser, Content: prompt},
+		{Role: provider.RoleSystem, Content: systemMsg},
+		{Role: provider.RoleUser, Content: userMsg},
 	}
 
 	result, err := p.Complete(ctx, messages)
@@ -82,22 +86,45 @@ func shellHint(tr *aii18n.Translator) string {
 }
 
 func parseCommandSuggestions(raw string) ([]CommandSuggestion, error) {
-	content := strings.TrimSpace(raw)
-	content = strings.TrimPrefix(content, "```json")
-	content = strings.TrimPrefix(content, "```")
-	content = strings.TrimSuffix(content, "```")
-	content = strings.TrimSpace(content)
+	content := extractJSONContent(raw)
 
+	// Primary: expect a JSON array.
 	var suggestions []CommandSuggestion
-	if err := json.Unmarshal([]byte(content), &suggestions); err != nil {
-		return nil, fmt.Errorf("invalid JSON: %w (response: %s)", err, content)
+	if err := json.Unmarshal([]byte(content), &suggestions); err == nil {
+		return normaliseRiskLevels(suggestions), nil
 	}
+
+	// Fallback: AI occasionally returns a single JSON object instead of an array.
+	var single CommandSuggestion
+	if err := json.Unmarshal([]byte(content), &single); err == nil && single.Command != "" {
+		return normaliseRiskLevels([]CommandSuggestion{single}), nil
+	}
+
+	return nil, fmt.Errorf("invalid JSON response: %s", content)
+}
+
+// extractJSONContent strips markdown code fences from AI output.
+func extractJSONContent(raw string) string {
+	s := strings.TrimSpace(raw)
+	// Strip optional ```json or ``` fence
+	for _, prefix := range []string{"```json", "```"} {
+		if strings.HasPrefix(s, prefix) {
+			s = strings.TrimPrefix(s, prefix)
+			s = strings.TrimSuffix(strings.TrimSpace(s), "```")
+			return strings.TrimSpace(s)
+		}
+	}
+	return s
+}
+
+func normaliseRiskLevels(suggestions []CommandSuggestion) []CommandSuggestion {
 	for i := range suggestions {
-		if suggestions[i].RiskLevel != "safe" &&
-			suggestions[i].RiskLevel != "medium" &&
-			suggestions[i].RiskLevel != "dangerous" {
+		switch suggestions[i].RiskLevel {
+		case "safe", "medium", "dangerous":
+			// valid
+		default:
 			suggestions[i].RiskLevel = "medium"
 		}
 	}
-	return suggestions, nil
+	return suggestions
 }

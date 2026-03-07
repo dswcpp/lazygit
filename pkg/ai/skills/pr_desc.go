@@ -69,7 +69,35 @@ func buildPRDescUserPrompt(tr *aii18n.Translator, ctx repocontext.RepoContext, f
 	sb.WriteString(tr.SkillPRDescGeneratePrompt())
 	sb.WriteString(tr.SkillPRDescSummarySection())
 	sb.WriteString(tr.SkillPRDescChangesSection())
+	if hasBreakingChanges(ctx.RecentCommits, diff) {
+		sb.WriteString(tr.SkillPRDescBreakingSection())
+	}
 	sb.WriteString(tr.SkillPRDescTestingSection())
+	sb.WriteString(tr.SkillPRDescChecklistSection())
 
 	return sb.String()
+}
+
+// hasBreakingChanges returns true when the commits or diff contain conventional
+// breaking-change indicators ("BREAKING CHANGE" footer or "!" in type).
+func hasBreakingChanges(commits []repocontext.CommitSummary, diff string) bool {
+	for _, c := range commits {
+		msg := c.Message
+		if strings.Contains(msg, "BREAKING CHANGE") ||
+			strings.Contains(msg, "BREAKING-CHANGE") ||
+			breakingTypeRe(msg) {
+			return true
+		}
+	}
+	return strings.Contains(diff, "BREAKING CHANGE")
+}
+
+// breakingTypeRe checks for conventional commit "type!:" pattern.
+func breakingTypeRe(msg string) bool {
+	for _, t := range []string{"feat!", "fix!", "refactor!", "perf!", "chore!"} {
+		if strings.HasPrefix(msg, t) {
+			return true
+		}
+	}
+	return false
 }

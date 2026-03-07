@@ -77,6 +77,9 @@ func NewManager(cfg config.AIConfig, ctxBuilder repocontext.Builder, tr *aii18n.
 		skills.NewPRDescSkill(),
 		skills.NewCodeReviewSkill(),
 		skills.NewShellCmdSkill(),
+		skills.NewExplainDiffSkill(),
+		skills.NewReleaseNotesSkill(),
+		skills.NewStashNameSkill(),
 	} {
 		m.skillMap[sk.Name()] = sk
 	}
@@ -166,7 +169,7 @@ func (m *Manager) DefaultSkillTools() []tools.Tool {
 
 	if sk, ok := m.skillMap["commit_msg"]; ok {
 		out = append(out, tools.NewSkillTool(
-			sk, m.prov, repoCtxFn,
+			sk, m.prov, repoCtxFn, m.tr,
 			"根据暂存区的 diff 生成符合 Conventional Commits 规范的提交信息",
 			map[string]tools.ParamSchema{
 				"diff": {Type: "string", Required: true, Description: "git diff --staged 的输出"},
@@ -175,10 +178,42 @@ func (m *Manager) DefaultSkillTools() []tools.Tool {
 	}
 	if sk, ok := m.skillMap["branch_name"]; ok {
 		out = append(out, tools.NewSkillTool(
-			sk, m.prov, repoCtxFn,
+			sk, m.prov, repoCtxFn, m.tr,
 			"根据功能描述生成合适的 Git 分支名（kebab-case，带类型前缀）",
 			map[string]tools.ParamSchema{
-				"description": {Type: "string", Required: true, Description: "分支要实现的功能或目的"},
+				"description": {Type: "string", Required: false, Description: "分支要实现的功能或目的（补充说明）"},
+				"diff":        {Type: "string", Required: false, Description: "变更 diff（可选，若提供则辅助命名）"},
+			},
+		))
+	}
+	if sk, ok := m.skillMap["explain_diff"]; ok {
+		out = append(out, tools.NewSkillTool(
+			sk, m.prov, repoCtxFn, m.tr,
+			"用简洁语言解释 diff 内容（是什么、为什么、有什么影响）",
+			map[string]tools.ParamSchema{
+				"diff":      {Type: "string", Required: true, Description: "要解释的 diff 文本"},
+				"file_path": {Type: "string", Required: false, Description: "文件路径（用于语言上下文）"},
+				"audience":  {Type: "string", Required: false, Description: "目标读者：developer | reviewer | beginner"},
+			},
+		))
+	}
+	if sk, ok := m.skillMap["release_notes"]; ok {
+		out = append(out, tools.NewSkillTool(
+			sk, m.prov, repoCtxFn, m.tr,
+			"根据近期提交历史生成 Markdown 格式的发布说明 / Changelog",
+			map[string]tools.ParamSchema{
+				"from_tag": {Type: "string", Required: false, Description: "起始标签或版本号，如 v1.0.0"},
+				"to_tag":   {Type: "string", Required: false, Description: "目标标签或版本号，如 v1.1.0"},
+			},
+		))
+	}
+	if sk, ok := m.skillMap["stash_name"]; ok {
+		out = append(out, tools.NewSkillTool(
+			sk, m.prov, repoCtxFn, m.tr,
+			"根据当前工作区改动生成一个描述性的 stash 消息",
+			map[string]tools.ParamSchema{
+				"diff":    {Type: "string", Required: false, Description: "工作区 diff（git diff 输出）"},
+				"context": {Type: "string", Required: false, Description: "用户对当前任务的补充说明"},
 			},
 		))
 	}

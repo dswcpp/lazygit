@@ -18,6 +18,7 @@ func RegisterAll(d *Deps, r *tools.Registry, p provider.Provider) {
 		NewGetLogTool(d),
 		NewGetBranchesTool(d),
 		NewGetStashListTool(d),
+		NewGetStashDiffTool(d),
 		NewGetRemotesTool(d),
 		NewGetTagsTool(d),
 		NewGetCommitDiffTool(d),
@@ -35,6 +36,7 @@ func RegisterAll(d *Deps, r *tools.Registry, p provider.Provider) {
 		NewRevertCommitTool(d),
 		NewResetSoftTool(d),
 		NewResetMixedTool(d),
+		NewResetHardTool(d),
 		NewCherryPickTool(d),
 
 		// Branches
@@ -56,9 +58,14 @@ func RegisterAll(d *Deps, r *tools.Registry, p provider.Provider) {
 		NewDeleteTagTool(d),
 
 		// Remote
+		NewPullTool(d),
 		NewFetchTool(d),
 		NewPushTool(d),
 		NewPushForceTool(d),
+
+		// Workflow control
+		NewAbortOperationTool(d),
+		NewContinueOperationTool(d),
 	} {
 		r.MustRegister(t)
 	}
