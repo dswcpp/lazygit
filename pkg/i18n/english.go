@@ -1202,6 +1202,7 @@ type TranslationSet struct {
 	AIToolGetDiffDesc                string
 	AIToolGetFileDiffDesc            string
 	AIToolGetFileDiffStagedParam     string
+	AIToolGetFileDiffOffsetParam     string
 	AIToolGetLogDesc                 string
 	AIToolGetLogCountParam           string
 	AIToolGetBranchesDesc            string
@@ -3270,6 +3271,7 @@ keybinding:
 		AIToolGetDiffDesc:                "Get unstaged working tree diff",
 		AIToolGetFileDiffDesc:            "Get diff for a specific file (staged or unstaged)",
 		AIToolGetFileDiffStagedParam:     "true = staged diff, false = unstaged diff (default false)",
+		AIToolGetFileDiffOffsetParam:     "Raw line offset for paginated reading (0-based). Omit for smart context compression; set to read exact lines.",
 		AIToolGetLogDesc:                 "Get recent commit history",
 		AIToolGetLogCountParam:           "Number of entries to return (default 15, max 50)",
 		AIToolGetBranchesDesc:            "List local branches (current branch marked with *)",
@@ -3372,7 +3374,7 @@ keybinding:
 		AIToolPushForceSuccess:              "Force push (--force-with-lease) successful",
 		AIToolAbortSuccess:                  "Aborted %s",
 		AIToolContinueSuccess:               "Resumed %s",
-		AIToolTruncated:                     "\n... (truncated, %d lines total, showing first %d)",
+		AIToolTruncated:                     "\n... [truncated: lines %d–%d of %d total. Use offset=%d to read next page]",
 
 		// AI Tools - Error messages
 		AIToolGetStagedDiffFailed:   "Failed to get staged diff: %v",

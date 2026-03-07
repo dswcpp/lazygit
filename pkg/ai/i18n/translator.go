@@ -102,6 +102,7 @@ func (t *Translator) ToolTargetRefOrHash() string     { return t.tr.AIToolTarget
 func (t *Translator) ToolResetSteps() string          { return t.tr.AIToolResetSteps }
 func (t *Translator) ToolStashIndex() string          { return t.tr.AIToolStashIndex }
 func (t *Translator) ToolMaxLines() string            { return t.tr.AIToolMaxLines }
+func (t *Translator) ToolOffset() string              { return t.tr.AIToolOffset }
 func (t *Translator) ToolTargetRef() string           { return t.tr.AIToolTargetRef }
 
 func (t *Translator) ToolPushConfigError(err error) string {
@@ -312,6 +313,7 @@ func (t *Translator) ToolGetStagedDiffDesc() string          { return t.tr.AIToo
 func (t *Translator) ToolGetDiffDesc() string                { return t.tr.AIToolGetDiffDesc }
 func (t *Translator) ToolGetFileDiffDesc() string            { return t.tr.AIToolGetFileDiffDesc }
 func (t *Translator) ToolGetFileDiffStagedParam() string     { return t.tr.AIToolGetFileDiffStagedParam }
+func (t *Translator) ToolGetFileDiffOffsetParam() string     { return t.tr.AIToolGetFileDiffOffsetParam }
 func (t *Translator) ToolGetLogDesc() string                 { return t.tr.AIToolGetLogDesc }
 func (t *Translator) ToolGetLogCountParam() string           { return t.tr.AIToolGetLogCountParam }
 func (t *Translator) ToolGetBranchesDesc() string            { return t.tr.AIToolGetBranchesDesc }
@@ -470,8 +472,8 @@ func (t *Translator) ToolAbortSuccess(opType string) string {
 func (t *Translator) ToolContinueSuccess(opType string) string {
 	return fmt.Sprintf(t.tr.AIToolContinueSuccess, opType)
 }
-func (t *Translator) ToolTruncated(total, shown int) string {
-	return fmt.Sprintf(t.tr.AIToolTruncated, total, shown)
+func (t *Translator) ToolTruncated(start, end, total, nextOffset int) string {
+	return fmt.Sprintf(t.tr.AIToolTruncated, start, end, total, nextOffset)
 }
 
 // AI Tools - Error messages

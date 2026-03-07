@@ -24,6 +24,7 @@ type ChatMessage struct {
 	// Action 相关（仅 Role=="action" 时有效）
 	ActionSuccess bool
 	ActionType    string
+	IsToolCall    bool // true = 工具调用请求；false = 工具执行结果
 }
 
 // AIChatSession 保持 AI 对话的会话状态
@@ -289,11 +290,14 @@ func (s *AIChatSession) render() {
 	}
 	s.renderStatus(aiView, status, detail)
 
-	// PhaseWaitingConfirm：在底部显示输入提示（不打断滚动）
+	// PhaseWaitingConfirm：高亮确认提示，引导用户输入
 	if s.twoPhaseAgent != nil && s.twoPhaseAgent.Phase() == agent.PhaseWaitingConfirm && !s.isTyping {
+		fmt.Fprintln(aiView)
 		fmt.Fprintf(aiView, "  %s\n",
-			style.FgYellow.Sprint(s.tr.ChatInputPrompt()))
+			style.FgYellow.Sprint("▶ "+s.tr.ChatInputPrompt()))
 	}
+
+	s.renderKeyHints(aiView)
 
 	// 仅在有新消息时才滚动到底部；用户手动向上滚动后不会被打断
 	applyAIChatAutoScroll(aiView, &s.scrollToBottom)
@@ -329,7 +333,7 @@ func (s *AIChatSession) agentUIMessages() []ChatMessage {
 		case agent.KindAssistant:
 			result = append(result, ChatMessage{Role: "assistant", Content: m.Content, Timestamp: m.Timestamp})
 		case agent.KindToolCall:
-			result = append(result, ChatMessage{Role: "action", Content: m.Content, Timestamp: m.Timestamp, ActionType: m.ToolName})
+			result = append(result, ChatMessage{Role: "action", Content: m.Content, Timestamp: m.Timestamp, ActionType: m.ToolName, IsToolCall: true})
 		case agent.KindToolResult:
 			result = append(result, ChatMessage{
 				Role: "action", Content: m.Content, Timestamp: m.Timestamp,
@@ -424,26 +428,38 @@ func (s *AIChatSession) renderMessage(view *gocui.View, msg ChatMessage) {
 		}
 
 	case "action":
-		// 工具调用 / 结果
-		var indicator string
-		var lineColor style.TextStyle
-		if msg.ActionSuccess {
-			indicator = "✓"
-			lineColor = style.FgGreen
+		if msg.IsToolCall {
+			// 工具调用请求：仅显示工具名（紧凑一行）
+			fmt.Fprintf(view, "  %s %s\n",
+				style.FgBlackLighter.Sprint("→"),
+				style.FgDefault.Sprint(msg.ActionType),
+			)
 		} else {
-			indicator = "✗"
-			lineColor = style.FgRed
-		}
-		header := fmt.Sprintf("  [%s %s]", indicator, msg.ActionType)
-		fmt.Fprintf(view, "%s\n", lineColor.Sprint(header))
-		for _, line := range strings.Split(strings.TrimSpace(msg.Content), "\n") {
-			if line != "" {
-				fmt.Fprintf(view, "    %s\n", style.FgDefault.Sprint(line))
+			// 工具执行结果：成功/失败指示 + 最多 3 行输出
+			indicator := "✓"
+			lineColor := style.FgGreen
+			if !msg.ActionSuccess {
+				indicator = "✗"
+				lineColor = style.FgRed
+			}
+			fmt.Fprintf(view, "  %s %s\n", lineColor.Sprint(indicator), lineColor.Sprint(msg.ActionType))
+			lines := strings.Split(strings.TrimSpace(msg.Content), "\n")
+			shown := lines
+			if len(lines) > 3 {
+				shown = lines[:3]
+			}
+			for _, l := range shown {
+				if l != "" {
+					fmt.Fprintf(view, "    %s\n", style.FgDefault.Sprint(l))
+				}
+			}
+			if len(lines) > 3 {
+				fmt.Fprintf(view, "    %s\n", style.FgBlackLighter.Sprintf("... +%d more lines", len(lines)-3))
 			}
 		}
 
 	case "plan":
-		// 执行计划：带边框，突出显示
+		// 执行计划：带自适应宽度边框，突出显示
 		lines := strings.Split(msg.Content, "\n")
 		summary := ""
 		stepLines := []string{}
@@ -454,12 +470,24 @@ func (s *AIChatSession) renderMessage(view *gocui.View, msg ChatMessage) {
 				stepLines = append(stepLines, l)
 			}
 		}
-		fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint("┌─ "+s.tr.ChatExecutionPlan()+" "+timeStr+" "+"─"))
+		planLabel := fmt.Sprintf("─ %s  %s ", s.tr.ChatExecutionPlan(), timeStr)
+		topFill := w - 4 - len([]rune(planLabel))
+		if topFill < 0 {
+			topFill = 0
+		}
+		fmt.Fprintf(view, "  %s%s\n",
+			style.FgYellow.Sprint("┌"+planLabel),
+			style.FgYellow.Sprint(strings.Repeat("─", topFill)),
+		)
 		fmt.Fprintf(view, "  %s %s\n", style.FgYellow.Sprint("│"), summary)
 		for _, sl := range stepLines {
 			fmt.Fprintf(view, "  %s %s\n", style.FgYellow.Sprint("│"), style.FgDefault.Sprint(sl))
 		}
-		fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint("└"+"─────────────────────────────────────────────────────"))
+		botFill := w - 3
+		if botFill < 0 {
+			botFill = 0
+		}
+		fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint("└"+strings.Repeat("─", botFill)))
 
 	case "step":
 		// 单步执行状态：一行简洁输出
@@ -746,22 +774,29 @@ func firstNonEmptyLine(content string, fallback string) string {
 }
 
 func (s *AIChatSession) renderStatus(view *gocui.View, status string, detail string) {
-	statusColor := style.FgGreen
+	dot := "●"
+	dotColor := style.FgGreen
 	switch status {
 	case s.c.Tr.AIThinking, s.tr.ChatWaitingConfirm():
-		statusColor = style.FgYellow
+		dotColor = style.FgYellow
 	case s.c.Tr.AIExecuting:
-		statusColor = style.FgCyan
+		dotColor = style.FgCyan
 	case s.c.Tr.AICancelled:
-		statusColor = style.FgMagenta
+		dotColor = style.FgMagenta
 	case s.c.Tr.AIFailed:
-		statusColor = style.FgRed
+		dotColor = style.FgRed
 	}
 
-	fmt.Fprintf(view, "  %s %s\n", statusColor.Sprint(s.tr.ChatStatusLabel()), statusColor.Sprint(status))
+	line := fmt.Sprintf("  %s %s", dotColor.Sprint(dot), dotColor.Sprint(status))
 	if detail != "" {
-		fmt.Fprintf(view, "  %s %s\n", style.FgDefault.Sprint(s.tr.ChatActionLabel()), style.FgDefault.Sprint(detail))
+		line += "  " + style.FgDefault.Sprint(detail)
 	}
+	fmt.Fprintln(view, line)
+}
+
+func (s *AIChatSession) renderKeyHints(view *gocui.View) {
+	hints := []string{"[i] input", "[c] copy", "[z] zoom", "[q] quit", "[↑↓] scroll"}
+	fmt.Fprintln(view, style.FgBlackLighter.Sprint("  "+strings.Join(hints, "  ")))
 }
 
 // animateTitle 动画更新标题中的 logo

@@ -82,7 +82,7 @@ func (t *GetStagedDiffTool) Execute(_ context.Context, call tools.ToolCall) tool
 		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolStagedDiffEmpty()}
 	}
 	maxLines := intParam(call.Params, "max_lines", 300)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // GetDiffTool returns the diff of unstaged changes.
@@ -110,7 +110,7 @@ func (t *GetDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.Tool
 		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolUnstagedDiffEmpty()}
 	}
 	maxLines := intParam(call.Params, "max_lines", 300)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // GetFileDiffTool returns the diff for a specific file.
@@ -126,6 +126,7 @@ func (t *GetFileDiffTool) Schema() tools.ToolSchema {
 			"path":      {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
 			"staged":    {Type: "bool", Description: t.d.Tr.ToolGetFileDiffStagedParam()},
 			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
+			"offset":    {Type: "int", Description: t.d.Tr.ToolGetFileDiffOffsetParam()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -138,6 +139,9 @@ func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.
 	}
 	staged := boolParam(call.Params, "staged", false)
 	maxLines := intParam(call.Params, "max_lines", 300)
+	_, hasOffset := call.Params["offset"]
+	offset := intParam(call.Params, "offset", 0)
+
 	for _, f := range t.d.GetFiles() {
 		if f.Path == path {
 			diff := t.d.WorkingTree.WorktreeFileDiff(f, true, staged)
@@ -148,7 +152,12 @@ func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.
 				}
 				return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("%s: %s — %s", label, path, t.d.Tr.ToolNoChanges())}
 			}
-			return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
+			// offset specified → raw pagination (reading exact lines of code)
+			// offset absent   → context compression (structural overview)
+			if hasOffset {
+				return tools.ToolResult{CallID: call.ID, Success: true, Output: paginateDiff(diff, offset, maxLines, t.d.Tr)}
+			}
+			return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 		}
 	}
 	return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolFileNotInWorkdir(path)}
@@ -344,7 +353,7 @@ func (t *GetStashDiffTool) Execute(_ context.Context, call tools.ToolCall) tools
 		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolStashEntryEmpty(idx)}
 	}
 	maxLines := intParam(call.Params, "max_lines", 300)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(out, maxLines, t.d.Tr)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(out, maxLines)}
 }
 
 // GetCommitDiffTool returns the diff for a specific commit.
@@ -371,7 +380,7 @@ func (t *GetCommitDiffTool) Execute(_ context.Context, call tools.ToolCall) tool
 	if err != nil {
 		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetCommitDiffFailed(err)}
 	}
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // GetBranchDiffTool returns the diff between two branches or refs.
@@ -409,7 +418,7 @@ func (t *GetBranchDiffTool) Execute(_ context.Context, call tools.ToolCall) tool
 	if diff == "" {
 		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolGetBranchDiffEmpty(base, target)}
 	}
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines, t.d.Tr)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -459,17 +468,31 @@ func boolParam(params map[string]any, key string, defaultVal bool) bool {
 	return defaultVal
 }
 
-// truncateDiff limits diff output to maxLines lines.
-// maxLines <= 0 means no limit.
-func truncateDiff(diff string, maxLines int, tr interface {
-	ToolTruncated(total, shown int) string
+// paginateDiff extracts lines [offset, offset+maxLines) from diff.
+// When more content remains it appends a hint with the next offset value,
+// so callers (LLMs) know they can fetch the next page.
+// offset < 0 is treated as 0. maxLines <= 0 means no limit.
+func paginateDiff(diff string, offset, maxLines int, tr interface {
+	ToolTruncated(start, end, total, nextOffset int) string
 }) string {
 	if maxLines <= 0 {
 		return diff
 	}
 	lines := strings.SplitAfter(diff, "\n")
-	if len(lines) <= maxLines {
-		return diff
+	total := len(lines)
+
+	if offset < 0 {
+		offset = 0
 	}
-	return strings.Join(lines[:maxLines], "") + tr.ToolTruncated(len(lines), maxLines)
+	if offset >= total {
+		return diff // offset out of range — return full diff as fallback
+	}
+
+	end := offset + maxLines
+	if end >= total {
+		// Last page: no truncation notice needed.
+		return strings.Join(lines[offset:], "")
+	}
+	return strings.Join(lines[offset:end], "") +
+		tr.ToolTruncated(offset+1, end, total, end)
 }
