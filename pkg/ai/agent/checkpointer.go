@@ -53,3 +53,45 @@ func (c *MemoryCheckpointer) Clear(threadID string) {
 	defer c.mu.Unlock()
 	delete(c.states, threadID)
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// CodeReviewCheckpointer - Specialized checkpointer for CodeReviewAgent
+// ────────────────────────────────────────────────────────────────────────────
+
+// CodeReviewCheckpointer persists and restores CodeReviewState.
+type CodeReviewCheckpointer interface {
+	Save(threadID string, state CodeReviewState) error
+	Load(threadID string) (CodeReviewState, bool)
+	Clear(threadID string)
+}
+
+// MemoryCodeReviewCheckpointer stores CodeReviewState in-process only.
+type MemoryCodeReviewCheckpointer struct {
+	mu     sync.RWMutex
+	states map[string]CodeReviewState
+}
+
+// NewMemoryCodeReviewCheckpointer creates a ready-to-use MemoryCodeReviewCheckpointer.
+func NewMemoryCodeReviewCheckpointer() *MemoryCodeReviewCheckpointer {
+	return &MemoryCodeReviewCheckpointer{states: make(map[string]CodeReviewState)}
+}
+
+func (c *MemoryCodeReviewCheckpointer) Save(threadID string, state CodeReviewState) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.states[threadID] = state
+	return nil
+}
+
+func (c *MemoryCodeReviewCheckpointer) Load(threadID string) (CodeReviewState, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	s, ok := c.states[threadID]
+	return s, ok
+}
+
+func (c *MemoryCodeReviewCheckpointer) Clear(threadID string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.states, threadID)
+}
