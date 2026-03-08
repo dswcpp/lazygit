@@ -1,0 +1,5676 @@
+{
+  "# 变更分析报告\\n\\n": {
+    "text": "# 变更分析报告\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "# 变更分析报告（重点：%s）\\n\\n": {
+    "text": "# 变更分析报告（重点：%s）\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "## 仓库背景\\n": {
+    "text": "## 仓库背景\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "## 代码变更\\n": {
+    "text": "## 代码变更\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "## 代码变更\\n```diff\\n": {
+    "text": "## 代码变更\\n```diff\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "## 分支信息\\n从 `%s` 合并到 `%s`\\n\\n": {
+    "text": "## 分支信息\\n从 `%s` 合并到 `%s`\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "## 可用工具\\n\\n": {
+    "text": "## 可用工具\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "## 当前仓库状态\\n\\n%s\\n\\n## 用户指令\\n\\n%s": {
+    "text": "## 当前仓库状态\\n\\n%s\\n\\n## 用户指令\\n\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "## 提交历史\\n": {
+    "text": "## 提交历史\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "## 整体建议\\n\\n": {
+    "text": "## 整体建议\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "## 文件: %s\\n\\n": {
+    "text": "## 文件: %s\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "## 详细分析\\n\\n": {
+    "text": "## 详细分析\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "## 请生成包含以下部分的 PR 描述\\n": {
+    "text": "## 请生成包含以下部分的 PR 描述\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "## 输出规则\\n": {
+    "text": "## 输出规则\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "### Changes\\n- 列出主要变更（3-5 条）\\n\\n": {
+    "text": "### Changes\\n- 列出主要变更（3-5 条）\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "### Summary\\n一句话说明 PR 的目的。\\n\\n": {
+    "text": "### Summary\\n一句话说明 PR 的目的。\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "### Testing\\n- 说明如何验证这些变更\\n": {
+    "text": "### Testing\\n- 说明如何验证这些变更\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\pr_desc.go"
+    ],
+    "category": "AI Skills"
+  },
+  "### 危险操作工具（需用户确认）": {
+    "text": "### 危险操作工具（需用户确认）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "### 只读工具（直接执行）": {
+    "text": "### 只读工具（直接执行）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "### 本地写入工具（需用户确认）": {
+    "text": "### 本地写入工具（需用户确认）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "### 远程操作工具（需用户确认）": {
+    "text": "### 远程操作工具（需用户确认）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "%d 分钟": {
+    "text": "%d 分钟",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar.go"
+    ],
+    "category": "GUI"
+  },
+  "%d 小时": {
+    "text": "%d 小时",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar.go"
+    ],
+    "category": "GUI"
+  },
+  "%d 秒": {
+    "text": "%d 秒",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar.go"
+    ],
+    "category": "GUI"
+  },
+  "%s  (%d 个分支)\\n": {
+    "text": "%s  (%d 个分支)\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "%s 没有变更: %s": {
+    "text": "%s 没有变更: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "%s\\n\\n预览：\\n%s": {
+    "text": "%s\\n\\n预览：\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\branches_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "%s没有变更": {
+    "text": "%s没有变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "' 吗？": {
+    "text": "' 吗？",
+    "count": 3,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "' 已删除": {
+    "text": "' 已删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "' 已完全删除": {
+    "text": "' 已完全删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "'，这将覆盖远程仓库的历史记录！此操作不可撤销。": {
+    "text": "'，这将覆盖远程仓库的历史记录！此操作不可撤销。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "**分析重点**: %s\\n\\n": {
+    "text": "**分析重点**: %s\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "**总变更行数**: 约 %d 行\\n\\n": {
+    "text": "**总变更行数**: 约 %d 行\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "**文件数**: %d 个（成功分析 %d，失败 %d）\\n": {
+    "text": "**文件数**: %d 个（成功分析 %d，失败 %d）\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "**计划：%s**\\n\\n": {
+    "text": "**计划：%s**\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "- alternatives: 替代命令（可选）\\n\\n": {
+    "text": "- alternatives: 替代命令（可选）\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- body: 必须包含，与 subject 之间空一行，用中文说明本次变更的原因和主要内容（1-4 行）\\n\\n": {
+    "text": "- body: 必须包含，与 subject 之间空一行，用中文说明本次变更的原因和主要内容（1-4 行）\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- command: 完整可执行命令\\n": {
+    "text": "- command: 完整可执行命令\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- description: 小写 kebab-case，2-5 个单词\\n": {
+    "text": "- description: 小写 kebab-case，2-5 个单词\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- explanation: 中文解释（1-2 句）\\n": {
+    "text": "- explanation: 中文解释（1-2 句）\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- scope 可省略\\n": {
+    "text": "- scope 可省略\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- subject: 中文，动词开头，祈使句，不超过 72 字符\\n": {
+    "text": "- subject: 中文，动词开头，祈使句，不超过 72 字符\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- 主要变更内容\\n": {
+    "text": "- 主要变更内容\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "- 只输出分支名，不要任何解释\\n": {
+    "text": "- 只输出分支名，不要任何解释\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- 改进建议（如有）\\n\\n": {
+    "text": "- 改进建议（如有）\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "- 格式: \u003ctype\u003e/\u003cdescription\u003e（如 feature/add-user-auth）\\n": {
+    "text": "- 格式: \u003ctype\u003e/\u003cdescription\u003e（如 feature/add-user-auth）\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- 格式:\\n": {
+    "text": "- 格式:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "- 潜在问题（如有）\\n": {
+    "text": "- 潜在问题（如有）\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "... 还有 %d 个\\n": {
+    "text": "... 还有 %d 个\\n",
+    "count": 5,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go",
+      "pkg\\ai\\skills\\branch_name.go",
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "Other"
+  },
+  "1. 消息框功能\\n": {
+    "text": "1. 消息框功能\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "1. 确认所有变更符合预期\\n": {
+    "text": "1. 确认所有变更符合预期\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "2. 运行测试确保功能正常\\n": {
+    "text": "2. 运行测试确保功能正常\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "2. 进度条功能\\n": {
+    "text": "2. 进度条功能\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "3. AI 对话功能": {
+    "text": "3. AI 对话功能",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "3. 检查是否有遗漏的文件\\n": {
+    "text": "3. 检查是否有遗漏的文件\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "AI 功能未启用": {
+    "text": "AI 功能未启用",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 功能测试菜单": {
+    "text": "AI 功能测试菜单",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ai_chat_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 命令生成已取消": {
+    "text": "AI 命令生成已取消",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 未初始化，请先配置 AI 功能。": {
+    "text": "AI 未初始化，请先配置 AI 功能。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 未启用": {
+    "text": "AI 未启用",
+    "count": 3,
+    "files": [
+      "pkg\\gui\\ai_chat_examples.go",
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 生成提交信息": {
+    "text": "AI 生成提交信息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\files_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 请求失败: %v": {
+    "text": "AI 请求失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 请求失败，可输入下一条指令": {
+    "text": "AI 请求失败，可输入下一条指令",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 辅助演示": {
+    "text": "AI 辅助演示",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "AI 返回的格式无效: %v\\n响应内容: %s": {
+    "text": "AI 返回的格式无效: %v\\n响应内容: %s",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "AI分析失败: %w": {
+    "text": "AI分析失败: %w",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "ASCII样式": {
+    "text": "ASCII样式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "Braille 点阵": {
+    "text": "Braille 点阵",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "Conventional Commits 格式的提交信息（由 AI 根据 diff 生成，如 feat: add login page）": {
+    "text": "Conventional Commits 格式的提交信息（由 AI 根据 diff 生成，如 feat: add login page）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "GPG 签名": {
+    "text": "GPG 签名",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "Git 操作失败": {
+    "text": "Git 操作失败",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "Linux + bash，用 \u0026\u0026 连接命令": {
+    "text": "Linux + bash，用 \u0026\u0026 连接命令",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "Stash: %d 条\\n": {
+    "text": "Stash: %d 条\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go"
+    ],
+    "category": "Other"
+  },
+  "Windows + Git Bash，用 \u0026\u0026 连接命令": {
+    "text": "Windows + Git Bash，用 \u0026\u0026 连接命令",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "[工具结果 %s - %s]\\n%s": {
+    "text": "[工具结果 %s - %s]\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\session.go"
+    ],
+    "category": "AI Agent"
+  },
+  "[工具结果 %s]\\n%s": {
+    "text": "[工具结果 %s]\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "[用户拒绝] 工具 %s 未被执行，请据此调整后续操作。": {
+    "text": "[用户拒绝] 工具 %s 未被执行，请据此调整后续操作。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "[系统]": {
+    "text": "[系统]",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "[系统] %s": {
+    "text": "[系统] %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 减小操作范围": {
+    "text": "\\n  • 减小操作范围",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 工具内部阻塞": {
+    "text": "\\n  • 工具内部阻塞",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 工具名拼写错误": {
+    "text": "\\n  • 工具名拼写错误",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 操作耗时过长（如大文件处理）": {
+    "text": "\\n  • 操作耗时过长（如大文件处理）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 检查网络连接": {
+    "text": "\\n  • 检查网络连接",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 网络请求超时": {
+    "text": "\\n  • 网络请求超时",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 该工具不存在于当前注册表中": {
+    "text": "\\n  • 该工具不存在于当前注册表中",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n  • 重试该操作": {
+    "text": "\\n  • 重试该操作",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n... (已截断，共 %d 行，仅显示前 %d 行)": {
+    "text": "\\n... (已截断，共 %d 行，仅显示前 %d 行)",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "\\nDiff 摘要:\\n```diff\\n": {
+    "text": "\\nDiff 摘要:\\n```diff\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "\\n\\n确定要执行此命令吗？": {
+    "text": "\\n\\n确定要执行此命令吗？",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\shell_command_action.go"
+    ],
+    "category": "GUI"
+  },
+  "\\n\\n错误详情：\\n%s": {
+    "text": "\\n\\n错误详情：\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n\\n💡 可能的原因：": {
+    "text": "\\n\\n💡 可能的原因：",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n\\n📝 您是否想使用以下工具？": {
+    "text": "\\n\\n📝 您是否想使用以下工具？",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n\\n🔧 建议：": {
+    "text": "\\n\\n🔧 建议：",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n\\n🔧 恢复建议：": {
+    "text": "\\n\\n🔧 恢复建议：",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n命名规则:\\n": {
+    "text": "\\n命名规则:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "\\n请直接输出提交信息：": {
+    "text": "\\n请直接输出提交信息：",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "\\n请重新生成正确的执行计划。": {
+    "text": "\\n请重新生成正确的执行计划。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n输入 **Y** 确认执行，**N** 取消，或直接输入补充说明来调整计划。": {
+    "text": "\\n输入 **Y** 确认执行，**N** 取消，或直接输入补充说明来调整计划。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "\\n错误:": {
+    "text": "\\n错误:",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\session.go"
+    ],
+    "category": "AI Agent"
+  },
+  "author: 作者名称": {
+    "text": "author: 作者名称",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "branch-name: 分支名称": {
+    "text": "branch-name: 分支名称",
+    "count": 6,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "branch1: 分支1": {
+    "text": "branch1: 分支1",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "branch2: 分支2": {
+    "text": "branch2: 分支2",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "cherry-pick 失败: %v": {
+    "text": "cherry-pick 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "commit-hash: 提交哈希": {
+    "text": "commit-hash: 提交哈希",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "date: 日期，如 2024-01-01 或 1.week.ago": {
+    "text": "date: 日期，如 2024-01-01 或 1.week.ago",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "feat: 添加用户登录功能": {
+    "text": "feat: 添加用户登录功能",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "fetch 失败: %v": {
+    "text": "fetch 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "fetch 完成": {
+    "text": "fetch 完成",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "force push 失败: %v": {
+    "text": "force push 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "force push（--force-with-lease）成功": {
+    "text": "force push（--force-with-lease）成功",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "git diff --staged 的输出": {
+    "text": "git diff --staged 的输出",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "Other"
+  },
+  "git reset --mixed（保留变更到工作区，不暂存）": {
+    "text": "git reset --mixed（保留变更到工作区，不暂存）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "git reset --soft（保留变更到暂存区）": {
+    "text": "git reset --soft（保留变更到暂存区）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "macOS + zsh/bash，用 \u0026\u0026 连接命令": {
+    "text": "macOS + zsh/bash，用 \u0026\u0026 连接命令",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "merge 失败: %v": {
+    "text": "merge 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "message: stash 描述": {
+    "text": "message: stash 描述",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "message: 提交信息": {
+    "text": "message: 提交信息",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "message: 新的提交信息": {
+    "text": "message: 新的提交信息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "message: 标签说明": {
+    "text": "message: 标签说明",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "n: stash 索引": {
+    "text": "n: stash 索引",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "new-name: 新分支名": {
+    "text": "new-name: 新分支名",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "old-name: 旧分支名": {
+    "text": "old-name: 旧分支名",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "push 失败: %v（请确认远程配置和认证）": {
+    "text": "push 失败: %v（请确认远程配置和认证）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "push 成功": {
+    "text": "push 成功",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "push 配置错误: %v": {
+    "text": "push 配置错误: %v",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "rebase 失败: %v（如有冲突请手动解决后继续）": {
+    "text": "rebase 失败: %v（如有冲突请手动解决后继续）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "reset --mixed 到 %s，变更已保留在工作区": {
+    "text": "reset --mixed 到 %s，变更已保留在工作区",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "reset --mixed 失败: %v": {
+    "text": "reset --mixed 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "reset --soft 到 %s，变更已保留在暂存区": {
+    "text": "reset --soft 到 %s，变更已保留在暂存区",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "reset --soft 失败: %v": {
+    "text": "reset --soft 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "revert 失败: %v": {
+    "text": "revert 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "skill %s 执行失败: %v": {
+    "text": "skill %s 执行失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\skill_tool.go"
+    ],
+    "category": "AI Tools"
+  },
+  "stash apply 失败: %v": {
+    "text": "stash apply 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "stash drop 失败: %v": {
+    "text": "stash drop 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "stash pop 失败: %v": {
+    "text": "stash pop 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "stash 失败: %v": {
+    "text": "stash 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "stash 索引，默认 0": {
+    "text": "stash 索引，默认 0",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "stash 索引，默认 0（最近的 stash）": {
+    "text": "stash 索引，默认 0（最近的 stash）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "tag 名称": {
+    "text": "tag 名称",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "tag-name: 标签名称": {
+    "text": "tag-name: 标签名称",
+    "count": 3,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "true=分析暂存区，false=分析工作区（默认 false）": {
+    "text": "true=分析暂存区，false=分析工作区（默认 false）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "true=暂存区 diff，false=工作区 diff（默认 false）": {
+    "text": "true=暂存区 diff，false=工作区 diff（默认 false）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "| 参数:": {
+    "text": "| 参数:",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "• 15 个提交\\n": {
+    "text": "• 15 个提交\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "• 「创建一个 feature/login 分支」\\n": {
+    "text": "• 「创建一个 feature/login 分支」\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "• 「帮我提交当前修改」\\n": {
+    "text": "• 「帮我提交当前修改」\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "• 「把这些改动 stash 起来，切到 main 分支」\\n\\n": {
+    "text": "• 「把这些改动 stash 起来，切到 main 分支」\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "• 「查看最近的提交记录」\\n": {
+    "text": "• 「查看最近的提交记录」\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "• 如何撤销提交？\\n": {
+    "text": "• 如何撤销提交？\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "• 如何清理大型仓库？\\n\\n": {
+    "text": "• 如何清理大型仓库？\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "• 如何解决合并冲突？\\n": {
+    "text": "• 如何解决合并冲突？\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "• 已合并到 main\\n": {
+    "text": "• 已合并到 main\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "• 最后更新: 30 天前\\n": {
+    "text": "• 最后更新: 30 天前\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "• 远程分支也将被删除": {
+    "text": "• 远程分支也将被删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "ℹ️ 无变更\\n\\n": {
+    "text": "ℹ️ 无变更\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "⏱️ 步骤执行超时（%v）: %s": {
+    "text": "⏱️ 步骤执行超时（%v）: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "─── 以下内容来自上一次 AI 分析，你可以继续追问 ───": {
+    "text": "─── 以下内容来自上一次 AI 分析，你可以继续追问 ───",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "┌─ 执行计划": {
+    "text": "┌─ 执行计划",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "▶ 输入 Y 确认执行，N 取消，或直接输入补充说明调整计划": {
+    "text": "▶ 输入 Y 确认执行，N 取消，或直接输入补充说明调整计划",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠ 正在进行: %s\\n": {
+    "text": "⚠ 正在进行: %s\\n",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go",
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "Other"
+  },
+  "⚠️ 危险：递归删除文件，可能删除重要数据": {
+    "text": "⚠️ 危险：递归删除文件，可能删除重要数据",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 可能覆盖远程分支历史，影响其他协作者": {
+    "text": "⚠️ 可能覆盖远程分支历史，影响其他协作者",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 将丢失所有未提交的更改": {
+    "text": "⚠️ 将丢失所有未提交的更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 将删除所有未跟踪和忽略的文件（包括 .gitignore 中的文件）": {
+    "text": "⚠️ 将删除所有未跟踪和忽略的文件（包括 .gitignore 中的文件）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 将删除所有未跟踪的文件和目录": {
+    "text": "⚠️ 将删除所有未跟踪的文件和目录",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 将永久删除 reflog 记录，无法恢复": {
+    "text": "⚠️ 将永久删除 reflog 记录，无法恢复",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 强制删除分支，即使分支未合并": {
+    "text": "⚠️ 强制删除分支，即使分支未合并",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 激进的垃圾回收，可能删除最近的对象": {
+    "text": "⚠️ 激进的垃圾回收，可能删除最近的对象",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "⚠️ 警告：工具 %s 已被调用 %d 次（参数相同）。\\n": {
+    "text": "⚠️ 警告：工具 %s 已被调用 %d 次（参数相同）。\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "⚠️ 重写历史，可能造成协作问题": {
+    "text": "⚠️ 重写历史，可能造成协作问题",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "❌ **分析失败**: %s\\n\\n": {
+    "text": "❌ **分析失败**: %s\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "❌ 执行失败: %s": {
+    "text": "❌ 执行失败: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "❌ 未知工具: %s": {
+    "text": "❌ 未知工具: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "❌ 计划包含以下错误，请修正：\\n\\n": {
+    "text": "❌ 计划包含以下错误，请修正：\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "❓ 功能帮助": {
+    "text": "❓ 功能帮助",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "上一条 AI 回复中未找到可执行命令": {
+    "text": "上一条 AI 回复中未找到可执行命令",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "不": {
+    "text": "不",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "不修改提交消息": {
+    "text": "不修改提交消息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "不确定进度条（克隆示例）": {
+    "text": "不确定进度条（克隆示例）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "不要": {
+    "text": "不要",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "丢弃": {
+    "text": "丢弃",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "丢弃变更失败: %v": {
+    "text": "丢弃变更失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "丢弃所有更改": {
+    "text": "丢弃所有更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "丢弃指定文件的所有变更（恢复到 HEAD）": {
+    "text": "丢弃指定文件的所有变更（恢复到 HEAD）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "中止合并": {
+    "text": "中止合并",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "二分查找问题提交": {
+    "text": "二分查找问题提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "仅删除本地": {
+    "text": "仅删除本地",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "从远程拉取": {
+    "text": "从远程拉取",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "从远程拉取最新引用（git fetch）": {
+    "text": "从远程拉取最新引用（git fetch）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "仓库状态:\\n%s\\n\\n": {
+    "text": "仓库状态:\\n%s\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "你即将强制推送到远程分支 '": {
+    "text": "你即将强制推送到远程分支 '",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "你即将强制推送到远程分支 'main'，这将覆盖远程仓库的历史记录！": {
+    "text": "你即将强制推送到远程分支 'main'，这将覆盖远程仓库的历史记录！",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "你好！我是你的 Git Agent\\n\\n": {
+    "text": "你好！我是你的 Git Agent\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "你是一个 Git 分支命名专家。根据变更内容推荐简洁、描述性强的分支名。只输出分支名本身。": {
+    "text": "你是一个 Git 分支命名专家。根据变更内容推荐简洁、描述性强的分支名。只输出分支名本身。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "你是一个 Git 命令专家。根据用户意图生成精确的 shell 命令。\\n\\n": {
+    "text": "你是一个 Git 命令专家。根据用户意图生成精确的 shell 命令。\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "你是代码审查专家，擅长分析代码变更。请简洁、准确地分析diff内容。": {
+    "text": "你是代码审查专家，擅长分析代码变更。请简洁、准确地分析diff内容。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "你确定要继续吗？": {
+    "text": "你确定要继续吗？",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "使用 Activity Bar 导航到不同的面板": {
+    "text": "使用 Activity Bar 导航到不同的面板",
+    "count": 1,
+    "files": [
+      "pkg\\integration\\tests\\activity_bar\\navigation.go"
+    ],
+    "category": "Other"
+  },
+  "使用 Activity Bar 执行 Git 操作": {
+    "text": "使用 Activity Bar 执行 Git 操作",
+    "count": 1,
+    "files": [
+      "pkg\\integration\\tests\\activity_bar\\navigation.go"
+    ],
+    "category": "Other"
+  },
+  "使用 rebase 方式拉取": {
+    "text": "使用 rebase 方式拉取",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "保存当前工作区到 stash": {
+    "text": "保存当前工作区到 stash",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "保存更改": {
+    "text": "保存更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "保留工作区": {
+    "text": "保留工作区",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "保留暂存区和工作区": {
+    "text": "保留暂存区和工作区",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "信息": {
+    "text": "信息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "信息消息框": {
+    "text": "信息消息框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "修改上次提交": {
+    "text": "修改上次提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "修改提交信息失败: %v": {
+    "text": "修改提交信息失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "修改最后一次提交消息": {
+    "text": "修改最后一次提交消息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "修改最后一次提交（不改消息）": {
+    "text": "修改最后一次提交（不改消息）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "修改最后一次提交（在编辑器中修改）": {
+    "text": "修改最后一次提交（在编辑器中修改）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "修改最近一次提交的信息（git commit --amend）": {
+    "text": "修改最近一次提交的信息（git commit --amend）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "值": {
+    "text": "值",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "Other"
+  },
+  "值\\": {
+    "text": "值\\",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "停": {
+    "text": "停",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "储藏当前工作区变更": {
+    "text": "储藏当前工作区变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "储藏描述（可选）": {
+    "text": "储藏描述（可选）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "允许空提交": {
+    "text": "允许空提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "先拉取远程更新（pull）": {
+    "text": "先拉取远程更新（pull）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "先提交或暂存当前修改": {
+    "text": "先提交或暂存当前修改",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "先暂存文件（stage_all 或 stage_file）": {
+    "text": "先暂存文件（stage_all 或 stage_file）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "克隆仓库": {
+    "text": "克隆仓库",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "克隆成功！": {
+    "text": "克隆成功！",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "关键步骤失败: %s — %s": {
+    "text": "关键步骤失败: %s — %s",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "关键步骤超时: %s": {
+    "text": "关键步骤超时: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "具体值": {
+    "text": "具体值",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "冲突": {
+    "text": "冲突",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "AI Agent"
+  },
+  "冲突文件:\\n": {
+    "text": "冲突文件:\\n",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "分支": {
+    "text": "分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "分支 '": {
+    "text": "分支 '",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "分支 'feature-x' 已成功删除。": {
+    "text": "分支 'feature-x' 已成功删除。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "分支: %s\\n": {
+    "text": "分支: %s\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go"
+    ],
+    "category": "Other"
+  },
+  "分支名": {
+    "text": "分支名",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "分支名: %s\\n%s请分析这个分支的状态，并提供相关建议。": {
+    "text": "分支名: %s\\n%s请分析这个分支的状态，并提供相关建议。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\branches_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "分支名、tag 或 commit hash": {
+    "text": "分支名、tag 或 commit hash",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "分支名，格式 类型/功能描述（kebab-case），如 feature/user-login": {
+    "text": "分支名，格式 类型/功能描述（kebab-case），如 feature/user-login",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "分支已删除": {
+    "text": "分支已删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "分支要实现的功能或目的": {
+    "text": "分支要实现的功能或目的",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "Other"
+  },
+  "分析被取消": {
+    "text": "分析被取消",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "分析重点（如：安全问题、性能优化、代码质量等），留空则全面分析": {
+    "text": "分析重点（如：安全问题、性能优化、代码质量等），留空则全面分析",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "切换全屏模式": {
+    "text": "切换全屏模式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "切换分支": {
+    "text": "切换分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "切换分支失败: %v": {
+    "text": "切换分支失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "切换分支（新）": {
+    "text": "切换分支（新）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "切换到指定分支、tag 或 commit hash（hash 会进入 detached HEAD 状态）": {
+    "text": "切换到指定分支、tag 或 commit hash（hash 会进入 detached HEAD 状态）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "切换目录": {
+    "text": "切换目录",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "列出所有 stash 条目": {
+    "text": "列出所有 stash 条目",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "列出所有 tag": {
+    "text": "列出所有 tag",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "列出所有远程仓库": {
+    "text": "列出所有远程仓库",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "列出文件": {
+    "text": "列出文件",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "列出本地分支（当前分支标 *）": {
+    "text": "列出本地分支（当前分支标 *）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建 fixup 提交": {
+    "text": "创建 fixup 提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "创建 tag 失败: %v": {
+    "text": "创建 tag 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建分支失败: %v": {
+    "text": "创建分支失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建后是否切换到新分支（默认 true）": {
+    "text": "创建后是否切换到新分支（默认 true）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建带注释的标签": {
+    "text": "创建带注释的标签",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "创建并切换分支失败: %v": {
+    "text": "创建并切换分支失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建并切换到新分支": {
+    "text": "创建并切换到新分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "创建新分支": {
+    "text": "创建新分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "创建新分支。分支名由 AI 根据用户描述自动生成（feature/xxx、fix/xxx 等 kebab-case 格式），不要询问用户；checkout=true（默认）时同时切换过去": {
+    "text": "创建新分支。分支名由 AI 根据用户描述自动生成（feature/xxx、fix/xxx 等 kebab-case 格式），不要询问用户；checkout=true（默认）时同时切换过去",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建轻量 tag": {
+    "text": "创建轻量 tag",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "创建轻量标签": {
+    "text": "创建轻量标签",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "初始化仓库": {
+    "text": "初始化仓库",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "删除 tag 失败: %v": {
+    "text": "删除 tag 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "删除分支失败: %v（请确认分支已合并）": {
+    "text": "删除分支失败: %v（请确认分支已合并）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "删除已合并的分支": {
+    "text": "删除已合并的分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "删除成功": {
+    "text": "删除成功",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "删除指定 stash 条目": {
+    "text": "删除指定 stash 条目",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "删除文件": {
+    "text": "删除文件",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "删除未跟踪和忽略的文件（危险）": {
+    "text": "删除未跟踪和忽略的文件（危险）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "删除未跟踪的文件和目录": {
+    "text": "删除未跟踪的文件和目录",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "删除本地 tag": {
+    "text": "删除本地 tag",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "删除本地分支（分支须已合并）": {
+    "text": "删除本地分支（分支须已合并）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "删除本地和远程": {
+    "text": "删除本地和远程",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "删除本地标签": {
+    "text": "删除本地标签",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "删除远程分支": {
+    "text": "删除远程分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "剩余时间: 约 %s": {
+    "text": "剩余时间: 约 %s",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar.go"
+    ],
+    "category": "GUI"
+  },
+  "功能帮助": {
+    "text": "功能帮助",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "动作:": {
+    "text": "动作:",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "危险操作": {
+    "text": "危险操作",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\permission.go"
+    ],
+    "category": "AI Tools"
+  },
+  "即将打开 AI 对话，你可以询问任何 Git 相关问题。": {
+    "text": "即将打开 AI 对话，你可以询问任何 Git 相关问题。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "历史命令": {
+    "text": "历史命令",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\shell_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "参数": {
+    "text": "参数",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "Other"
+  },
+  "参数 %s 不能为空": {
+    "text": "参数 %s 不能为空",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "参数 %s 类型错误：期望 bool，实际 %T": {
+    "text": "参数 %s 类型错误：期望 bool，实际 %T",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "参数 %s 类型错误：期望 int，实际 %T": {
+    "text": "参数 %s 类型错误：期望 int，实际 %T",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "参数 %s 类型错误：期望 string，实际 %T": {
+    "text": "参数 %s 类型错误：期望 string，实际 %T",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "参数\\": {
+    "text": "参数\\",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "参数名": {
+    "text": "参数名",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "反转指定提交（创建新提交）": {
+    "text": "反转指定提交（创建新提交）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "反转提交": {
+    "text": "反转提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "发生了一个错误": {
+    "text": "发生了一个错误",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "取消": {
+    "text": "取消",
+    "count": 7,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\gui\\message_box.go",
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "AI Agent"
+  },
+  "取消 AI 请求": {
+    "text": "取消 AI 请求",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_code_review_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "取消所有暂存失败: %v": {
+    "text": "取消所有暂存失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "取消所有暂存（git reset HEAD）": {
+    "text": "取消所有暂存（git reset HEAD）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "取消暂存失败: %v": {
+    "text": "取消暂存失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "取消暂存指定文件": {
+    "text": "取消暂存指定文件",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "变基": {
+    "text": "变基",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "变更: %d 个（暂存 %d，未暂存 %d，未追踪 %d）\\n": {
+    "text": "变更: %d 个（暂存 %d，未暂存 %d，未追踪 %d）\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go"
+    ],
+    "category": "Other"
+  },
+  "变更文件: %d 个（已暂存 %d，未暂存 %d，未追踪 %d）\\n": {
+    "text": "变更文件: %d 个（已暂存 %d，未暂存 %d，未追踪 %d）\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "只读": {
+    "text": "只读",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\permission.go"
+    ],
+    "category": "AI Tools"
+  },
+  "可以": {
+    "text": "可以",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "可输入下一条指令": {
+    "text": "可输入下一条指令",
+    "count": 7,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "合并 'feature-branch' 到 'main' 时发现冲突。": {
+    "text": "合并 'feature-branch' 到 'main' 时发现冲突。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "合并冲突": {
+    "text": "合并冲突",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "合并分支": {
+    "text": "合并分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "合并过程中发现冲突，请解决冲突后再提交。": {
+    "text": "合并过程中发现冲突，请解决冲突后再提交。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "同意": {
+    "text": "同意",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "向上滚动聊天历史": {
+    "text": "向上滚动聊天历史",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "向上翻页": {
+    "text": "向上翻页",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "向下滚动聊天历史": {
+    "text": "向下滚动聊天历史",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "向下翻页": {
+    "text": "向下翻页",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "否": {
+    "text": "否",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\gui\\message_box.go"
+    ],
+    "category": "AI Agent"
+  },
+  "命令解释已取消": {
+    "text": "命令解释已取消",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "回退步数（ref 为空时使用，默认 1）": {
+    "text": "回退步数（ref 为空时使用，默认 1）",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "圆圈旋转": {
+    "text": "圆圈旋转",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "在回复中嵌入以下格式的代码块来调用工具：\\n\\n": {
+    "text": "在回复中嵌入以下格式的代码块来调用工具：\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "场景 1: Git Push 流程": {
+    "text": "场景 1: Git Push 流程",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "场景 2: 合并冲突处理": {
+    "text": "场景 2: 合并冲突处理",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "场景 3: 分支删除确认": {
+    "text": "场景 3: 分支删除确认",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "场景 4: AI 辅助问题解决": {
+    "text": "场景 4: AI 辅助问题解决",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "场景 5: 大文件操作": {
+    "text": "场景 5: 大文件操作",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "场景提示: 变更较大，body 须逐点列举主要变更，subject 保持简洁。\\n": {
+    "text": "场景提示: 变更较大，body 须逐点列举主要变更，subject 保持简洁。\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "场景提示: 这是一个 bug 修复，优先使用 fix 类型。\\n": {
+    "text": "场景提示: 这是一个 bug 修复，优先使用 fix 类型。\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "场景提示: 这是文档更新，使用 docs 类型。\\n": {
+    "text": "场景提示: 这是文档更新，使用 docs 类型。\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "场景提示: 这是测试相关变更，使用 test 类型。\\n": {
+    "text": "场景提示: 这是测试相关变更，使用 test 类型。\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "场景提示: 这是重构，优先使用 refactor 类型。\\n": {
+    "text": "场景提示: 这是重构，优先使用 refactor 类型。\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "基础 ref（默认 HEAD）": {
+    "text": "基础 ref（默认 HEAD）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "复制失败": {
+    "text": "复制失败",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "复制最后一条 AI 回复": {
+    "text": "复制最后一条 AI 回复",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "大文件检测": {
+    "text": "大文件检测",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "失败": {
+    "text": "失败",
+    "count": 4,
+    "files": [
+      "pkg\\ai\\agent\\plan.go",
+      "pkg\\ai\\agent\\session.go",
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "AI Agent"
+  },
+  "好": {
+    "text": "好",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "好的": {
+    "text": "好的",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "安全强制推送": {
+    "text": "安全强制推送",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "安全的强制推送": {
+    "text": "安全的强制推送",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "完成": {
+    "text": "完成",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\plan.go"
+    ],
+    "category": "AI Agent"
+  },
+  "对话历史已清空": {
+    "text": "对话历史已清空",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "将当前分支 rebase 到指定分支（git rebase \u003ctarget\u003e）": {
+    "text": "将当前分支 rebase 到指定分支（git rebase \u003ctarget\u003e）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "将指定分支合并到当前分支": {
+    "text": "将指定分支合并到当前分支",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "将指定提交 cherry-pick 到当前分支": {
+    "text": "将指定提交 cherry-pick 到当前分支",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "工作区": {
+    "text": "工作区",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "工作区: 干净\\n": {
+    "text": "工作区: 干净\\n",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go",
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "Other"
+  },
+  "工作区干净，没有变更文件": {
+    "text": "工作区干净，没有变更文件",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "工具": {
+    "text": "工具",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "工具: %s\\n描述: %s\\n权限: %s": {
+    "text": "工具: %s\\n描述: %s\\n权限: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "工具: %s\\n描述: %s\\n权限: %s\\n参数:\\n%s": {
+    "text": "工具: %s\\n描述: %s\\n权限: %s\\n参数:\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "工具名": {
+    "text": "工具名",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "AI Agent"
+  },
+  "工具名\\": {
+    "text": "工具名\\",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\registry.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已 cherry-pick: %s": {
+    "text": "已 cherry-pick: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已 revert 提交: %s": {
+    "text": "已 revert 提交: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已丢弃 %s 的所有变更": {
+    "text": "已丢弃 %s 的所有变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已丢弃更改": {
+    "text": "已丢弃更改",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "已中止合并": {
+    "text": "已中止合并",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "已保存": {
+    "text": "已保存",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "已修改": {
+    "text": "已修改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "已修改最新提交信息为: \\": {
+    "text": "已修改最新提交信息为: \\",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已停止 AI 生成": {
+    "text": "已停止 AI 生成",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已停止生成": {
+    "text": "已停止生成",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已停止生成，可输入下一条指令": {
+    "text": "已停止生成，可输入下一条指令",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已储藏变更: %s": {
+    "text": "已储藏变更: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已切换到: %s": {
+    "text": "已切换到: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已创建 tag %s（指向 %s）": {
+    "text": "已创建 tag %s（指向 %s）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已创建分支 %s（基于 %s，未切换）": {
+    "text": "已创建分支 %s（基于 %s，未切换）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已创建并切换到分支 %s（基于 %s）": {
+    "text": "已创建并切换到分支 %s（基于 %s）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已删除 stash[%d]": {
+    "text": "已删除 stash[%d]",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已删除分支: %s": {
+    "text": "已删除分支: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已删除本地 tag: %s": {
+    "text": "已删除本地 tag: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已删除本地分支": {
+    "text": "已删除本地分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "已取消": {
+    "text": "已取消",
+    "count": 5,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已取消所有暂存": {
+    "text": "已取消所有暂存",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已取消执行计划。": {
+    "text": "已取消执行计划。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "已取消操作": {
+    "text": "已取消操作",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "已取消暂存: %s": {
+    "text": "已取消暂存: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已复制到剪贴板": {
+    "text": "已复制到剪贴板",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已完成": {
+    "text": "已完成",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已完成: %s / %s": {
+    "text": "已完成: %s / %s",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar.go"
+    ],
+    "category": "GUI"
+  },
+  "已完成工具": {
+    "text": "已完成工具",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "已将 %s 合并到当前分支": {
+    "text": "已将 %s 合并到当前分支",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已将分支 %s 重命名为 %s": {
+    "text": "已将分支 %s 重命名为 %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已将当前分支 rebase 到 %s": {
+    "text": "已将当前分支 rebase 到 %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已应用 stash[%d]（条目保留）": {
+    "text": "已应用 stash[%d]（条目保留）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已恢复 stash[%d]": {
+    "text": "已恢复 stash[%d]",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已成功推送到 origin/main": {
+    "text": "已成功推送到 origin/main",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "已放弃更改": {
+    "text": "已放弃更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "已暂存": {
+    "text": "已暂存",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "已暂存: %s": {
+    "text": "已暂存: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已暂存所有变更": {
+    "text": "已暂存所有变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "已暂存文件:\\n": {
+    "text": "已暂存文件:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "已暂存更改": {
+    "text": "已暂存更改",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "已确认删除": {
+    "text": "已确认删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "已跟踪": {
+    "text": "已跟踪",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "已达到最大步数 (%d)，停止执行。": {
+    "text": "已达到最大步数 (%d)，停止执行。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "应用指定 stash（保留 stash 条目）": {
+    "text": "应用指定 stash（保留 stash 条目）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "应用指定的 stash": {
+    "text": "应用指定的 stash",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "应用最近的 stash（不删除）": {
+    "text": "应用最近的 stash（不删除）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "建议使用 Git LFS 管理大文件。\\n\\n": {
+    "text": "建议使用 Git LFS 管理大文件。\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "建议在提交前：\\n": {
+    "text": "建议在提交前：\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "建议：使用 'git push --force-with-lease' 进行安全的强制推送": {
+    "text": "建议：使用 'git push --force-with-lease' 进行安全的强制推送",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "建议：先使用 'git clean -fdn' 预览将被删除的文件": {
+    "text": "建议：先使用 'git clean -fdn' 预览将被删除的文件",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "建议：先使用 'git stash' 保存更改，或使用 'git reset --soft' 保留更改": {
+    "text": "建议：先使用 'git stash' 保存更改，或使用 'git reset --soft' 保留更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "建议：先检查分支是否已合并，使用 'git branch -d' 进行安全删除": {
+    "text": "建议：先检查分支是否已合并，使用 'git branch -d' 进行安全删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_command_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "强制删除分支（危险）": {
+    "text": "强制删除分支（危险）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "强制推送": {
+    "text": "强制推送",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "强制推送（git push --force-with-lease）：若远程有未拉取的提交则自动中止，比 --force 更安全。仍会覆盖远程历史，需谨慎": {
+    "text": "强制推送（git push --force-with-lease）：若远程有未拉取的提交则自动中止，比 --force 更安全。仍会覆盖远程历史，需谨慎",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "强制推送（危险，可能覆盖他人的提交）": {
+    "text": "强制推送（危险，可能覆盖他人的提交）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "强制重置到远程分支状态（危险）": {
+    "text": "强制重置到远程分支状态（危险）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "当前分支: %s\\n": {
+    "text": "当前分支: %s\\n",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go",
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Skills"
+  },
+  "当前分支名": {
+    "text": "当前分支名",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "当前分支已经是最新的，无需拉取更新。": {
+    "text": "当前分支已经是最新的，无需拉取更新。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "待执行": {
+    "text": "待执行",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\plan.go"
+    ],
+    "category": "AI Agent"
+  },
+  "快速入门指南": {
+    "text": "快速入门指南",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "思考中": {
+    "text": "思考中",
+    "count": 4,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "恢复并删除最近的 stash": {
+    "text": "恢复并删除最近的 stash",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "恢复指定 stash 并从 stash 列表中删除": {
+    "text": "恢复指定 stash 并从 stash 列表中删除",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\stash.go"
+    ],
+    "category": "AI Tools"
+  },
+  "成功": {
+    "text": "成功",
+    "count": 3,
+    "files": [
+      "pkg\\ai\\agent\\session.go",
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "AI Agent"
+  },
+  "成功消息框": {
+    "text": "成功消息框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "我可以直接帮你操作仓库，例如：\\n": {
+    "text": "我可以直接帮你操作仓库，例如：\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "手动解决冲突后继续": {
+    "text": "手动解决冲突后继续",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "打开 AI 对话": {
+    "text": "打开 AI 对话",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ai_chat_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "打开冲突解决界面": {
+    "text": "打开冲突解决界面",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "打开冲突解决界面...": {
+    "text": "打开冲突解决界面...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "执行": {
+    "text": "执行",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "执行 AI 回复中的命令": {
+    "text": "执行 AI 回复中的命令",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "执行中": {
+    "text": "执行中",
+    "count": 3,
+    "files": [
+      "pkg\\ai\\agent\\plan.go",
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "AI Agent"
+  },
+  "执行中，请稍候...": {
+    "text": "执行中，请稍候...",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "执行失败": {
+    "text": "执行失败",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "执行完成：%d/%d 步成功": {
+    "text": "执行完成：%d/%d 步成功",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "执行计划已生成，等待确认": {
+    "text": "执行计划已生成，等待确认",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "找不到": {
+    "text": "找不到",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "指向的 ref（默认 HEAD）": {
+    "text": "指向的 ref（默认 HEAD）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "指定提交消息": {
+    "text": "指定提交消息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "挑选提交": {
+    "text": "挑选提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "接下来将依次展示：\\n": {
+    "text": "接下来将依次展示：\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "推送分支到远程": {
+    "text": "推送分支到远程",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "推送到远程": {
+    "text": "推送到远程",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "推送失败": {
+    "text": "推送失败",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "推送当前分支到远程（git push）。如需强制推送请使用 push_force 工具": {
+    "text": "推送当前分支到远程（git push）。如需强制推送请使用 push_force 工具",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\remote.go"
+    ],
+    "category": "AI Tools"
+  },
+  "推送成功": {
+    "text": "推送成功",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "推送成功！": {
+    "text": "推送成功！",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "推送所有分支": {
+    "text": "推送所有分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "推送所有标签到远程": {
+    "text": "推送所有标签到远程",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "推送标签": {
+    "text": "推送标签",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "提交 hash，留空表示 HEAD": {
+    "text": "提交 hash，留空表示 HEAD",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "提交信息: %s\\n提交 Hash: %s\\n作者: %s\\n\\n请分析这个 commit 的变更内容和目的。": {
+    "text": "提交信息: %s\\n提交 Hash: %s\\n作者: %s\\n\\n请分析这个 commit 的变更内容和目的。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\local_commits_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "提交失败: %v": {
+    "text": "提交失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "提交已暂存的变更。调用前应先用 get_staged_diff 查看变更内容，由 AI 自行生成提交信息，不要询问用户": {
+    "text": "提交已暂存的变更。调用前应先用 get_staged_diff 查看变更内容，由 AI 自行生成提交信息，不要询问用户",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "提交引用": {
+    "text": "提交引用",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "提交成功: \\": {
+    "text": "提交成功: \\",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "提交所有已跟踪文件": {
+    "text": "提交所有已跟踪文件",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "提交所有已跟踪文件的更改": {
+    "text": "提交所有已跟踪文件的更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "提交数: 3\\n传输数据: 10.0 MB\\n耗时: 2.5 秒": {
+    "text": "提交数: 3\\n传输数据: 10.0 MB\\n耗时: 2.5 秒",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "提交暂存的更改": {
+    "text": "提交暂存的更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "提交更改": {
+    "text": "提交更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "提供有效的提交信息": {
+    "text": "提供有效的提交信息",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "提示": {
+    "text": "提示",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "提示: 按 Ctrl+P 可以查看预设问题": {
+    "text": "提示: 按 Ctrl+P 可以查看预设问题",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "搜索内容": {
+    "text": "搜索内容",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "搜索文本": {
+    "text": "搜索文本",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "撤销指定提交（创建一个新的反向提交）": {
+    "text": "撤销指定提交（创建一个新的反向提交）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "撤销提交但保留暂存区": {
+    "text": "撤销提交但保留暂存区",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "撤销提交并丢弃所有更改（危险）": {
+    "text": "撤销提交并丢弃所有更改（危险）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "撤销最后一次提交（保留更改）": {
+    "text": "撤销最后一次提交（保留更改）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "操作失败": {
+    "text": "操作失败",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "操作已成功完成": {
+    "text": "操作已成功完成",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "操作成功": {
+    "text": "操作成功",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "放弃": {
+    "text": "放弃",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "整体描述（一句话）": {
+    "text": "整体描述（一句话）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "文件不在工作区: %s": {
+    "text": "文件不在工作区: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "文件不在工作区变更列表中: %s": {
+    "text": "文件不在工作区变更列表中: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "文件已保存，此消息将在 3 秒后自动关闭。": {
+    "text": "文件已保存，此消息将在 3 秒后自动关闭。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "文件路径": {
+    "text": "文件路径",
+    "count": 4,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go",
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "新分支名": {
+    "text": "新分支名",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "新的提交信息": {
+    "text": "新的提交信息",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "方块样式": {
+    "text": "方块样式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "无变更": {
+    "text": "无变更",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "无法推送到远程仓库。": {
+    "text": "无法推送到远程仓库。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "无法推送到远程仓库。远程仓库包含你本地没有的提交，这通常是因为另一个仓库已向该引用进行了推送。你可能需要先整合远程变更（例如 'git pull'）再推送。": {
+    "text": "无法推送到远程仓库。远程仓库包含你本地没有的提交，这通常是因为另一个仓库已向该引用进行了推送。你可能需要先整合远程变更（例如 'git pull'）再推送。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "无法连接到远程仓库，请检查网络连接。": {
+    "text": "无法连接到远程仓库，请检查网络连接。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "是": {
+    "text": "是",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\gui\\message_box.go"
+    ],
+    "category": "AI Agent"
+  },
+  "是/否/取消对话框": {
+    "text": "是/否/取消对话框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "是否继续添加到 Git？": {
+    "text": "是否继续添加到 Git？",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "显示当前目录": {
+    "text": "显示当前目录",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "显示提交详情": {
+    "text": "显示提交详情",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "显示文件内容": {
+    "text": "显示文件内容",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "智能分析当前变更：逐个文件分析diff并整合结果（适用于大量变更场景）": {
+    "text": "智能分析当前变更：逐个文件分析diff并整合结果（适用于大量变更场景）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "暂存": {
+    "text": "暂存",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "暂存全部失败: %v": {
+    "text": "暂存全部失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "暂存区": {
+    "text": "暂存区",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go",
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "暂存区为空": {
+    "text": "暂存区为空",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "暂存工作区": {
+    "text": "暂存工作区",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "暂存所有工作区变更": {
+    "text": "暂存所有工作区变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "暂存指定文件": {
+    "text": "暂存指定文件",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "暂存文件失败: %v": {
+    "text": "暂存文件失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "最后更新时间: 2024-01-01 12:00:00": {
+    "text": "最后更新时间: 2024-01-01 12:00:00",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "最多返回行数（默认 300，0 表示不限制）": {
+    "text": "最多返回行数（默认 300，0 表示不限制）",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "最近提交:\\n": {
+    "text": "最近提交:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go"
+    ],
+    "category": "Other"
+  },
+  "有什么我可以帮助你的吗？": {
+    "text": "有什么我可以帮助你的吗？",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "未提交的更改": {
+    "text": "未提交的更改",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "未暂存": {
+    "text": "未暂存",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "未暂存文件:\\n": {
+    "text": "未暂存文件:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "未知": {
+    "text": "未知",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\plan.go",
+      "pkg\\ai\\tools\\permission.go"
+    ],
+    "category": "AI Agent"
+  },
+  "未知工具: %s": {
+    "text": "未知工具: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "未跟踪": {
+    "text": "未跟踪",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "本地写入": {
+    "text": "本地写入",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\permission.go"
+    ],
+    "category": "AI Tools"
+  },
+  "本地分支 '": {
+    "text": "本地分支 '",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "本地分支和远程分支都已删除。": {
+    "text": "本地分支和远程分支都已删除。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "本地和远程分支都已删除": {
+    "text": "本地和远程分支都已删除",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "权限": {
+    "text": "权限",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "查找文件": {
+    "text": "查找文件",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "查看与上次提交的差异": {
+    "text": "查看与上次提交的差异",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "查看图形化提交历史（最近 20 条）": {
+    "text": "查看图形化提交历史（最近 20 条）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "查看完整错误信息": {
+    "text": "查看完整错误信息",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "查看差异": {
+    "text": "查看差异",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "查看所有 stash 列表": {
+    "text": "查看所有 stash 列表",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "查看指定作者的提交": {
+    "text": "查看指定作者的提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "查看指定日期后的提交": {
+    "text": "查看指定日期后的提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "查看提交历史": {
+    "text": "查看提交历史",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "查看状态": {
+    "text": "查看状态",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "查看详情": {
+    "text": "查看详情",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "标签": {
+    "text": "标签",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "根据以下工作区变更，为新分支推荐一个名称。\\n\\n": {
+    "text": "根据以下工作区变更，为新分支推荐一个名称。\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\branch_name.go"
+    ],
+    "category": "AI Skills"
+  },
+  "根据功能描述生成合适的 Git 分支名（kebab-case，带类型前缀）": {
+    "text": "根据功能描述生成合适的 Git 分支名（kebab-case，带类型前缀）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "Other"
+  },
+  "根据暂存区的 diff 生成符合 Conventional Commits 规范的提交信息": {
+    "text": "根据暂存区的 diff 生成符合 Conventional Commits 规范的提交信息",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\manager.go"
+    ],
+    "category": "Other"
+  },
+  "检查操作参数是否正确": {
+    "text": "检查操作参数是否正确",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "检查文件或目录权限": {
+    "text": "检查文件或目录权限",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "检测到大文件 'assets/video.mp4' (250 MB)": {
+    "text": "检测到大文件 'assets/video.mp4' (250 MB)",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "检测到未保存的更改，是否保存？": {
+    "text": "检测到未保存的更改，是否保存？",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "检测到未提交的更改，如何处理？": {
+    "text": "检测到未提交的更改，如何处理？",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "模拟 Git Clone": {
+    "text": "模拟 Git Clone",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "模拟 Git Fetch": {
+    "text": "模拟 Git Fetch",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "模拟 Git Push": {
+    "text": "模拟 Git Push",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "欢迎使用 AI 助手！": {
+    "text": "欢迎使用 AI 助手！",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "欢迎使用 lazygit UI 功能演示！": {
+    "text": "欢迎使用 lazygit UI 功能演示！",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "正在克隆仓库...": {
+    "text": "正在克隆仓库...",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在分析并生成执行计划": {
+    "text": "正在分析并生成执行计划",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "正在删除分支...": {
+    "text": "正在删除分支...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "正在删除远程分支...": {
+    "text": "正在删除远程分支...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "正在取消 AI 请求...": {
+    "text": "正在取消 AI 请求...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_code_review_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "正在处理...": {
+    "text": "正在处理...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在强制推送...": {
+    "text": "正在强制推送...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在思考": {
+    "text": "正在思考",
+    "count": 3,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "正在思考...": {
+    "text": "正在思考...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "正在执行计划": {
+    "text": "正在执行计划",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "正在接收对象...": {
+    "text": "正在接收对象...",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在推送...": {
+    "text": "正在推送...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在推送到远程仓库...": {
+    "text": "正在推送到远程仓库...",
+    "count": 3,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "正在检出文件...": {
+    "text": "正在检出文件...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在生成回复": {
+    "text": "正在生成回复",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "正在获取更新...": {
+    "text": "正在获取更新...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在解析增量...": {
+    "text": "正在解析增量...",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在调用": {
+    "text": "正在调用",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "正在连接...": {
+    "text": "正在连接...",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "正在连接服务器...": {
+    "text": "正在连接服务器...",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "此分支包含:\\n": {
+    "text": "此分支包含:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "此操作不可撤销，请谨慎操作。": {
+    "text": "此操作不可撤销，请谨慎操作。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "此演示需要启用 AI 功能。": {
+    "text": "此演示需要启用 AI 功能。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "步骤 %s (%s): %s": {
+    "text": "步骤 %s (%s): %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "步骤 %s: 未知工具 '%s'（请使用工具列表中的准确名称）": {
+    "text": "步骤 %s: 未知工具 '%s'（请使用工具列表中的准确名称）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "步骤的人类可读描述": {
+    "text": "步骤的人类可读描述",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "比较两个分支的差异": {
+    "text": "比较两个分支的差异",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "没有 tag": {
+    "text": "没有 tag",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "没有储藏的变更": {
+    "text": "没有储藏的变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "没有可复制的内容": {
+    "text": "没有可复制的内容",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "没有可执行的 AI 回复": {
+    "text": "没有可执行的 AI 回复",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "没有未暂存的变更": {
+    "text": "没有未暂存的变更",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "没有配置远程仓库": {
+    "text": "没有配置远程仓库",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "测试所有旋转动画": {
+    "text": "测试所有旋转动画",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "测试所有消息类型": {
+    "text": "测试所有消息类型",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "测试所有进度条样式": {
+    "text": "测试所有进度条样式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "消息框测试菜单": {
+    "text": "消息框测试菜单",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "添加 Signed-off-by 行": {
+    "text": "添加 Signed-off-by 行",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "添加文件到暂存区": {
+    "text": "添加文件到暂存区",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "清理未跟踪文件": {
+    "text": "清理未跟踪文件",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "渐变样式": {
+    "text": "渐变样式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "点旋转": {
+    "text": "点旋转",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "点状样式": {
+    "text": "点状样式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "版本控制系统": {
+    "text": "版本控制系统",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "状态:": {
+    "text": "状态:",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "用户对上述计划有如下反馈，请根据反馈调整计划并重新输出 ```plan 块：\\n\\n%s": {
+    "text": "用户对上述计划有如下反馈，请根据反馈调整计划并重新输出 ```plan 块：\\n\\n%s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "用户意图: %s\\n\\n": {
+    "text": "用户意图: %s\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "用户拒绝执行: %s": {
+    "text": "用户拒绝执行: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "目标 ref 或 hash（优先）": {
+    "text": "目标 ref 或 hash（优先）",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "目标分支名或 ref": {
+    "text": "目标分支名或 ref",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "确定": {
+    "text": "确定",
+    "count": 8,
+    "files": [
+      "pkg\\gui\\message_box.go",
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要丢弃所有未提交的更改吗？此操作不可撤销。": {
+    "text": "确定要丢弃所有未提交的更改吗？此操作不可撤销。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要中止合并吗？所有合并进度将丢失。": {
+    "text": "确定要中止合并吗？所有合并进度将丢失。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要删除分支 '": {
+    "text": "确定要删除分支 '",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要删除分支 'feature-x' 吗？此操作不可撤销。": {
+    "text": "确定要删除分支 'feature-x' 吗？此操作不可撤销。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要删除本地和远程分支 '": {
+    "text": "确定要删除本地和远程分支 '",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要推送到远程仓库 'origin/main' 吗？": {
+    "text": "确定要推送到远程仓库 'origin/main' 吗？",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确定要清空对话历史吗？此操作不可撤销。": {
+    "text": "确定要清空对话历史吗？此操作不可撤销。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "确定进度条（推送示例）": {
+    "text": "确定进度条（推送示例）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确认": {
+    "text": "确认",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "AI Agent"
+  },
+  "确认丢弃": {
+    "text": "确认丢弃",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确认中止": {
+    "text": "确认中止",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确认删除": {
+    "text": "确认删除",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确认删除分支": {
+    "text": "确认删除分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确认对话框": {
+    "text": "确认对话框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确认强制推送": {
+    "text": "确认强制推送",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "确认推送": {
+    "text": "确认推送",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "确认文件或分支存在": {
+    "text": "确认文件或分支存在",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "确认清空": {
+    "text": "确认清空",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "示例问题:\\n": {
+    "text": "示例问题:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "移动文件": {
+    "text": "移动文件",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "空闲": {
+    "text": "空闲",
+    "count": 3,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "第 %d 条命令可能无效：git commit -m 的提交信息包含空格时必须加引号": {
+    "text": "第 %d 条命令可能无效：git commit -m 的提交信息包含空格时必须加引号",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "等待确认": {
+    "text": "等待确认",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "算了": {
+    "text": "算了",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "管理分支": {
+    "text": "管理分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "管理标签": {
+    "text": "管理标签",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "箭头旋转": {
+    "text": "箭头旋转",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "箭头样式": {
+    "text": "箭头样式",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "线条旋转": {
+    "text": "线条旋转",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "继续": {
+    "text": "继续",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "综合演示": {
+    "text": "综合演示",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "缺少 hash 参数": {
+    "text": "缺少 hash 参数",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "缺少 message 参数": {
+    "text": "缺少 message 参数",
+    "count": 2,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "缺少 name 参数": {
+    "text": "缺少 name 参数",
+    "count": 6,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go",
+      "pkg\\ai\\tools\\git\\tag.go"
+    ],
+    "category": "AI Tools"
+  },
+  "缺少 old 或 name 参数": {
+    "text": "缺少 old 或 name 参数",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "缺少 path 参数": {
+    "text": "缺少 path 参数",
+    "count": 4,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go",
+      "pkg\\ai\\tools\\git\\staging.go"
+    ],
+    "category": "AI Tools"
+  },
+  "缺少 target 参数": {
+    "text": "缺少 target 参数",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "缺少必需参数: %s": {
+    "text": "缺少必需参数: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "聚焦输入框": {
+    "text": "聚焦输入框",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "自动关闭消息框": {
+    "text": "自动关闭消息框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "自定义按钮": {
+    "text": "自定义按钮",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "获取 diff 失败: %v": {
+    "text": "获取 diff 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取工作区未暂存的 diff": {
+    "text": "获取工作区未暂存的 diff",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取当前仓库状态（分支、工作区文件、rebase/merge 进度）": {
+    "text": "获取当前仓库状态（分支、工作区文件、rebase/merge 进度）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取成功！": {
+    "text": "获取成功！",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "获取所有远程分支并清理已删除的引用": {
+    "text": "获取所有远程分支并清理已删除的引用",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "获取指定提交的 diff（默认 HEAD）": {
+    "text": "获取指定提交的 diff（默认 HEAD）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取指定文件的 diff（可选择 staged 或 unstaged）": {
+    "text": "获取指定文件的 diff（可选择 staged 或 unstaged）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取提交 diff 失败: %v": {
+    "text": "获取提交 diff 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取暂存区 diff 失败: %v": {
+    "text": "获取暂存区 diff 失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取暂存区（staged）diff": {
+    "text": "获取暂存区（staged）diff",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取最近的提交记录": {
+    "text": "获取最近的提交记录",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "获取远程更新": {
+    "text": "获取远程更新",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "要 cherry-pick 的提交 hash": {
+    "text": "要 cherry-pick 的提交 hash",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "要合并的分支名": {
+    "text": "要合并的分支名",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "要撤销的提交 hash": {
+    "text": "要撤销的提交 hash",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\commit.go"
+    ],
+    "category": "AI Tools"
+  },
+  "规划阶段不允许调用工具: %s": {
+    "text": "规划阶段不允许调用工具: %s",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "规划阶段超过最大步数 (%d)，未能生成执行计划": {
+    "text": "规划阶段超过最大步数 (%d)，未能生成执行计划",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "解决冲突": {
+    "text": "解决冲突",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go",
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "解决冲突后重试": {
+    "text": "解决冲突后重试",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "警告": {
+    "text": "警告",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "警告消息框": {
+    "text": "警告消息框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "计划验证失败": {
+    "text": "计划验证失败",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "设置上游分支": {
+    "text": "设置上游分支",
+    "count": 3,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go",
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "AI Agent"
+  },
+  "详细错误信息:\\n": {
+    "text": "详细错误信息:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "说你想做什么，我来执行。": {
+    "text": "说你想做什么，我来执行。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "请先在设置中启用并配置 AI 功能。": {
+    "text": "请先在设置中启用并配置 AI 功能。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ai_chat_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "请先在设置中启用并配置 AI 功能。\\n提示：按 'o' 打开设置菜单": {
+    "text": "请先在设置中启用并配置 AI 功能。\\n提示：按 'o' 打开设置菜单",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "请分析以下diff，用2-3句话总结：\\n": {
+    "text": "请分析以下diff，用2-3句话总结：\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\analyze.go"
+    ],
+    "category": "AI Tools"
+  },
+  "请在设置中配置 AI 后再试。": {
+    "text": "请在设置中配置 AI 后再试。",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "请注意这个警告信息": {
+    "text": "请注意这个警告信息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "请继续分析。收集到足够信息后，输出 ```plan 块。": {
+    "text": "请继续分析。收集到足够信息后，输出 ```plan 块。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "请避免重复调用相同的工具。如果已收集足够信息，请直接输出 ```plan 块。": {
+    "text": "请避免重复调用相同的工具。如果已收集足够信息，请直接输出 ```plan 块。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "调用工具: %s %v": {
+    "text": "调用工具: %s %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\session.go"
+    ],
+    "category": "AI Agent"
+  },
+  "跳到底部": {
+    "text": "跳到底部",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "跳到顶部": {
+    "text": "跳到顶部",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\ai_chat_controller.go"
+    ],
+    "category": "GUI"
+  },
+  "跳过": {
+    "text": "跳过",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\plan.go"
+    ],
+    "category": "AI Agent"
+  },
+  "跳过 pre-commit 钩子": {
+    "text": "跳过 pre-commit 钩子",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "输入 Y 执行，N 取消，或输入补充说明": {
+    "text": "输入 Y 执行，N 取消，或输入补充说明",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\ai_chat_helper.go"
+    ],
+    "category": "GUI"
+  },
+  "输出 JSON 数组，每个元素包含:\\n": {
+    "text": "输出 JSON 数组，每个元素包含:\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "运行环境: %s\\n\\n": {
+    "text": "运行环境: %s\\n\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "返回 1-3 个建议，按推荐度排序。只输出 JSON，不要其他内容。": {
+    "text": "返回 1-3 个建议，按推荐度排序。只输出 JSON，不要其他内容。",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\shell_cmd.go"
+    ],
+    "category": "AI Skills"
+  },
+  "返回条数，默认 15，最多 50": {
+    "text": "返回条数，默认 15，最多 50",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\query.go"
+    ],
+    "category": "AI Tools"
+  },
+  "这是一条信息消息": {
+    "text": "这是一条信息消息",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "进度条测试菜单": {
+    "text": "进度条测试菜单",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "远程: %s [↑%s ↓%s]\\n": {
+    "text": "远程: %s [↑%s ↓%s]\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go"
+    ],
+    "category": "Other"
+  },
+  "远程: %s [已同步]\\n": {
+    "text": "远程: %s [已同步]\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\repocontext\\repo_context.go"
+    ],
+    "category": "Other"
+  },
+  "远程仓库": {
+    "text": "远程仓库",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "远程写入": {
+    "text": "远程写入",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\permission.go"
+    ],
+    "category": "AI Tools"
+  },
+  "远程分支保留": {
+    "text": "远程分支保留",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "选择操作": {
+    "text": "选择操作",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "速度: %s/s": {
+    "text": "速度: %s/s",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\progress_bar.go"
+    ],
+    "category": "GUI"
+  },
+  "部分暂存": {
+    "text": "部分暂存",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "重命名分支": {
+    "text": "重命名分支",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "重命名失败: %v": {
+    "text": "重命名失败: %v",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "重命名本地分支": {
+    "text": "重命名本地分支",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\tools\\git\\branch.go"
+    ],
+    "category": "AI Tools"
+  },
+  "重置提交": {
+    "text": "重置提交",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "错误": {
+    "text": "错误",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "错误代码: ECONNREFUSED\\n主机: github.com\\n端口: 443": {
+    "text": "错误代码: ECONNREFUSED\\n主机: github.com\\n端口: 443",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "错误消息框": {
+    "text": "错误消息框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "长文本消息框": {
+    "text": "长文本消息框",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "问题": {
+    "text": "问题",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\message_box_examples.go"
+    ],
+    "category": "GUI"
+  },
+  "项目类型: %s\\n": {
+    "text": "项目类型: %s\\n",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\skills\\commit_msg.go"
+    ],
+    "category": "AI Skills"
+  },
+  "预览将被删除的文件（不实际删除）": {
+    "text": "预览将被删除的文件（不实际删除）",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_templates.go"
+    ],
+    "category": "GUI"
+  },
+  "预览推送": {
+    "text": "预览推送",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\controllers\\helpers\\command_completion.go"
+    ],
+    "category": "GUI"
+  },
+  "验证 Activity Bar 的视觉状态（当前面板指示器、spinner、禁用状态）": {
+    "text": "验证 Activity Bar 的视觉状态（当前面板指示器、spinner、禁用状态）",
+    "count": 1,
+    "files": [
+      "pkg\\integration\\tests\\activity_bar\\navigation.go"
+    ],
+    "category": "Other"
+  },
+  "验证自定义 Activity Bar 配置": {
+    "text": "验证自定义 Activity Bar 配置",
+    "count": 1,
+    "files": [
+      "pkg\\integration\\tests\\activity_bar\\navigation.go"
+    ],
+    "category": "Other"
+  },
+  "（已尝试映射为 %s）": {
+    "text": "（已尝试映射为 %s）",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "，%d 步失败": {
+    "text": "，%d 步失败",
+    "count": 1,
+    "files": [
+      "pkg\\ai\\agent\\two_phase_agent.go"
+    ],
+    "category": "AI Agent"
+  },
+  "🎨 UI 功能测试中心": {
+    "text": "🎨 UI 功能测试中心",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "🎨 综合演示": {
+    "text": "🎨 综合演示",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "💬 AI 对话功能": {
+    "text": "💬 AI 对话功能",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "📊 进度条功能": {
+    "text": "📊 进度条功能",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "📋 消息框功能": {
+    "text": "📋 消息框功能",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "📖 快速入门指南": {
+    "text": "📖 快速入门指南",
+    "count": 1,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  },
+  "🔄 实际场景演示": {
+    "text": "🔄 实际场景演示",
+    "count": 2,
+    "files": [
+      "pkg\\gui\\ui_features_test_menu.go"
+    ],
+    "category": "GUI"
+  }
+}

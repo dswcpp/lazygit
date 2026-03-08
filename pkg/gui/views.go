@@ -78,8 +78,9 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		// AI code review floating popup
 		{viewPtr: &gui.Views.AICodeReview, name: "aiCodeReview"},
 
-		// AI chat floating popup
+		// AI chat floating popup (history view + input bar)
 		{viewPtr: &gui.Views.AIChat, name: "aiChat"},
+		{viewPtr: &gui.Views.AIChatInput, name: "aiChatInput"},
 
 		// loading overlay: renders on top of everything
 		{viewPtr: &gui.Views.Loading, name: "loading"},
@@ -171,6 +172,12 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.AIChat.Visible = false
 	gui.Views.AIChat.Wrap = true
 	gui.Views.AIChat.Autoscroll = false // 手动控制：仅新消息时滚底，允许用户向上滚动
+
+	gui.Views.AIChatInput.Visible = false
+	gui.Views.AIChatInput.Editable = true
+	gui.Views.AIChatInput.Wrap = false
+	gui.Views.AIChatInput.Title = " > "
+	gui.Views.AIChatInput.Editor = gocui.EditorFunc(gui.aiChatInputEditor)
 
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 func (gui *Gui) TestProgressBarDeterminate() error {
 	// 创建进度条
 	pb := gui.ShowProgressBar(ProgressBarConfig{
-		Title:          "正在推送到远程仓库...",
+		Title:          gui.c.Tr.AIChatPushingToRemote,
 		Total:          20 * 1024 * 1024, // 20 MB
 		Width:          30,
 		ShowPercentage: true,
@@ -129,7 +129,7 @@ func (gui *Gui) TestProgressBarSpinners() error {
 func (gui *Gui) pushWithProgress() error {
 	// 显示进度条
 	pb := gui.ShowProgressBar(ProgressBarConfig{
-		Title:          "正在推送到远程仓库...",
+		Title:          gui.c.Tr.AIChatPushingToRemote,
 		Message:        "正在连接...",
 		Indeterminate:  true,
 		SpinnerStyle:   SpinnerStyleBraille,

@@ -1,6 +1,7 @@
 package gittools
 
 import (
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/commands/git_commands"
 	"github.com/dswcpp/lazygit/pkg/commands/models"
 	"github.com/dswcpp/lazygit/pkg/utils"
@@ -30,6 +31,9 @@ type Deps struct {
 	Sync        *git_commands.SyncCommands
 	Diff        *git_commands.DiffCommands
 	Rebase      *git_commands.RebaseCommands
+
+	// Translator for i18n
+	Tr *aii18n.Translator
 
 	// Model readers — closures that return the current GUI model state.
 	// Using closures lets tools always see the latest state after each operation.

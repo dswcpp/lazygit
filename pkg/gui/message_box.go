@@ -48,7 +48,7 @@ func (gui *Gui) NewMessageBox(config MessageBoxConfig) *MessageBox {
 		config.Width = 60
 	}
 	if len(config.Buttons) == 0 {
-		config.Buttons = []string{"确定"}
+		config.Buttons = []string{gui.c.Tr.AIOK}
 	}
 
 	return &MessageBox{
@@ -321,7 +321,7 @@ func (gui *Gui) ShowError(title, message string, details ...string) {
 		Title:   title,
 		Message: message,
 		Details: detailStr,
-		Buttons: []string{"确定"},
+		Buttons: []string{gui.c.Tr.AIOK},
 	}, nil)
 }
 
@@ -337,7 +337,7 @@ func (gui *Gui) ShowWarning(title, message string, details ...string) {
 		Title:   title,
 		Message: message,
 		Details: detailStr,
-		Buttons: []string{"确定"},
+		Buttons: []string{gui.c.Tr.AIOK},
 	}, nil)
 }
 
@@ -353,7 +353,7 @@ func (gui *Gui) ShowInfo(title, message string, details ...string) {
 		Title:   title,
 		Message: message,
 		Details: detailStr,
-		Buttons: []string{"确定"},
+		Buttons: []string{gui.c.Tr.AIOK},
 	}, nil)
 }
 
@@ -369,7 +369,7 @@ func (gui *Gui) ShowSuccess(title, message string, details ...string) {
 		Title:   title,
 		Message: message,
 		Details: detailStr,
-		Buttons: []string{"确定"},
+		Buttons: []string{gui.c.Tr.AIOK},
 	}, nil)
 }
 
@@ -379,7 +379,7 @@ func (gui *Gui) ShowConfirm(title, message string, onConfirm func()) {
 		Type:    MessageTypeQuestion,
 		Title:   title,
 		Message: message,
-		Buttons: []string{"确定", "取消"},
+		Buttons: []string{gui.c.Tr.AIOK, gui.c.Tr.AICancel},
 	}, func(buttonIndex int) {
 		if buttonIndex == 0 && onConfirm != nil {
 			onConfirm()
@@ -393,7 +393,7 @@ func (gui *Gui) ShowYesNoCancel(title, message string, onYes, onNo func()) {
 		Type:    MessageTypeQuestion,
 		Title:   title,
 		Message: message,
-		Buttons: []string{"是", "否", "取消"},
+		Buttons: []string{gui.c.Tr.AIYes, gui.c.Tr.AINo, gui.c.Tr.AICancel},
 	}, func(buttonIndex int) {
 		switch buttonIndex {
 		case 0:
@@ -414,7 +414,7 @@ func (gui *Gui) ShowAutoCloseMessage(msgType MessageType, title, message string,
 		Type:    msgType,
 		Title:   title,
 		Message: message,
-		Buttons: []string{"确定"},
+		Buttons: []string{gui.c.Tr.AIOK},
 	}, nil)
 
 	// 自动关闭

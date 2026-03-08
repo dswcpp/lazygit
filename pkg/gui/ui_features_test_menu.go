@@ -156,7 +156,7 @@ func (gui *Gui) demoGitPushScenario() error {
 		func() {
 			// 2. 显示进度条
 			pb := gui.ShowProgressBar(ProgressBarConfig{
-				Title:          "正在推送到远程仓库...",
+				Title:          gui.c.Tr.AIChatPushingToRemote,
 				Total:          10 * 1024 * 1024, // 10 MB
 				ShowPercentage: true,
 				ShowStats:      true,
@@ -195,17 +195,17 @@ func (gui *Gui) demoMergeConflictScenario() error {
 		"README.md",
 	}
 
-	details := "冲突文件:\n"
+	details := gui.c.Tr.AIChatConflictFiles
 	for _, file := range conflictFiles {
 		details += "  - " + file + "\n"
 	}
 
 	gui.ShowMessageBox(MessageBoxConfig{
 		Type:    MessageTypeWarning,
-		Title:   "合并冲突",
+		Title:   gui.c.Tr.AIChatMergeConflict,
 		Message: "合并 'feature-branch' 到 'main' 时发现冲突。",
 		Details: details,
-		Buttons: []string{"解决冲突", "中止合并", "查看详情"},
+		Buttons: []string{gui.c.Tr.AIChatResolveConflict, gui.c.Tr.AIChatAbortMerge, "查看详情"},
 	}, func(buttonIndex int) {
 		switch buttonIndex {
 		case 0:
@@ -240,13 +240,13 @@ func (gui *Gui) demoBranchDeleteScenario() error {
 			"  • 最后更新: 30 天前\n" +
 			"  • 已合并到 main\n" +
 			"  • 远程分支也将被删除",
-		Buttons: []string{"仅删除本地", "删除本地和远程", "取消"},
+		Buttons: []string{"仅删除本地", "删除本地和远程", gui.c.Tr.AICancel},
 	}, func(buttonIndex int) {
 		switch buttonIndex {
 		case 0:
 			gui.c.Toast("已删除本地分支")
 			gui.ShowSuccess(
-				"删除成功",
+				gui.c.Tr.AIChatDeleteSuccess,
 				"本地分支 '"+branchName+"' 已删除",
 				"远程分支保留",
 			)
@@ -265,7 +265,7 @@ func (gui *Gui) demoBranchDeleteScenario() error {
 
 				gui.g.Update(func(*gocui.Gui) error {
 					gui.ShowSuccess(
-						"删除成功",
+						gui.c.Tr.AIChatDeleteSuccess,
 						"分支 '"+branchName+"' 已完全删除",
 						"本地和远程分支都已删除",
 					)
@@ -282,7 +282,7 @@ func (gui *Gui) demoBranchDeleteScenario() error {
 func (gui *Gui) demoAIAssistScenario() error {
 	if gui.c.AIManager == nil {
 		gui.ShowError(
-			"AI 未启用",
+			gui.c.Tr.AIChatNotEnabled,
 			"此演示需要启用 AI 功能。",
 			"请在设置中配置 AI 后再试。",
 		)

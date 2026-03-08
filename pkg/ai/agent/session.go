@@ -9,43 +9,25 @@ import (
 	"github.com/dswcpp/lazygit/pkg/ai/tools"
 )
 
-// MessageKind classifies a message for UI rendering purposes.
-type MessageKind string
-
-const (
-	KindSystem    MessageKind = "system"
-	KindUser      MessageKind = "user"
-	KindAssistant MessageKind = "assistant"
-	KindToolCall  MessageKind = "tool_call"   // agent called a tool
-	KindToolResult MessageKind = "tool_result" // tool execution result
-	KindError     MessageKind = "error"
-)
-
-// UIMessage is a displayable record stored in the session.
-// It is separate from provider.Message to allow richer UI metadata.
-type UIMessage struct {
-	Kind          MessageKind
-	Content       string
-	Timestamp     time.Time
-	// ToolName is set for KindToolCall and KindToolResult.
-	ToolName      string
-	// ToolSuccess is set for KindToolResult.
-	ToolSuccess   bool
-}
-
-// Session manages the full conversation state for one agent dialogue.
-// It maintains two parallel views:
-//   - UIMessages: for rendering to the user (includes tool call details, errors…)
-//   - providerMessages: the conversation history sent to the LLM provider
+// Session manages the conversation state for one agent dialogue.
+// DEPRECATED for TwoPhaseAgent: All state now lives in GraphState.
+// Session is kept for backward compatibility with the legacy Agent implementation.
 type Session struct {
 	systemPrompt     string
 	UIMessages       []UIMessage
 	providerMessages []provider.Message
+
+	// 流式输出状态
+	streamingMessageIndex int             // 正在流式输出的消息索引（-1 表示无流式消息）
+	streamingBuffer       strings.Builder // 流式消息缓冲区
 }
 
 // NewSession creates a new Session with the given system prompt.
 func NewSession(systemPrompt string) *Session {
-	return &Session{systemPrompt: systemPrompt}
+	return &Session{
+		systemPrompt:          systemPrompt,
+		streamingMessageIndex: -1,
+	}
 }
 
 // AddUserMessage records a user turn in both views.
@@ -69,6 +51,45 @@ func (s *Session) AddAssistantMessage(content string) {
 	s.providerMessages = append(s.providerMessages, provider.Message{
 		Role: provider.RoleAssistant, Content: content,
 	})
+}
+
+// StartStreamingMessage 开始一条新的流式 Assistant 消息。
+func (s *Session) StartStreamingMessage() int {
+	s.streamingBuffer.Reset()
+	s.UIMessages = append(s.UIMessages, UIMessage{
+		Kind: KindAssistant, Content: "", Timestamp: time.Now(),
+	})
+	s.streamingMessageIndex = len(s.UIMessages) - 1
+	return s.streamingMessageIndex
+}
+
+// AppendToStreamingMessage 向当前流式消息追加内容。
+func (s *Session) AppendToStreamingMessage(chunk string) {
+	if s.streamingMessageIndex < 0 || s.streamingMessageIndex >= len(s.UIMessages) {
+		return
+	}
+	s.streamingBuffer.WriteString(chunk)
+	s.UIMessages[s.streamingMessageIndex].Content = s.streamingBuffer.String()
+}
+
+// FinishStreamingMessage 完成流式消息，将其加入 provider 消息历史。
+func (s *Session) FinishStreamingMessage() {
+	if s.streamingMessageIndex < 0 {
+		return
+	}
+	content := s.streamingBuffer.String()
+	if content != "" {
+		s.providerMessages = append(s.providerMessages, provider.Message{
+			Role: provider.RoleAssistant, Content: content,
+		})
+	}
+	s.streamingMessageIndex = -1
+	s.streamingBuffer.Reset()
+}
+
+// IsStreaming 返回当前是否有流式消息正在进行。
+func (s *Session) IsStreaming() bool {
+	return s.streamingMessageIndex >= 0
 }
 
 // AddSystemNote adds a system-level note visible to the user but not sent to the LLM.
@@ -96,7 +117,6 @@ func (s *Session) AddToolCall(call tools.ToolCall) {
 }
 
 // AddToolResult records a tool result in both views.
-// The provider sees tool results as a user-role message so it can reason about them.
 func (s *Session) AddToolResult(result tools.ToolResult, toolName string) {
 	s.UIMessages = append(s.UIMessages, UIMessage{
 		Kind:        KindToolResult,
@@ -105,7 +125,6 @@ func (s *Session) AddToolResult(result tools.ToolResult, toolName string) {
 		ToolSuccess: result.Success,
 		Timestamp:   time.Now(),
 	})
-	// Feed result back to the LLM as a user message with structured context.
 	status := "成功"
 	if !result.Success {
 		status = "失败"
@@ -116,8 +135,7 @@ func (s *Session) AddToolResult(result tools.ToolResult, toolName string) {
 	})
 }
 
-// ProviderMessages returns the full message history ready for the provider,
-// with the system prompt prepended as the first message.
+// ProviderMessages returns the full message history ready for the provider.
 func (s *Session) ProviderMessages() []provider.Message {
 	if s.systemPrompt == "" {
 		return s.providerMessages
@@ -138,10 +156,44 @@ func (s *Session) LastAssistantContent() string {
 	return ""
 }
 
+// AddPlanUIMessage adds a KindPlan UIMessage for the given plan.
+func (s *Session) AddPlanUIMessage(plan *ExecutionPlan) {
+	var sb strings.Builder
+	sb.WriteString(plan.Summary)
+	for _, step := range plan.Steps {
+		sb.WriteString(fmt.Sprintf("\n  %s. %s", step.ID, step.Description))
+	}
+	s.UIMessages = append(s.UIMessages, UIMessage{
+		Kind:      KindPlan,
+		Content:   sb.String(),
+		Timestamp: time.Now(),
+	})
+}
+
+// AddStepUpdate records a step execution event in UIMessages.
+func (s *Session) AddStepUpdate(step *PlanStep, status StepStatus, result, errMsg string) {
+	content := fmt.Sprintf("[%s] %s", status, step.Description)
+	if result != "" {
+		content += "\n" + result
+	}
+	if errMsg != "" {
+		content += "\n错误: " + errMsg
+	}
+	s.UIMessages = append(s.UIMessages, UIMessage{
+		Kind:        KindStepUpdate,
+		Content:     content,
+		ToolName:    step.ToolName,
+		ToolSuccess: status == StepDone,
+		Timestamp:   time.Now(),
+	})
+}
+
 // Reset clears all conversation history but preserves the system prompt.
 func (s *Session) Reset() {
 	s.UIMessages = nil
 	s.providerMessages = nil
+	s.streamingMessageIndex = -1
+	s.streamingBuffer.Reset()
 }
 
 // Summary returns a compact text summary of the session for debugging.

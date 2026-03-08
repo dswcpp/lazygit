@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/agent"
 	"github.com/dswcpp/lazygit/pkg/gui/style"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
@@ -15,27 +17,47 @@ import (
 
 // ChatMessage 聊天消息
 type ChatMessage struct {
-	Role      string    // "user" | "assistant" | "system" | "action"
+	Role      string // "user" | "assistant" | "system" | "action"
 	Content   string
 	Timestamp time.Time
 	IsError   bool
 	// Action 相关（仅 Role=="action" 时有效）
 	ActionSuccess bool
 	ActionType    string
+	IsToolCall    bool // true = 工具调用请求；false = 工具执行结果
 }
 
 // AIChatSession 保持 AI 对话的会话状态
 type AIChatSession struct {
 	c              *HelperCommon
 	aiHelper       *AIHelper
-	messages       []ChatMessage   // welcome + user messages (pre-agent)
-	agentSession   *agent.Session  // current agent session; nil when idle
+	tr             *aii18n.Translator
+	messages       []ChatMessage        // 已完成轮次的历史消息
+	twoPhaseAgent  *agent.TwoPhaseAgent // 当前两阶段 Agent；在 PhaseWaitingConfirm 时保持存活
 	isTyping       bool
 	ctx            context.Context
 	cancel         context.CancelFunc
 	inputHistory   []string
 	historyIndex   int
 	scrollToBottom bool // 新消息到来时置 true，render 后重置，允许用户自由向上滚动
+	statusLabel    string
+	statusDetail   string
+	logoFrame      int  // 动态 logo 帧索引
+	isAnimating    bool // 标记动画是否正在运行
+	mu             sync.Mutex // 保护并发访问
+}
+
+// AI Chat 动态 logo 字符序列
+var aiChatLogoFrames = []string{
+	"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏",
+}
+
+// agentSession 返回当前 TwoPhaseAgent 的会话（可能为 nil）。
+func (s *AIChatSession) agentSession() *agent.Session {
+	if s.twoPhaseAgent == nil {
+		return nil
+	}
+	return s.twoPhaseAgent.Session()
 }
 
 // AIChatHelper 管理 AI 聊天弹窗
@@ -53,27 +75,39 @@ func NewAIChatHelper(c *HelperCommon, aiHelper *AIHelper) *AIChatHelper {
 func (self *AIChatHelper) GetOrCreateSession() *AIChatSession {
 	if self.session == nil {
 		ctx, cancel := context.WithCancel(context.Background())
+		tr := aii18n.NewTranslator(self.c.Tr)
 		self.session = &AIChatSession{
 			c:            self.c,
 			aiHelper:     self.aiHelper,
+			tr:           tr,
 			messages:     []ChatMessage{},
 			ctx:          ctx,
 			cancel:       cancel,
 			inputHistory: []string{},
 			historyIndex: -1,
+			statusLabel:  self.c.Tr.AIIdle,
+			statusDetail: self.c.Tr.AIChatCanInputNext,
 		}
-		self.session.addSystemMessage("欢迎使用 AI 助手！")
-		self.session.addAssistantMessage(
-			"你好！我是你的 Git Agent\n\n" +
-				"我可以直接帮你操作仓库，例如：\n" +
-				"  • 「帮我提交当前修改」\n" +
-				"  • 「创建一个 feature/login 分支」\n" +
-				"  • 「查看最近的提交记录」\n" +
-				"  • 「把这些改动 stash 起来，切到 main 分支」\n\n" +
-				"说你想做什么，我来执行。",
-		)
+		self.session.addSystemMessage(tr.ChatWelcomeSystem())
+		self.session.addAssistantMessage(tr.ChatWelcomeMessage())
 	}
 	return self.session
+}
+
+// CloseSession 关闭并清理当前会话
+func (self *AIChatHelper) CloseSession() {
+	if self.session != nil {
+		self.session.mu.Lock()
+		defer self.session.mu.Unlock()
+
+		// 取消 context，停止所有 goroutine
+		if self.session.cancel != nil {
+			self.session.cancel()
+		}
+
+		// 清空引用，帮助 GC
+		self.session = nil
+	}
 }
 
 // ShowChat 打开 AI 聊天弹窗
@@ -88,29 +122,43 @@ func (self *AIChatHelper) ShowChatWithContext(contextContent string) error {
 
 func (self *AIChatHelper) showChatInternal(followUpContext string) error {
 	if self.c.AIManager == nil {
-		self.c.Alert("AI 未启用", "请先在设置中启用并配置 AI 功能。\n提示：按 'o' 打开设置菜单")
+		self.c.Alert(self.c.Tr.AIChatNotEnabled, aii18n.NewTranslator(self.c.Tr).ChatConfigPrompt())
 		return nil
 	}
 
 	session := self.GetOrCreateSession()
 
 	if followUpContext != "" {
-		session.addSystemMessage("─── 以下内容来自上一次 AI 分析，你可以继续追问 ───")
+		session.addSystemMessage(session.tr.ChatPreviousContext())
 		session.addAssistantMessage(followUpContext)
 	}
 
-	// 准备视图
+	// 历史视图设置
 	aiView := self.c.Views().AIChat
 	aiView.Clear()
-	aiView.Title = " AI Chat "
 	aiView.Wrap = true
-	aiView.Autoscroll = true
+	aiView.Autoscroll = false
+	aiView.Visible = true
+
+	// 输入条设置：清空上次内容，显示可见
+	inputView := self.c.Views().AIChatInput
+	ResetAIChatInputView(inputView)
+	inputView.Visible = true
 
 	// 渲染已有消息
+	session.scrollToBottom = true
 	session.render()
 
-	// 推入上下文（显示弹窗）
+	// 推入上下文（显示弹窗），焦点给输入条（gocui 会把光标渲染到 editable 视图）
 	self.c.Context().Push(self.c.Contexts().AIChat, types.OnFocusOpts{})
+	_, _ = self.c.GocuiGui().SetCurrentView(inputView.Name())
+
+	// 启动标题动画（仅在未运行时启动）
+	if !session.isAnimating {
+		session.isAnimating = true
+		go session.animateTitle()
+	}
+
 	return nil
 }
 
@@ -120,6 +168,7 @@ func (self *AIChatHelper) SendMessage(content string) error {
 
 	session.inputHistory = append(session.inputHistory, content)
 	session.historyIndex = len(session.inputHistory)
+	session.setStatus(self.c.Tr.AIThinking, self.c.Tr.AIChatGeneratingPlan)
 
 	session.addUserMessage(content)
 	session.render()
@@ -131,7 +180,7 @@ func (self *AIChatHelper) SendMessage(content string) error {
 // CopyLastResponse 复制最后一条 AI 回复到剪贴板
 func (self *AIChatHelper) CopyLastResponse() error {
 	if self.session == nil {
-		self.c.Toast("没有可复制的内容")
+		self.c.Toast(aii18n.NewTranslator(self.c.Tr).ChatNoContentToCopy())
 		return nil
 	}
 	return self.session.copyLastResponse()
@@ -140,7 +189,7 @@ func (self *AIChatHelper) CopyLastResponse() error {
 // ExecuteLastCommands 提取并执行最后一条 AI 回复中的命令
 func (self *AIChatHelper) ExecuteLastCommands() error {
 	if self.session == nil {
-		self.c.Toast("没有可执行的 AI 回复")
+		self.c.Toast(aii18n.NewTranslator(self.c.Tr).ChatNoExecutableReply())
 		return nil
 	}
 	return self.session.executeLastResponseCommands()
@@ -165,6 +214,8 @@ func (self *AIChatHelper) StopGeneration() error {
 // --- AIChatSession 内部方法 ---
 
 func (s *AIChatSession) addUserMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "user", Content: content, Timestamp: time.Now(),
 	})
@@ -172,6 +223,8 @@ func (s *AIChatSession) addUserMessage(content string) {
 }
 
 func (s *AIChatSession) addAssistantMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "assistant", Content: content, Timestamp: time.Now(),
 	})
@@ -179,12 +232,16 @@ func (s *AIChatSession) addAssistantMessage(content string) {
 }
 
 func (s *AIChatSession) addSystemMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "system", Content: content, Timestamp: time.Now(),
 	})
 }
 
 func (s *AIChatSession) addErrorMessage(content string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.messages = append(s.messages, ChatMessage{
 		Role: "assistant", Content: content, Timestamp: time.Now(), IsError: true,
 	})
@@ -193,6 +250,8 @@ func (s *AIChatSession) addErrorMessage(content string) {
 
 // render 渲染所有消息到 AIChat 视图（包含 Agent 消息）
 func (s *AIChatSession) render() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	aiView := s.c.Views().AIChat
 	aiView.Clear()
 
@@ -200,49 +259,72 @@ func (s *AIChatSession) render() {
 	total := len(s.messages) + len(agentMsgs)
 
 	for i, msg := range s.messages {
-		renderAIChatMessage(aiView, msg)
+		s.renderMessage(aiView, msg)
 		if i < total-1 {
 			fmt.Fprintln(aiView)
 		}
 	}
 	for i, msg := range agentMsgs {
-		renderAIChatMessage(aiView, msg)
+		s.renderMessage(aiView, msg)
 		if len(s.messages)+i < total-1 {
 			fmt.Fprintln(aiView)
 		}
 	}
 
-	if s.isTyping && len(agentMsgs) == 0 {
+	// 流式输出指示器：如果当前有流式消息正在进行，显示光标
+	sess := s.agentSession()
+	if sess != nil && sess.IsStreaming() {
+		fmt.Fprintf(aiView, "%s", style.FgYellow.Sprint("▋")) // 闪烁光标效果
+	}
+
+	if s.isTyping && len(agentMsgs) == 0 && (sess == nil || !sess.IsStreaming()) {
 		if total > 0 {
 			fmt.Fprintln(aiView)
 		}
-		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint("正在思考..."))
+		fmt.Fprintf(aiView, "  %s\n", style.FgYellow.Sprint(s.c.Tr.AIThinkingInProgress))
 	}
+
+	status, detail := s.deriveStatus()
+	if total > 0 || s.isTyping {
+		fmt.Fprintln(aiView)
+	}
+	s.renderStatus(aiView, status, detail)
+
+	// PhaseWaitingConfirm：高亮确认提示，引导用户输入
+	if s.twoPhaseAgent != nil && s.twoPhaseAgent.Phase() == agent.PhaseWaitingConfirm && !s.isTyping {
+		fmt.Fprintln(aiView)
+		fmt.Fprintf(aiView, "  %s\n",
+			style.FgYellow.Sprint("▶ "+s.tr.ChatInputPrompt()))
+	}
+
+	s.renderKeyHints(aiView)
 
 	// 仅在有新消息时才滚动到底部；用户手动向上滚动后不会被打断
-	if s.scrollToBottom {
-		aiView.ScrollDown(9999)
-		s.scrollToBottom = false
-	}
+	applyAIChatAutoScroll(aiView, &s.scrollToBottom)
 }
 
-// flushAgentSession moves all messages from the current agent session into s.messages
-// so they survive across turns, then clears agentSession.
+// flushAgentSession 把当前 Agent 轮次的消息合并到 s.messages（持久化），
+// 然后根据阶段决定是否清除 twoPhaseAgent：
+//   - PhaseWaitingConfirm → 保留（下一条消息还需要它）
+//   - 其他阶段 → 清除（本轮交互完成）
 func (s *AIChatSession) flushAgentSession() {
-	if s.agentSession == nil {
+	if s.twoPhaseAgent == nil {
 		return
 	}
 	s.messages = append(s.messages, s.agentUIMessages()...)
-	s.agentSession = nil
+	if s.twoPhaseAgent.Phase() != agent.PhaseWaitingConfirm {
+		s.twoPhaseAgent = nil
+	}
 }
 
-// agentUIMessages converts the current agent session's UIMessages to ChatMessages for rendering.
-// KindUser messages are skipped as the user message is already in s.messages.
+// agentUIMessages 把当前 Agent 会话的 UIMessages 转换为 ChatMessage 列表供渲染。
+// KindUser 消息跳过（已在 s.messages 中显示，避免重复）。
 func (s *AIChatSession) agentUIMessages() []ChatMessage {
-	if s.agentSession == nil {
+	sess := s.agentSession()
+	if sess == nil {
 		return nil
 	}
-	msgs := s.agentSession.UIMessages
+	msgs := sess.UIMessages
 	result := make([]ChatMessage, 0, len(msgs))
 	for _, m := range msgs {
 		switch m.Kind {
@@ -251,7 +333,7 @@ func (s *AIChatSession) agentUIMessages() []ChatMessage {
 		case agent.KindAssistant:
 			result = append(result, ChatMessage{Role: "assistant", Content: m.Content, Timestamp: m.Timestamp})
 		case agent.KindToolCall:
-			result = append(result, ChatMessage{Role: "action", Content: m.Content, Timestamp: m.Timestamp, ActionType: m.ToolName})
+			result = append(result, ChatMessage{Role: "action", Content: m.Content, Timestamp: m.Timestamp, ActionType: m.ToolName, IsToolCall: true})
 		case agent.KindToolResult:
 			result = append(result, ChatMessage{
 				Role: "action", Content: m.Content, Timestamp: m.Timestamp,
@@ -261,13 +343,22 @@ func (s *AIChatSession) agentUIMessages() []ChatMessage {
 			result = append(result, ChatMessage{Role: "system", Content: m.Content, Timestamp: m.Timestamp})
 		case agent.KindError:
 			result = append(result, ChatMessage{Role: "assistant", Content: m.Content, Timestamp: m.Timestamp, IsError: true})
+		case agent.KindPlan:
+			// 执行计划：用 "plan" 角色渲染（带边框和步骤列表）
+			result = append(result, ChatMessage{Role: "plan", Content: m.Content, Timestamp: m.Timestamp})
+		case agent.KindStepUpdate:
+			// 单步执行状态更新：用 "step" 角色渲染
+			result = append(result, ChatMessage{
+				Role: "step", Content: m.Content, Timestamp: m.Timestamp,
+				ActionSuccess: m.ToolSuccess, ActionType: m.ToolName,
+			})
 		}
 	}
 	return result
 }
 
-// renderAIChatMessage 渲染单条消息（lazygit 极简风格，无 emoji）
-func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
+// renderMessage 渲染单条消息（lazygit 极简风格，无 emoji）
+func (s *AIChatSession) renderMessage(view *gocui.View, msg ChatMessage) {
 	timeStr := msg.Timestamp.Format("15:04")
 	w, _ := view.Size()
 	if w < 20 {
@@ -304,7 +395,7 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 		}
 
 	case "assistant":
-		if strings.Contains(msg.Content, "正在思考") {
+		if strings.Contains(msg.Content, s.c.Tr.AIThinkingInProgress) {
 			fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint(msg.Content))
 			return
 		}
@@ -337,7 +428,69 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 		}
 
 	case "action":
-		// 操作执行结果
+		if msg.IsToolCall {
+			// 工具调用请求：仅显示工具名（紧凑一行）
+			fmt.Fprintf(view, "  %s %s\n",
+				style.FgBlackLighter.Sprint("→"),
+				style.FgDefault.Sprint(msg.ActionType),
+			)
+		} else {
+			// 工具执行结果：成功/失败指示 + 最多 3 行输出
+			indicator := "✓"
+			lineColor := style.FgGreen
+			if !msg.ActionSuccess {
+				indicator = "✗"
+				lineColor = style.FgRed
+			}
+			fmt.Fprintf(view, "  %s %s\n", lineColor.Sprint(indicator), lineColor.Sprint(msg.ActionType))
+			lines := strings.Split(strings.TrimSpace(msg.Content), "\n")
+			shown := lines
+			if len(lines) > 3 {
+				shown = lines[:3]
+			}
+			for _, l := range shown {
+				if l != "" {
+					fmt.Fprintf(view, "    %s\n", style.FgDefault.Sprint(l))
+				}
+			}
+			if len(lines) > 3 {
+				fmt.Fprintf(view, "    %s\n", style.FgBlackLighter.Sprintf("... +%d more lines", len(lines)-3))
+			}
+		}
+
+	case "plan":
+		// 执行计划：带自适应宽度边框，突出显示
+		lines := strings.Split(msg.Content, "\n")
+		summary := ""
+		stepLines := []string{}
+		for i, l := range lines {
+			if i == 0 {
+				summary = l
+			} else if strings.TrimSpace(l) != "" {
+				stepLines = append(stepLines, l)
+			}
+		}
+		planLabel := fmt.Sprintf("─ %s  %s ", s.tr.ChatExecutionPlan(), timeStr)
+		topFill := w - 4 - len([]rune(planLabel))
+		if topFill < 0 {
+			topFill = 0
+		}
+		fmt.Fprintf(view, "  %s%s\n",
+			style.FgYellow.Sprint("┌"+planLabel),
+			style.FgYellow.Sprint(strings.Repeat("─", topFill)),
+		)
+		fmt.Fprintf(view, "  %s %s\n", style.FgYellow.Sprint("│"), summary)
+		for _, sl := range stepLines {
+			fmt.Fprintf(view, "  %s %s\n", style.FgYellow.Sprint("│"), style.FgDefault.Sprint(sl))
+		}
+		botFill := w - 3
+		if botFill < 0 {
+			botFill = 0
+		}
+		fmt.Fprintf(view, "  %s\n", style.FgYellow.Sprint("└"+strings.Repeat("─", botFill)))
+
+	case "step":
+		// 单步执行状态：一行简洁输出
 		var indicator string
 		var lineColor style.TextStyle
 		if msg.ActionSuccess {
@@ -347,25 +500,23 @@ func renderAIChatMessage(view *gocui.View, msg ChatMessage) {
 			indicator = "✗"
 			lineColor = style.FgRed
 		}
-		header := fmt.Sprintf("  [%s %s]", indicator, msg.ActionType)
-		fmt.Fprintf(view, "%s\n", lineColor.Sprint(header))
-		for _, line := range strings.Split(strings.TrimSpace(msg.Content), "\n") {
-			if line != "" {
-				fmt.Fprintf(view, "    %s\n", style.FgDefault.Sprint(line))
-			}
-		}
+		fmt.Fprintf(view, "  %s\n", lineColor.Sprint(fmt.Sprintf("%s %s", indicator, msg.Content)))
 	}
 }
 
-// getAIResponse 使用 Agent ReAct 循环异步处理用户消息。
-// 必须在 goroutine 中调用（非 UI 线程）。
+// getAIResponse 通过 TwoPhaseAgent 处理用户消息（必须在 goroutine 中调用）。
+//
+// 行为由当前阶段决定：
+//   - 无 Agent / PhaseDone / PhaseCancelled → 创建新 Agent，开始规划
+//   - PhaseWaitingConfirm → 复用现有 Agent，处理 Y/N/补充说明
+//   - PhaseExecuting → 忽略（执行中）
 func (s *AIChatSession) getAIResponse(userMessage string) {
 	s.isTyping = true
 
 	mgr := s.c.AIManager
 	if mgr == nil {
 		s.c.GocuiGui().Update(func(*gocui.Gui) error {
-			s.addErrorMessage("AI 未初始化，请先配置 AI 功能。")
+			s.addErrorMessage(s.tr.ChatNotInitialized())
 			s.isTyping = false
 			s.render()
 			return nil
@@ -373,75 +524,101 @@ func (s *AIChatSession) getAIResponse(userMessage string) {
 		return
 	}
 
-	a := mgr.NewAgent("", agent.AutoApproveAll())
-	s.agentSession = a.Session()
+	// 需要新建 Agent 的条件：当前无 Agent，或上一轮已结束
+	needNew := s.twoPhaseAgent == nil ||
+		s.twoPhaseAgent.Phase() == agent.PhaseDone ||
+		s.twoPhaseAgent.Phase() == agent.PhaseCancelled
 
+	if needNew {
+		// 上一轮结束时先 flush 历史
+		if s.twoPhaseAgent != nil {
+			s.c.GocuiGui().Update(func(*gocui.Gui) error {
+				s.flushAgentSession()
+				return nil
+			})
+		}
+		s.twoPhaseAgent = mgr.NewTwoPhaseAgent(mgr.DefaultSkillTools())
+	}
+
+	a := s.twoPhaseAgent
 	repoCtx := mgr.RepoContext()
 
 	onUpdate := func() {
 		s.scrollToBottom = true
+		s.syncStatusFromCurrentState()
 		s.c.GocuiGui().Update(func(*gocui.Gui) error {
 			s.render()
 			return nil
 		})
 	}
 
-	err := a.Run(s.ctx, userMessage, repoCtx, onUpdate)
+	err := a.Send(s.ctx, userMessage, repoCtx, onUpdate)
 
 	s.c.GocuiGui().Update(func(*gocui.Gui) error {
 		s.isTyping = false
-		s.flushAgentSession()
-		if err != nil && !errors.Is(err, context.Canceled) {
-			s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
+		currentPhase := a.Phase()
+		// 执行完成或取消后立即 flush；等待确认时保留 Agent
+		if currentPhase == agent.PhaseDone || currentPhase == agent.PhaseCancelled {
+			s.flushAgentSession()
 		}
+		if err != nil && !errors.Is(err, context.Canceled) {
+			s.setStatus(s.c.Tr.AIFailed, s.tr.ChatRequestFailed())
+			s.addErrorMessage(fmt.Sprintf("AI 请求失败: %v", err))
+			s.flushAgentSession()
+		} else if errors.Is(err, context.Canceled) {
+			s.setStatus(s.c.Tr.AICancelled, s.tr.ChatGenerationStopped())
+		} else {
+			s.setTerminalStatusForPhase(currentPhase)
+		}
+		s.syncStatusFromCurrentState()
 		s.render()
 		return nil
 	})
 }
 
-
 func (s *AIChatSession) copyLastResponse() error {
 	for i := len(s.messages) - 1; i >= 0; i-- {
 		msg := s.messages[i]
-		if msg.Role == "assistant" && !msg.IsError && !strings.Contains(msg.Content, "正在思考") {
+		if msg.Role == "assistant" && !msg.IsError && !strings.Contains(msg.Content, s.c.Tr.AIThinkingInProgress) {
 			if err := s.c.OS().CopyToClipboard(msg.Content); err != nil {
-				s.c.Toast("复制失败")
+				s.c.Toast(s.tr.ChatCopyFailed())
 				return err
 			}
-			s.c.Toast("已复制到剪贴板")
+			s.c.Toast(s.tr.ChatCopiedToClipboard())
 			return nil
 		}
 	}
-	s.c.Toast("没有可复制的内容")
+	s.c.Toast(s.tr.ChatNoContentToCopy())
 	return nil
 }
 
 func (s *AIChatSession) executeLastResponseCommands() error {
 	for i := len(s.messages) - 1; i >= 0; i-- {
 		msg := s.messages[i]
-		if msg.Role != "assistant" || msg.IsError || strings.Contains(msg.Content, "正在思考") {
+		if msg.Role != "assistant" || msg.IsError || strings.Contains(msg.Content, s.c.Tr.AIThinkingInProgress) {
 			continue
 		}
 		cmds := ExtractCommandsFromMessage(msg.Content)
 		if len(cmds) == 0 {
-			s.c.Toast("上一条 AI 回复中未找到可执行命令")
+			s.c.Toast(s.tr.ChatNoCommandsFound())
 			return nil
 		}
 		return s.aiHelper.ConfirmAndSilentExecute(cmds)
 	}
-	s.c.Toast("没有可执行的 AI 回复")
+	s.c.Toast(s.tr.ChatNoExecutableReply())
 	return nil
 }
 
 func (s *AIChatSession) clearHistory() error {
 	s.c.Confirm(types.ConfirmOpts{
-		Title:  "确认清空",
-		Prompt: "确定要清空对话历史吗？此操作不可撤销。",
+		Title:  s.tr.ChatClearHistoryTitle(),
+		Prompt: s.tr.ChatClearHistoryPrompt(),
 		HandleConfirm: func() error {
 			s.messages = []ChatMessage{}
-			s.agentSession = nil
-			s.addSystemMessage("对话历史已清空")
-			s.addAssistantMessage("有什么我可以帮助你的吗？")
+			s.twoPhaseAgent = nil
+			s.setStatus(s.c.Tr.AIIdle, s.c.Tr.AIChatCanInputNext)
+			s.addSystemMessage(s.tr.ChatHistoryCleared())
+			s.addAssistantMessage(s.tr.ChatHowCanIHelp())
 			s.render()
 			return nil
 		},
@@ -459,9 +636,201 @@ func (s *AIChatSession) stopGeneration() error {
 		}
 		s.isTyping = false
 		s.flushAgentSession()
-		s.addSystemMessage("已停止生成")
+		s.setStatus(s.c.Tr.AICancelled, s.tr.ChatGenerationStopped())
+		s.addSystemMessage(s.tr.ChatStoppedGeneration())
 		s.render()
-		s.c.Toast("已停止 AI 生成")
+		s.c.Toast(s.tr.ChatStoppedGeneration())
 	}
 	return nil
+}
+
+func applyAIChatAutoScroll(view *gocui.View, scrollToBottom *bool) {
+	if view == nil || scrollToBottom == nil || !*scrollToBottom {
+		return
+	}
+
+	view.ScrollDown(9999)
+	*scrollToBottom = false
+}
+
+func ResetAIChatInputView(view *gocui.View) {
+	if view == nil {
+		return
+	}
+
+	// 先清空视图内容
+	view.Clear()
+	view.SetCursor(0, 0)
+	view.SetOrigin(0, 0)
+
+	// 重新初始化 TextArea（如果存在）
+	if view.TextArea != nil {
+		view.TextArea = &gocui.TextArea{}
+		view.RenderTextArea()
+	}
+}
+
+func (s *AIChatSession) setStatus(status, detail string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.statusLabel = status
+	s.statusDetail = detail
+}
+
+func (s *AIChatSession) setTerminalStatusForPhase(phase agent.AgentPhase) {
+	switch phase {
+	case agent.PhaseDone:
+		s.setStatus(s.tr.ChatCompleted(), s.c.Tr.AIChatCanInputNext)
+	case agent.PhaseCancelled:
+		s.setStatus(s.c.Tr.AICancelled, s.c.Tr.AIChatCanInputNext)
+	}
+}
+
+func (s *AIChatSession) syncStatusFromCurrentState() {
+	status, detail := s.deriveStatus()
+	s.mu.Lock()
+	s.statusLabel = status
+	s.statusDetail = detail
+	s.mu.Unlock()
+}
+
+func (s *AIChatSession) getStatusPresentation() (string, string) {
+	s.syncStatusFromCurrentState()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.statusLabel, s.statusDetail
+}
+
+func (s *AIChatSession) deriveStatus() (string, string) {
+	if s.twoPhaseAgent != nil {
+		sess := s.twoPhaseAgent.Session() // needed for latestAgentActionDetail
+		switch s.twoPhaseAgent.Phase() {
+		case agent.PhaseWaitingConfirm:
+			return s.tr.ChatWaitingConfirm(), s.tr.ChatConfirmPrompt()
+		case agent.PhaseExecuting:
+			return s.c.Tr.AIExecuting, latestAgentActionDetail(sess, s.tr.ChatExecutingPlan())
+		case agent.PhasePlanning:
+			if s.isTyping {
+				return s.c.Tr.AIThinking, latestAgentActionDetail(sess, s.c.Tr.AIChatGeneratingPlan)
+			}
+		case agent.PhaseDone:
+			return s.tr.ChatCompleted(), s.c.Tr.AIChatCanInputNext
+		case agent.PhaseCancelled:
+			return s.c.Tr.AICancelled, s.c.Tr.AIChatCanInputNext
+		}
+	}
+
+	if s.isTyping {
+		return s.c.Tr.AIThinking, s.tr.ChatGeneratingReply()
+	}
+
+	if s.statusLabel != "" {
+		return s.statusLabel, s.statusDetail
+	}
+
+	return s.c.Tr.AIIdle, s.c.Tr.AIChatCanInputNext
+}
+
+func latestAgentActionDetail(sess *agent.Session, fallback string) string {
+	if sess == nil {
+		return fallback
+	}
+
+	for i := len(sess.UIMessages) - 1; i >= 0; i-- {
+		msg := sess.UIMessages[i]
+		switch msg.Kind {
+		case agent.KindStepUpdate:
+			return firstNonEmptyLine(msg.Content, fallback)
+		case agent.KindToolCall:
+			if msg.ToolName != "" {
+				// 使用全局 Translator 实例或从 session 获取
+				return fmt.Sprintf("%s %s", "正在调用", msg.ToolName)
+			}
+		case agent.KindToolResult:
+			if msg.ToolName != "" {
+				if msg.ToolSuccess {
+					return fmt.Sprintf("%s %s", "已完成工具", msg.ToolName)
+				}
+				return fmt.Sprintf("%s %s 执行失败", "工具", msg.ToolName)
+			}
+		case agent.KindPlan:
+			return "执行计划已生成，等待确认"
+		case agent.KindError, agent.KindSystem:
+			return firstNonEmptyLine(msg.Content, fallback)
+		}
+	}
+
+	return fallback
+}
+
+func firstNonEmptyLine(content string, fallback string) string {
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			return line
+		}
+	}
+	return fallback
+}
+
+func (s *AIChatSession) renderStatus(view *gocui.View, status string, detail string) {
+	dot := "●"
+	dotColor := style.FgGreen
+	switch status {
+	case s.c.Tr.AIThinking, s.tr.ChatWaitingConfirm():
+		dotColor = style.FgYellow
+	case s.c.Tr.AIExecuting:
+		dotColor = style.FgCyan
+	case s.c.Tr.AICancelled:
+		dotColor = style.FgMagenta
+	case s.c.Tr.AIFailed:
+		dotColor = style.FgRed
+	}
+
+	line := fmt.Sprintf("  %s %s", dotColor.Sprint(dot), dotColor.Sprint(status))
+	if detail != "" {
+		line += "  " + style.FgDefault.Sprint(detail)
+	}
+	fmt.Fprintln(view, line)
+}
+
+func (s *AIChatSession) renderKeyHints(view *gocui.View) {
+	hints := []string{"[i] input", "[c] copy", "[z] zoom", "[q] quit", "[↑↓] scroll"}
+	fmt.Fprintln(view, style.FgBlackLighter.Sprint("  "+strings.Join(hints, "  ")))
+}
+
+// animateTitle 动画更新标题中的 logo
+func (s *AIChatSession) animateTitle() {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+	defer func() { s.isAnimating = false }() // 退出时重置标志
+
+	for {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-ticker.C:
+			s.c.GocuiGui().Update(func(*gocui.Gui) error {
+				aiView := s.c.Views().AIChat
+				if aiView == nil || !aiView.Visible {
+					return nil
+				}
+
+				// 更新 logo 帧
+				s.logoFrame = (s.logoFrame + 1) % len(aiChatLogoFrames)
+				logo := aiChatLogoFrames[s.logoFrame]
+
+				// 根据状态选择颜色
+				var coloredLogo string
+				if s.isTyping {
+					coloredLogo = style.FgYellow.Sprint(logo)
+				} else {
+					coloredLogo = style.FgCyan.Sprint(logo)
+				}
+
+				aiView.Title = fmt.Sprintf(" %s AI Chat ", coloredLogo)
+				return nil
+			})
+		}
+	}
 }

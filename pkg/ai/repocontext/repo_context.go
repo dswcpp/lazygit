@@ -3,6 +3,8 @@ package repocontext
 import (
 	"fmt"
 	"strings"
+
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 )
 
 // FileStatus describes a single file in the working tree.
@@ -38,25 +40,25 @@ type RepoContext struct {
 }
 
 // CompactString generates a concise text representation for inclusion in prompts.
-func (r RepoContext) CompactString() string {
+func (r RepoContext) CompactString(tr *aii18n.Translator) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("分支: %s\n", r.CurrentBranch))
+	sb.WriteString(tr.RepoBranch(r.CurrentBranch))
 
 	if r.WorkingTreeState != "" {
-		sb.WriteString(fmt.Sprintf("⚠ 正在进行: %s\n", r.WorkingTreeState))
+		sb.WriteString(tr.RepoInProgress(r.WorkingTreeState))
 	}
 
 	if r.UpstreamRemote != "" {
 		if r.AheadForPull != "" || r.BehindForPull != "" {
-			sb.WriteString(fmt.Sprintf("远程: %s [↑%s ↓%s]\n", r.UpstreamRemote, r.AheadForPull, r.BehindForPull))
+			sb.WriteString(tr.RepoRemoteAheadBehind(r.UpstreamRemote, r.AheadForPull, r.BehindForPull))
 		} else {
-			sb.WriteString(fmt.Sprintf("远程: %s [已同步]\n", r.UpstreamRemote))
+			sb.WriteString(tr.RepoRemoteSynced(r.UpstreamRemote))
 		}
 	}
 
 	if len(r.Files) == 0 {
-		sb.WriteString("工作区: 干净\n")
+		sb.WriteString(tr.RepoWorkingDirClean())
 	} else {
 		staged, unstaged, untracked := 0, 0, 0
 		for _, f := range r.Files {
@@ -70,8 +72,7 @@ func (r RepoContext) CompactString() string {
 				untracked++
 			}
 		}
-		sb.WriteString(fmt.Sprintf("变更: %d 个（暂存 %d，未暂存 %d，未追踪 %d）\n",
-			len(r.Files), staged, unstaged, untracked))
+		sb.WriteString(tr.RepoChanges(len(r.Files), staged, unstaged, untracked))
 		limit := len(r.Files)
 		if limit > 10 {
 			limit = 10
@@ -80,19 +81,19 @@ func (r RepoContext) CompactString() string {
 			sb.WriteString(fmt.Sprintf("  %s %s\n", r.Files[i].ShortStatus, r.Files[i].Path))
 		}
 		if len(r.Files) > 10 {
-			sb.WriteString(fmt.Sprintf("  ... 还有 %d 个\n", len(r.Files)-10))
+			sb.WriteString(tr.MoreItems(len(r.Files) - 10))
 		}
 	}
 
 	if len(r.RecentCommits) > 0 {
-		sb.WriteString("最近提交:\n")
+		sb.WriteString(tr.RepoRecentCommits())
 		for _, c := range r.RecentCommits {
 			sb.WriteString(fmt.Sprintf("  %s  %s  <%s>\n", c.ShortHash, c.Message, c.Author))
 		}
 	}
 
 	if r.StashCount > 0 {
-		sb.WriteString(fmt.Sprintf("Stash: %d 条\n", r.StashCount))
+		sb.WriteString(tr.RepoStashCount(r.StashCount))
 	}
 
 	return strings.TrimSpace(sb.String())

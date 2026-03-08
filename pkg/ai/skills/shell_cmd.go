@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 )
 
@@ -33,25 +34,26 @@ func (s *ShellCmdSkill) Execute(ctx context.Context, p provider.Provider, input 
 		return Output{}, errors.New("intent is empty")
 	}
 
-	osHint := shellHint()
-	repoSummary := input.RepoCtx.CompactString()
+	osHint := shellHint(input.Tr)
+	repoSummary := input.RepoCtx.CompactString(input.Tr)
 
-	prompt := fmt.Sprintf(
-		"你是一个 Git 命令专家。根据用户意图生成精确的 shell 命令。\n\n"+
-			"运行环境: %s\n\n"+
-			"仓库状态:\n%s\n\n"+
-			"用户意图: %s\n\n"+
-			"输出 JSON 数组，每个元素包含:\n"+
-			"- command: 完整可执行命令\n"+
-			"- explanation: 中文解释（1-2 句）\n"+
-			"- risk_level: \"safe\" | \"medium\" | \"dangerous\"\n"+
-			"- alternatives: 替代命令（可选）\n\n"+
-			"返回 1-3 个建议，按推荐度排序。只输出 JSON，不要其他内容。",
-		osHint, repoSummary, intent,
-	)
+	// System message: role + output format contract (stable, model-facing instructions)
+	systemMsg := input.Tr.SkillShellCmdSystemPrompt() +
+		input.Tr.SkillShellCmdOutputFormat() +
+		input.Tr.SkillShellCmdCommandField() +
+		input.Tr.SkillShellCmdExplanationField() +
+		input.Tr.SkillShellCmdRiskLevelField() +
+		input.Tr.SkillShellCmdAlternativesField() +
+		input.Tr.SkillShellCmdOutputNote()
+
+	// User message: runtime context + the actual request
+	userMsg := input.Tr.SkillShellCmdRuntime(osHint) +
+		input.Tr.SkillShellCmdRepoStatus(repoSummary) +
+		input.Tr.SkillShellCmdUserIntent(intent)
 
 	messages := []provider.Message{
-		{Role: provider.RoleUser, Content: prompt},
+		{Role: provider.RoleSystem, Content: systemMsg},
+		{Role: provider.RoleUser, Content: userMsg},
 	}
 
 	result, err := p.Complete(ctx, messages)
@@ -72,34 +74,57 @@ func (s *ShellCmdSkill) Execute(ctx context.Context, p provider.Provider, input 
 	}, nil
 }
 
-func shellHint() string {
+func shellHint(tr *aii18n.Translator) string {
 	switch runtime.GOOS {
 	case "windows":
-		return "Windows + Git Bash，用 && 连接命令"
+		return tr.SkillShellCmdWindowsHint()
 	case "darwin":
-		return "macOS + zsh/bash，用 && 连接命令"
+		return tr.SkillShellCmdMacOSHint()
 	default:
-		return "Linux + bash，用 && 连接命令"
+		return tr.SkillShellCmdLinuxHint()
 	}
 }
 
 func parseCommandSuggestions(raw string) ([]CommandSuggestion, error) {
-	content := strings.TrimSpace(raw)
-	content = strings.TrimPrefix(content, "```json")
-	content = strings.TrimPrefix(content, "```")
-	content = strings.TrimSuffix(content, "```")
-	content = strings.TrimSpace(content)
+	content := extractJSONContent(raw)
 
+	// Primary: expect a JSON array.
 	var suggestions []CommandSuggestion
-	if err := json.Unmarshal([]byte(content), &suggestions); err != nil {
-		return nil, fmt.Errorf("invalid JSON: %w (response: %s)", err, content)
+	if err := json.Unmarshal([]byte(content), &suggestions); err == nil {
+		return normaliseRiskLevels(suggestions), nil
 	}
+
+	// Fallback: AI occasionally returns a single JSON object instead of an array.
+	var single CommandSuggestion
+	if err := json.Unmarshal([]byte(content), &single); err == nil && single.Command != "" {
+		return normaliseRiskLevels([]CommandSuggestion{single}), nil
+	}
+
+	return nil, fmt.Errorf("invalid JSON response: %s", content)
+}
+
+// extractJSONContent strips markdown code fences from AI output.
+func extractJSONContent(raw string) string {
+	s := strings.TrimSpace(raw)
+	// Strip optional ```json or ``` fence
+	for _, prefix := range []string{"```json", "```"} {
+		if strings.HasPrefix(s, prefix) {
+			s = strings.TrimPrefix(s, prefix)
+			s = strings.TrimSuffix(strings.TrimSpace(s), "```")
+			return strings.TrimSpace(s)
+		}
+	}
+	return s
+}
+
+func normaliseRiskLevels(suggestions []CommandSuggestion) []CommandSuggestion {
 	for i := range suggestions {
-		if suggestions[i].RiskLevel != "safe" &&
-			suggestions[i].RiskLevel != "medium" &&
-			suggestions[i].RiskLevel != "dangerous" {
+		switch suggestions[i].RiskLevel {
+		case "safe", "medium", "dangerous":
+			// valid
+		default:
 			suggestions[i].RiskLevel = "medium"
 		}
 	}
-	return suggestions, nil
+	return suggestions
 }

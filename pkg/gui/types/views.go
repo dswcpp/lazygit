@@ -51,8 +51,9 @@ type Views struct {
 	// floating popup for AI code review results
 	AICodeReview *gocui.View
 
-	// floating popup for AI chat
-	AIChat *gocui.View
+	// floating popup for AI chat (history + input bar)
+	AIChat      *gocui.View // 聊天历史（只读，可滚动）
+	AIChatInput *gocui.View // 底部输入条（可编辑，单行）
 
 	// VSCode-style activity bar on the left
 	ActivityBar *gocui.View

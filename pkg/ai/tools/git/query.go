@@ -18,7 +18,7 @@ func NewGetStatusTool(d *Deps) tools.Tool { return &GetStatusTool{d} }
 func (t *GetStatusTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_status",
-		Description: "获取当前仓库状态（分支、工作区文件、rebase/merge 进度）",
+		Description: t.d.Tr.ToolGetStatusDesc(),
 		Params:      map[string]tools.ParamSchema{},
 		Permission:  tools.PermReadOnly,
 	}
@@ -26,17 +26,16 @@ func (t *GetStatusTool) Schema() tools.ToolSchema {
 
 func (t *GetStatusTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("当前分支: %s\n", t.d.GetCheckedOutBranch()))
+	sb.WriteString(fmt.Sprintf("Branch: %s\n", t.d.GetCheckedOutBranch()))
 
 	state := t.d.GetWorkingTreeState()
 	if state.Any() {
-		desc := workingTreeStateDesc(state)
-		sb.WriteString(fmt.Sprintf("⚠ 正在进行: %s\n", desc))
+		sb.WriteString(t.d.Tr.ToolStatusInProgress(workingTreeStateDesc(state)) + "\n")
 	}
 
 	files := t.d.GetFiles()
 	if len(files) == 0 {
-		sb.WriteString("工作区: 干净\n")
+		sb.WriteString(t.d.Tr.ToolStatusClean() + "\n")
 	} else {
 		staged, unstaged, untracked := 0, 0, 0
 		for _, f := range files {
@@ -50,8 +49,7 @@ func (t *GetStatusTool) Execute(_ context.Context, call tools.ToolCall) tools.To
 				untracked++
 			}
 		}
-		sb.WriteString(fmt.Sprintf("变更文件: %d 个（已暂存 %d，未暂存 %d，未追踪 %d）\n",
-			len(files), staged, unstaged, untracked))
+		sb.WriteString(t.d.Tr.ToolStatusFiles(len(files), staged, unstaged, untracked) + "\n")
 		for _, f := range files {
 			sb.WriteString(fmt.Sprintf("  %s %s\n", f.ShortStatus, f.Path))
 		}
@@ -67,9 +65,9 @@ func NewGetStagedDiffTool(d *Deps) tools.Tool { return &GetStagedDiffTool{d} }
 func (t *GetStagedDiffTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_staged_diff",
-		Description: "获取暂存区（staged）diff",
+		Description: t.d.Tr.ToolGetStagedDiffDesc(),
 		Params: map[string]tools.ParamSchema{
-			"max_lines": {Type: "int", Description: "最多返回行数（默认 300，0 表示不限制）"},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -78,13 +76,13 @@ func (t *GetStagedDiffTool) Schema() tools.ToolSchema {
 func (t *GetStagedDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	diff, err := t.d.Diff.GetDiff(true)
 	if err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("获取暂存区 diff 失败: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetStagedDiffFailed(err)}
 	}
 	if diff == "" {
-		return tools.ToolResult{CallID: call.ID, Success: true, Output: "暂存区为空"}
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolStagedDiffEmpty()}
 	}
 	maxLines := intParam(call.Params, "max_lines", 300)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // GetDiffTool returns the diff of unstaged changes.
@@ -95,9 +93,9 @@ func NewGetDiffTool(d *Deps) tools.Tool { return &GetDiffTool{d} }
 func (t *GetDiffTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_diff",
-		Description: "获取工作区未暂存的 diff",
+		Description: t.d.Tr.ToolGetDiffDesc(),
 		Params: map[string]tools.ParamSchema{
-			"max_lines": {Type: "int", Description: "最多返回行数（默认 300，0 表示不限制）"},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -106,13 +104,13 @@ func (t *GetDiffTool) Schema() tools.ToolSchema {
 func (t *GetDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	diff, err := t.d.Diff.GetDiff(false)
 	if err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("获取 diff 失败: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetDiffFailed(err)}
 	}
 	if diff == "" {
-		return tools.ToolResult{CallID: call.ID, Success: true, Output: "没有未暂存的变更"}
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolUnstagedDiffEmpty()}
 	}
 	maxLines := intParam(call.Params, "max_lines", 300)
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: truncateDiff(diff, maxLines)}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // GetFileDiffTool returns the diff for a specific file.
@@ -123,10 +121,12 @@ func NewGetFileDiffTool(d *Deps) tools.Tool { return &GetFileDiffTool{d} }
 func (t *GetFileDiffTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_file_diff",
-		Description: "获取指定文件的 diff（可选择 staged 或 unstaged）",
+		Description: t.d.Tr.ToolGetFileDiffDesc(),
 		Params: map[string]tools.ParamSchema{
-			"path":   {Type: "string", Description: "文件路径", Required: true},
-			"staged": {Type: "bool", Description: "true=暂存区 diff，false=工作区 diff（默认 false）"},
+			"path":      {Type: "string", Description: t.d.Tr.ToolFilePath(), Required: true},
+			"staged":    {Type: "bool", Description: t.d.Tr.ToolGetFileDiffStagedParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
+			"offset":    {Type: "int", Description: t.d.Tr.ToolGetFileDiffOffsetParam()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -135,23 +135,32 @@ func (t *GetFileDiffTool) Schema() tools.ToolSchema {
 func (t *GetFileDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	path := strParam(call.Params, "path", "")
 	if path == "" {
-		return tools.ToolResult{CallID: call.ID, Output: "缺少 path 参数"}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingPathParam()}
 	}
 	staged := boolParam(call.Params, "staged", false)
+	maxLines := intParam(call.Params, "max_lines", 300)
+	_, hasOffset := call.Params["offset"]
+	offset := intParam(call.Params, "offset", 0)
+
 	for _, f := range t.d.GetFiles() {
 		if f.Path == path {
 			diff := t.d.WorkingTree.WorktreeFileDiff(f, true, staged)
 			if diff == "" {
-				label := "未暂存"
+				label := t.d.Tr.ToolWorkingDir()
 				if staged {
-					label = "暂存区"
+					label = t.d.Tr.ToolStagingArea()
 				}
-				return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("%s 没有变更: %s", label, path)}
+				return tools.ToolResult{CallID: call.ID, Success: true, Output: fmt.Sprintf("%s: %s — %s", label, path, t.d.Tr.ToolNoChanges())}
 			}
-			return tools.ToolResult{CallID: call.ID, Success: true, Output: diff}
+			// offset specified → raw pagination (reading exact lines of code)
+			// offset absent   → context compression (structural overview)
+			if hasOffset {
+				return tools.ToolResult{CallID: call.ID, Success: true, Output: paginateDiff(diff, offset, maxLines, t.d.Tr)}
+			}
+			return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 		}
 	}
-	return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("文件不在工作区变更列表中: %s", path)}
+	return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolFileNotInWorkdir(path)}
 }
 
 // GetLogTool returns recent commits.
@@ -162,9 +171,9 @@ func NewGetLogTool(d *Deps) tools.Tool { return &GetLogTool{d} }
 func (t *GetLogTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_log",
-		Description: "获取最近的提交记录",
+		Description: t.d.Tr.ToolGetLogDesc(),
 		Params: map[string]tools.ParamSchema{
-			"count": {Type: "int", Description: "返回条数，默认 15，最多 50"},
+			"count": {Type: "int", Description: t.d.Tr.ToolGetLogCountParam()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -200,7 +209,7 @@ func NewGetBranchesTool(d *Deps) tools.Tool { return &GetBranchesTool{d} }
 func (t *GetBranchesTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_branches",
-		Description: "列出本地分支（当前分支标 *）",
+		Description: t.d.Tr.ToolGetBranchesDesc(),
 		Params:      map[string]tools.ParamSchema{},
 		Permission:  tools.PermReadOnly,
 	}
@@ -212,7 +221,7 @@ func (t *GetBranchesTool) Execute(_ context.Context, call tools.ToolCall) tools.
 	var sb strings.Builder
 	for i, b := range branches {
 		if i >= 30 {
-			sb.WriteString(fmt.Sprintf("... 还有 %d 个\n", len(branches)-30))
+			sb.WriteString(fmt.Sprintf("... +%d\n", len(branches)-30))
 			break
 		}
 		marker := "  "
@@ -224,7 +233,6 @@ func (t *GetBranchesTool) Execute(_ context.Context, call tools.ToolCall) tools.
 		case b.UpstreamGone:
 			tracking = " [upstream: gone]"
 		case b.AheadForPush != "" && b.AheadForPush != "0" && b.BehindForPull != "" && b.BehindForPull != "0":
-			// has both: commits to push and commits to pull
 			tracking = fmt.Sprintf(" [↑%s ↓%s]", b.AheadForPush, b.BehindForPull)
 		case b.AheadForPush != "" && b.AheadForPush != "0":
 			tracking = fmt.Sprintf(" [↑%s]", b.AheadForPush)
@@ -244,7 +252,7 @@ func NewGetStashListTool(d *Deps) tools.Tool { return &GetStashListTool{d} }
 func (t *GetStashListTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_stash_list",
-		Description: "列出所有 stash 条目",
+		Description: t.d.Tr.ToolGetStashListDesc(),
 		Params:      map[string]tools.ParamSchema{},
 		Permission:  tools.PermReadOnly,
 	}
@@ -253,7 +261,7 @@ func (t *GetStashListTool) Schema() tools.ToolSchema {
 func (t *GetStashListTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	stashes := t.d.GetStashEntries()
 	if len(stashes) == 0 {
-		return tools.ToolResult{CallID: call.ID, Success: true, Output: "没有储藏的变更"}
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolNoStashEntries()}
 	}
 	var sb strings.Builder
 	for _, s := range stashes {
@@ -270,7 +278,7 @@ func NewGetRemotesTool(d *Deps) tools.Tool { return &GetRemotesTool{d} }
 func (t *GetRemotesTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_remotes",
-		Description: "列出所有远程仓库",
+		Description: t.d.Tr.ToolGetRemotesDesc(),
 		Params:      map[string]tools.ParamSchema{},
 		Permission:  tools.PermReadOnly,
 	}
@@ -279,11 +287,11 @@ func (t *GetRemotesTool) Schema() tools.ToolSchema {
 func (t *GetRemotesTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	remotes := t.d.GetRemotes()
 	if len(remotes) == 0 {
-		return tools.ToolResult{CallID: call.ID, Success: true, Output: "没有配置远程仓库"}
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolNoRemotes()}
 	}
 	var sb strings.Builder
 	for _, r := range remotes {
-		sb.WriteString(fmt.Sprintf("%s  (%d 个分支)\n", r.Name, len(r.Branches)))
+		sb.WriteString(fmt.Sprintf("%s  (%d branches)\n", r.Name, len(r.Branches)))
 	}
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: sb.String()}
 }
@@ -296,7 +304,7 @@ func NewGetTagsTool(d *Deps) tools.Tool { return &GetTagsTool{d} }
 func (t *GetTagsTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_tags",
-		Description: "列出所有 tag",
+		Description: t.d.Tr.ToolGetTagsDesc(),
 		Params:      map[string]tools.ParamSchema{},
 		Permission:  tools.PermReadOnly,
 	}
@@ -305,17 +313,47 @@ func (t *GetTagsTool) Schema() tools.ToolSchema {
 func (t *GetTagsTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	tags := t.d.GetTags()
 	if len(tags) == 0 {
-		return tools.ToolResult{CallID: call.ID, Success: true, Output: "没有 tag"}
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolNoTags()}
 	}
 	var sb strings.Builder
 	for i, tag := range tags {
 		if i >= 20 {
-			sb.WriteString(fmt.Sprintf("... 还有 %d 个\n", len(tags)-20))
+			sb.WriteString(fmt.Sprintf("... +%d\n", len(tags)-20))
 			break
 		}
 		sb.WriteString(tag.Name + "\n")
 	}
 	return tools.ToolResult{CallID: call.ID, Success: true, Output: sb.String()}
+}
+
+// GetStashDiffTool returns the diff of a specific stash entry.
+type GetStashDiffTool struct{ d *Deps }
+
+func NewGetStashDiffTool(d *Deps) tools.Tool { return &GetStashDiffTool{d} }
+
+func (t *GetStashDiffTool) Schema() tools.ToolSchema {
+	return tools.ToolSchema{
+		Name:        "get_stash_diff",
+		Description: t.d.Tr.ToolGetStashDiffDesc(),
+		Params: map[string]tools.ParamSchema{
+			"index":     {Type: "int", Description: t.d.Tr.ToolGetStashDiffIndexParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
+		},
+		Permission: tools.PermReadOnly,
+	}
+}
+
+func (t *GetStashDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
+	idx := intParam(call.Params, "index", 0)
+	out, err := t.d.Stash.ShowStashEntryCmdObj(idx).RunWithOutput()
+	if err != nil {
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetStashDiffFailed(idx, err)}
+	}
+	if out == "" {
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolStashEntryEmpty(idx)}
+	}
+	maxLines := intParam(call.Params, "max_lines", 300)
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(out, maxLines)}
 }
 
 // GetCommitDiffTool returns the diff for a specific commit.
@@ -326,9 +364,10 @@ func NewGetCommitDiffTool(d *Deps) tools.Tool { return &GetCommitDiffTool{d} }
 func (t *GetCommitDiffTool) Schema() tools.ToolSchema {
 	return tools.ToolSchema{
 		Name:        "get_commit_diff",
-		Description: "获取指定提交的 diff（默认 HEAD）",
+		Description: t.d.Tr.ToolGetCommitDiffDesc(),
 		Params: map[string]tools.ParamSchema{
-			"hash": {Type: "string", Description: "提交 hash，留空表示 HEAD"},
+			"hash":      {Type: "string", Description: t.d.Tr.ToolGetCommitDiffHashParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
 		},
 		Permission: tools.PermReadOnly,
 	}
@@ -336,11 +375,50 @@ func (t *GetCommitDiffTool) Schema() tools.ToolSchema {
 
 func (t *GetCommitDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
 	hash := strParam(call.Params, "hash", "HEAD")
+	maxLines := intParam(call.Params, "max_lines", 300)
 	diff, err := t.d.Commit.GetCommitDiff(hash)
 	if err != nil {
-		return tools.ToolResult{CallID: call.ID, Output: fmt.Sprintf("获取提交 diff 失败: %v", err)}
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetCommitDiffFailed(err)}
 	}
-	return tools.ToolResult{CallID: call.ID, Success: true, Output: diff}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
+}
+
+// GetBranchDiffTool returns the diff between two branches or refs.
+type GetBranchDiffTool struct{ d *Deps }
+
+func NewGetBranchDiffTool(d *Deps) tools.Tool { return &GetBranchDiffTool{d} }
+
+func (t *GetBranchDiffTool) Schema() tools.ToolSchema {
+	return tools.ToolSchema{
+		Name:        "get_branch_diff",
+		Description: t.d.Tr.ToolGetBranchDiffDesc(),
+		Params: map[string]tools.ParamSchema{
+			"base":      {Type: "string", Description: t.d.Tr.ToolGetBranchDiffBaseParam(), Required: true},
+			"target":    {Type: "string", Description: t.d.Tr.ToolGetBranchDiffTargetParam()},
+			"max_lines": {Type: "int", Description: t.d.Tr.ToolMaxLines()},
+		},
+		Permission: tools.PermReadOnly,
+	}
+}
+
+func (t *GetBranchDiffTool) Execute(_ context.Context, call tools.ToolCall) tools.ToolResult {
+	base := strParam(call.Params, "base", "")
+	if base == "" {
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolMissingParam("base")}
+	}
+	target := strParam(call.Params, "target", "HEAD")
+	maxLines := intParam(call.Params, "max_lines", 300)
+
+	// three-dot syntax: changes on target since it diverged from base
+	refRange := base + "..." + target
+	diff, err := t.d.Diff.GetDiff(false, refRange, "--")
+	if err != nil {
+		return tools.ToolResult{CallID: call.ID, Output: t.d.Tr.ToolGetBranchDiffFailed(base, target, err)}
+	}
+	if diff == "" {
+		return tools.ToolResult{CallID: call.ID, Success: true, Output: t.d.Tr.ToolGetBranchDiffEmpty(base, target)}
+	}
+	return tools.ToolResult{CallID: call.ID, Success: true, Output: compressDiff(diff, maxLines)}
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -390,16 +468,31 @@ func boolParam(params map[string]any, key string, defaultVal bool) bool {
 	return defaultVal
 }
 
-// truncateDiff limits diff output to maxLines lines.
-// maxLines <= 0 means no limit.
-func truncateDiff(diff string, maxLines int) string {
+// paginateDiff extracts lines [offset, offset+maxLines) from diff.
+// When more content remains it appends a hint with the next offset value,
+// so callers (LLMs) know they can fetch the next page.
+// offset < 0 is treated as 0. maxLines <= 0 means no limit.
+func paginateDiff(diff string, offset, maxLines int, tr interface {
+	ToolTruncated(start, end, total, nextOffset int) string
+}) string {
 	if maxLines <= 0 {
 		return diff
 	}
 	lines := strings.SplitAfter(diff, "\n")
-	if len(lines) <= maxLines {
-		return diff
+	total := len(lines)
+
+	if offset < 0 {
+		offset = 0
 	}
-	truncated := strings.Join(lines[:maxLines], "")
-	return truncated + fmt.Sprintf("\n... (已截断，共 %d 行，仅显示前 %d 行)", len(lines), maxLines)
+	if offset >= total {
+		return diff // offset out of range — return full diff as fallback
+	}
+
+	end := offset + maxLines
+	if end >= total {
+		// Last page: no truncation notice needed.
+		return strings.Join(lines[offset:], "")
+	}
+	return strings.Join(lines[offset:end], "") +
+		tr.ToolTruncated(offset+1, end, total, end)
 }

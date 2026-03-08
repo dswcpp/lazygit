@@ -3,9 +3,9 @@ package skills
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
+	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
 )
 
@@ -31,8 +31,8 @@ func (s *CommitMsgSkill) Execute(ctx context.Context, p provider.Provider, input
 	safetyNote := extraStr(input.Extra, "safety_note")
 	scenario := detectChangeScenario(diff)
 
-	systemPrompt := commitMsgSystemPrompt()
-	userPrompt := buildCommitMsgUserPrompt(diff, input.RepoCtx.CurrentBranch, projectType, scenario, safetyNote)
+	systemPrompt := input.Tr.SkillCommitMsgSystemPrompt()
+	userPrompt := buildCommitMsgUserPrompt(input.Tr, diff, input.RepoCtx.CurrentBranch, projectType, scenario, safetyNote)
 
 	messages := []provider.Message{
 		{Role: provider.RoleSystem, Content: systemPrompt},
@@ -52,26 +52,19 @@ func (s *CommitMsgSkill) Execute(ctx context.Context, p provider.Provider, input
 
 // ── prompt builders ────────────────────────────────────────────────────────
 
-func commitMsgSystemPrompt() string {
-	return `你是一名经验丰富的软件工程师，专门负责撰写高质量的 Git 提交信息。
-遵循 Conventional Commits 规范（https://www.conventionalcommits.org/）。
-只输出提交信息本身，不要任何额外说明、前缀或引号。
-提交信息（subject 和 body）必须使用中文。`
-}
-
-func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote string) string {
+func buildCommitMsgUserPrompt(tr *aii18n.Translator, diff, branch, projectType, scenario, safetyNote string) string {
 	var sb strings.Builder
 
-	sb.WriteString("## 仓库背景\n")
+	sb.WriteString(tr.SkillRepoBackground())
 	if branch != "" {
-		sb.WriteString(fmt.Sprintf("当前分支: %s\n", branch))
+		sb.WriteString(tr.SkillCurrentBranch(branch))
 	}
 	if projectType != "" && projectType != "Mixed" {
-		sb.WriteString(fmt.Sprintf("项目类型: %s\n", projectType))
+		sb.WriteString(tr.SkillCommitMsgProjectType(projectType))
 	}
 	sb.WriteString("\n")
 
-	sb.WriteString("## 代码变更\n")
+	sb.WriteString(tr.SkillCodeChangesSection())
 	sb.WriteString("```diff\n")
 	sb.WriteString(diff)
 	if safetyNote != "" {
@@ -79,60 +72,124 @@ func buildCommitMsgUserPrompt(diff, branch, projectType, scenario, safetyNote st
 	}
 	sb.WriteString("\n```\n\n")
 
-	sb.WriteString("## 输出规则\n")
-	sb.WriteString("- 格式:\n")
-	sb.WriteString("  ```\n")
-	sb.WriteString("  <type>(<scope>): <subject>\n")
-	sb.WriteString("  \n")
-	sb.WriteString("  <body>\n")
-	sb.WriteString("  ```\n")
-	sb.WriteString("- type: feat | fix | refactor | docs | test | chore | perf | style | ci | revert\n")
-	sb.WriteString("- subject: 中文，动词开头，祈使句，不超过 72 字符\n")
-	sb.WriteString("- scope 可省略\n")
-	sb.WriteString("- body: 必须包含，与 subject 之间空一行，用中文说明本次变更的原因和主要内容（1-4 行）\n\n")
+	sb.WriteString(tr.SkillOutputRules())
+	sb.WriteString(tr.SkillFormatExample())
+	sb.WriteString(tr.SkillTypeList())
+	sb.WriteString(tr.SkillSubjectRules())
+	sb.WriteString(tr.SkillScopeOptional())
+	sb.WriteString(tr.SkillBodyRequired())
 
 	switch scenario {
 	case "bugfix":
-		sb.WriteString("场景提示: 这是一个 bug 修复，优先使用 fix 类型。\n")
+		sb.WriteString(tr.SkillScenarioBugfix())
 	case "refactor":
-		sb.WriteString("场景提示: 这是重构，优先使用 refactor 类型。\n")
+		sb.WriteString(tr.SkillScenarioRefactor())
 	case "docs":
-		sb.WriteString("场景提示: 这是文档更新，使用 docs 类型。\n")
+		sb.WriteString(tr.SkillScenarioDocs())
 	case "test":
-		sb.WriteString("场景提示: 这是测试相关变更，使用 test 类型。\n")
+		sb.WriteString(tr.SkillScenarioTest())
 	case "large":
-		sb.WriteString("场景提示: 变更较大，body 须逐点列举主要变更，subject 保持简洁。\n")
+		sb.WriteString(tr.SkillScenarioLarge())
+	default:
+		sb.WriteString(tr.SkillScenarioDefault())
 	}
 
-	sb.WriteString("\n请直接输出提交信息：")
 	return sb.String()
 }
 
+// detectChangeScenario classifies the diff by analysing changed file paths
+// (from both "diff --git a/x b/x" and "+++ b/x" unified-diff headers) and
+// falling back to content keywords and size heuristics when no headers exist.
 func detectChangeScenario(diff string) string {
-	lower := strings.ToLower(diff)
-	switch {
-	case strings.Contains(diff, ".md") || strings.Contains(diff, "README"):
-		return "docs"
-	case strings.Contains(diff, "_test.") || strings.Contains(diff, ".test.") || strings.Contains(diff, "/test/"):
-		return "test"
-	case strings.Contains(lower, "fix") || strings.Contains(lower, "bug") || strings.Contains(lower, "error"):
-		return "bugfix"
-	case strings.Contains(lower, "refactor") || strings.Contains(lower, "rename") || strings.Contains(lower, "move"):
-		return "refactor"
-	default:
-		lines := strings.Split(diff, "\n")
-		changes := 0
-		for _, l := range lines {
-			if strings.HasPrefix(l, "+") || strings.HasPrefix(l, "-") {
-				changes++
+	var changedFiles []string
+	for _, line := range strings.Split(diff, "\n") {
+		switch {
+		case strings.HasPrefix(line, "+++ b/"):
+			changedFiles = append(changedFiles, strings.TrimPrefix(line, "+++ b/"))
+		case strings.HasPrefix(line, "diff --git "):
+			// "diff --git a/README.md b/README.md" → extract "README.md"
+			parts := strings.Fields(line)
+			if len(parts) >= 4 {
+				changedFiles = append(changedFiles, strings.TrimPrefix(parts[3], "b/"))
 			}
 		}
-		if changes > 500 {
-			return "large"
-		}
-		if changes < 50 {
-			return "small"
-		}
-		return "normal"
 	}
+
+	if len(changedFiles) > 0 {
+		docsCount, testCount := 0, 0
+		for _, f := range changedFiles {
+			lower := strings.ToLower(f)
+			if isDocFile(lower) {
+				docsCount++
+			} else if isTestFile(lower) {
+				testCount++
+			}
+		}
+		total := len(changedFiles)
+		if docsCount == total {
+			return "docs"
+		}
+		if testCount == total {
+			return "test"
+		}
+		// File names are reliable signals; scan for fix/refactor keywords.
+		for _, f := range changedFiles {
+			lower := strings.ToLower(f)
+			if strings.Contains(lower, "fix") || strings.Contains(lower, "bug") || strings.Contains(lower, "patch") {
+				return "bugfix"
+			}
+			if strings.Contains(lower, "refactor") {
+				return "refactor"
+			}
+		}
+	}
+
+	// Count changed lines for size heuristics.
+	added, removed := 0, 0
+	for _, line := range strings.Split(diff, "\n") {
+		if len(line) > 0 && line[0] == '+' && !strings.HasPrefix(line, "+++") {
+			added++
+		} else if len(line) > 0 && line[0] == '-' && !strings.HasPrefix(line, "---") {
+			removed++
+		}
+	}
+	if added+removed > 500 {
+		return "large"
+	}
+
+	// Content-based keyword detection for diffs that lack file headers.
+	if len(changedFiles) == 0 {
+		lower := strings.ToLower(diff)
+		if strings.Contains(lower, "fix") || strings.Contains(lower, "bug") {
+			return "bugfix"
+		}
+		if strings.Contains(lower, "refactor") {
+			return "refactor"
+		}
+	}
+
+	if added+removed <= 5 {
+		return "small"
+	}
+	return "normal"
+}
+
+func isDocFile(lower string) bool {
+	return strings.HasSuffix(lower, ".md") ||
+		strings.HasSuffix(lower, ".txt") ||
+		strings.HasSuffix(lower, ".rst") ||
+		strings.HasSuffix(lower, ".adoc") ||
+		strings.Contains(lower, "readme") ||
+		strings.HasPrefix(lower, "docs/") ||
+		strings.HasPrefix(lower, "doc/")
+}
+
+func isTestFile(lower string) bool {
+	return strings.HasSuffix(lower, "_test.go") ||
+		strings.Contains(lower, "_test.") ||
+		strings.Contains(lower, ".test.") ||
+		strings.Contains(lower, ".spec.") ||
+		strings.HasPrefix(lower, "test/") ||
+		strings.HasPrefix(lower, "tests/") ||
+		strings.HasPrefix(lower, "__tests__/")
 }

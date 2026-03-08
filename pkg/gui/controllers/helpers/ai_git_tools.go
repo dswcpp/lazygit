@@ -14,13 +14,13 @@ import (
 // clears the registry first to prevent duplicate-registration panics.
 func RegisterGitTools(c *HelperCommon, mgr *ai.Manager) {
 	mgr.Registry().Clear()
-	deps := buildGitToolDeps(c)
-	gittools.RegisterAll(deps, mgr.Registry())
+	deps := buildGitToolDeps(c, mgr)
+	gittools.RegisterAll(deps, mgr.Registry(), mgr.Provider())
 }
 
 // buildGitToolDeps constructs a Deps that reads from the live GUI model and
 // dispatches git commands through the existing git_commands layer.
-func buildGitToolDeps(c *HelperCommon) *gittools.Deps {
+func buildGitToolDeps(c *HelperCommon, mgr *ai.Manager) *gittools.Deps {
 	return &gittools.Deps{
 		// Git command groups
 		WorkingTree: c.Git().WorkingTree,
@@ -31,6 +31,9 @@ func buildGitToolDeps(c *HelperCommon) *gittools.Deps {
 		Sync:        c.Git().Sync,
 		Diff:        c.Git().Diff,
 		Rebase:      c.Git().Rebase,
+
+		// Translator
+		Tr: mgr.Translator(),
 
 		// Live model readers — closures capture c so they always see current state
 		GetFiles:            func() []*models.File { return c.Model().Files },
