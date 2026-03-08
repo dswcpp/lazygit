@@ -8,7 +8,7 @@ import (
 var (
 	commit      string
 	date        string
-	version     string
+	version     = "1.1.3"
 	buildSource = "unknown"
 )
 
