@@ -6,11 +6,11 @@ import "github.com/dswcpp/lazygit/pkg/ai/tools"
 type AgentPhase int
 
 const (
-	PhasePlanning      AgentPhase = iota // 阶段一：分析与规划中
-	PhaseWaitingConfirm                  // 等待用户在聊天中输入 Y/N 或补充说明
-	PhaseExecuting                       // 阶段二：执行写操作中
-	PhaseDone                            // 正常完成
-	PhaseCancelled                       // 用户取消
+	PhasePlanning       AgentPhase = iota // 阶段一：分析与规划中
+	PhaseWaitingConfirm                   // 等待用户在聊天中输入 Y/N 或补充说明
+	PhaseExecuting                        // 阶段二：执行写操作中
+	PhaseDone                             // 正常完成
+	PhaseCancelled                        // 用户取消
 )
 
 // StepStatus 描述单个执行步骤的状态。
@@ -46,10 +46,10 @@ func (s StepStatus) String() string {
 // 规划阶段由 LLM 填充 ID/Description/ToolName/Params/Critical；
 // 执行阶段填充 Status/Result/Error。
 type PlanStep struct {
-	ID          string            // 步骤唯一标识，如 "1"、"2"
-	Description string            // 展示给用户的人类可读描述
-	ToolName    string            // 要调用的工具名
-	Params      map[string]any    // 预计算好的参数（规划阶段确定）
+	ID          string         // 步骤唯一标识，如 "1"、"2"
+	Description string         // 展示给用户的人类可读描述
+	ToolName    string         // 要调用的工具名
+	Params      map[string]any // 预计算好的参数（规划阶段确定）
 	Permission  tools.PermissionLevel
 	// Critical=true：该步骤失败则中止整个执行。
 	// Critical=false：失败后标记为 StepSkipped，继续后续步骤。
@@ -63,7 +63,7 @@ type PlanStep struct {
 
 // ExecutionPlan 是阶段一的输出，阶段二的输入。
 type ExecutionPlan struct {
-	Summary string      // 整体描述，供用户确认时阅读
+	Summary string // 整体描述，供用户确认时阅读
 	Steps   []*PlanStep
 }
 

@@ -20,11 +20,11 @@ const maxPlanMessages = 50 // 最大规划消息历史数量，防止内存无�
 
 // toolAliases 工具名别名映射，用于容错常见的工具名错误
 var toolAliases = map[string]string{
-	"add":      "stage_all",
-	"git_add":  "stage_all",
-	"unstage":  "unstage_all",
-	"switch":   "checkout",
-	"branch":   "create_branch",
+	"add":     "stage_all",
+	"git_add": "stage_all",
+	"unstage": "unstage_all",
+	"switch":  "checkout",
+	"branch":  "create_branch",
 }
 
 // confirmKeywords 触发执行的关键词（小写匹配）
@@ -69,10 +69,10 @@ func isDenyMsg(msg string) bool {
 //
 // Thread Safety: Send() is NOT thread-safe. Callers must serialize calls.
 type TwoPhaseAgent struct {
-	mu           sync.Mutex          // protects state
+	mu           sync.Mutex // protects state
 	provider     provider.Provider
-	fullRegistry *tools.Registry    // 完整注册表（执行阶段使用）
-	readRegistry *tools.Registry    // 只读注册表（规划阶段使用）
+	fullRegistry *tools.Registry // 完整注册表（执行阶段使用）
+	readRegistry *tools.Registry // 只读注册表（规划阶段使用）
 	session      *Session
 	tr           *aii18n.Translator // i18n translator
 	maxPlanSteps int

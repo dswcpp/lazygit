@@ -201,9 +201,9 @@ func TestValidatePlan_EmptyStringParam(t *testing.T) {
 func TestValidatePlan_WithAlias(t *testing.T) {
 	registry := tools.NewRegistry()
 	registry.Register(&mockTool{
-		name: "stage_all",
+		name:   "stage_all",
 		params: map[string]tools.ParamSchema{},
-		perm: tools.PermWriteLocal,
+		perm:   tools.PermWriteLocal,
 	})
 
 	agent := &TwoPhaseAgent{

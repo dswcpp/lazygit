@@ -10,13 +10,13 @@ import (
 type ReviewPhase string
 
 const (
-	PhaseReviewInit       ReviewPhase = "review_init"        // 初始化
-	PhaseReviewing        ReviewPhase = "reviewing"          // 评审中
-	PhaseReviewDone       ReviewPhase = "review_done"        // 完成
-	PhaseReviewWaiting    ReviewPhase = "review_waiting"     // 等待用户追问
+	PhaseReviewInit        ReviewPhase = "review_init"        // 初始化
+	PhaseReviewing         ReviewPhase = "reviewing"          // 评审中
+	PhaseReviewDone        ReviewPhase = "review_done"        // 完成
+	PhaseReviewWaiting     ReviewPhase = "review_waiting"     // 等待用户追问
 	PhaseReviewInteractive ReviewPhase = "review_interactive" // 交互式追问中
-	PhaseReviewCancelled  ReviewPhase = "review_cancelled"   // 取消
-	PhaseReviewError      ReviewPhase = "review_error"       // 错误
+	PhaseReviewCancelled   ReviewPhase = "review_cancelled"   // 取消
+	PhaseReviewError       ReviewPhase = "review_error"       // 错误
 )
 
 // CodeReviewState 代码评审状态（不可变）
@@ -111,5 +111,3 @@ func detectLanguage(filePath string) string {
 	}
 	return langs[ext]
 }
-
-

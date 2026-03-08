@@ -15,9 +15,9 @@ import (
 // mockTranslator 创建一个用于测试的 Translator
 func mockTranslator() *aii18n.Translator {
 	return aii18n.NewTranslator(&i18n.TranslationSet{
-		AIAgentStepTimeout:          "⏱️ 步骤超时: %s\n\n步骤: %s",
-		AIAgentCriticalStepFailed:   "关键步骤失败: %s\n原因: %s",
-		AIAgentPossibleReasons:      "\n\n💡 可能的原因：",
+		AIAgentStepTimeout:              "⏱️ 步骤超时: %s\n\n步骤: %s",
+		AIAgentCriticalStepFailed:       "关键步骤失败: %s\n原因: %s",
+		AIAgentPossibleReasons:          "\n\n💡 可能的原因：",
 		AITwoPhaseAgentMaxStepsExceeded: "已达到最大规划步骤数 (%d)，请简化任务或分步执行",
 	})
 }
@@ -48,9 +48,9 @@ func (s *slowTool) Execute(ctx context.Context, call tools.ToolCall) tools.ToolR
 
 // errorTool 模拟一个总是失败的工具
 type errorTool struct {
-	name      string
-	errorMsg  string
-	perm      tools.PermissionLevel
+	name     string
+	errorMsg string
+	perm     tools.PermissionLevel
 }
 
 func (e *errorTool) Schema() tools.ToolSchema {
@@ -156,14 +156,14 @@ func TestExecuteWithTimeoutCriticalStep(t *testing.T) {
 func TestFormatToolNotFoundError(t *testing.T) {
 	registry := tools.NewRegistry()
 	registry.Register(&mockTool{
-		name: "stage_all",
+		name:   "stage_all",
 		params: map[string]tools.ParamSchema{},
-		perm: tools.PermWriteLocal,
+		perm:   tools.PermWriteLocal,
 	})
 	registry.Register(&mockTool{
-		name: "stage_file",
+		name:   "stage_file",
 		params: map[string]tools.ParamSchema{},
-		perm: tools.PermWriteLocal,
+		perm:   tools.PermWriteLocal,
 	})
 
 	agent := &TwoPhaseAgent{
@@ -259,9 +259,9 @@ func TestExecuteWithNonCriticalFailure(t *testing.T) {
 		perm:     tools.PermWriteLocal,
 	})
 	registry.Register(&mockTool{
-		name: "success_tool",
+		name:   "success_tool",
 		params: map[string]tools.ParamSchema{},
-		perm: tools.PermWriteLocal,
+		perm:   tools.PermWriteLocal,
 	})
 
 	agent := &TwoPhaseAgent{
@@ -319,9 +319,9 @@ func TestExecuteWithCriticalFailure(t *testing.T) {
 		perm:     tools.PermWriteLocal,
 	})
 	registry.Register(&mockTool{
-		name: "success_tool",
+		name:   "success_tool",
 		params: map[string]tools.ParamSchema{},
-		perm: tools.PermWriteLocal,
+		perm:   tools.PermWriteLocal,
 	})
 
 	agent := &TwoPhaseAgent{
@@ -433,39 +433,39 @@ func TestGetRecoverySuggestions(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		toolName    string
-		errorMsg    string
+		name                string
+		toolName            string
+		errorMsg            string
 		expectInSuggestions []string
 	}{
 		{
-			name:        "commit nothing to commit",
-			toolName:    "commit",
-			errorMsg:    "nothing to commit, working tree clean",
+			name:                "commit nothing to commit",
+			toolName:            "commit",
+			errorMsg:            "nothing to commit, working tree clean",
 			expectInSuggestions: []string{"暂存文件"},
 		},
 		{
-			name:        "checkout uncommitted changes",
-			toolName:    "checkout",
-			errorMsg:    "error: Your local changes would be overwritten by checkout",
+			name:                "checkout uncommitted changes",
+			toolName:            "checkout",
+			errorMsg:            "error: Your local changes would be overwritten by checkout",
 			expectInSuggestions: []string{"提交", "暂存"},
 		},
 		{
-			name:        "push rejected",
-			toolName:    "push",
-			errorMsg:    "error: failed to push some refs to remote",
+			name:                "push rejected",
+			toolName:            "push",
+			errorMsg:            "error: failed to push some refs to remote",
 			expectInSuggestions: []string{"拉取", "更新"},
 		},
 		{
-			name:        "merge conflict",
-			toolName:    "merge",
-			errorMsg:    "CONFLICT (content): Merge conflict in file.txt",
+			name:                "merge conflict",
+			toolName:            "merge",
+			errorMsg:            "CONFLICT (content): Merge conflict in file.txt",
 			expectInSuggestions: []string{"解决冲突"},
 		},
 		{
-			name:        "permission denied",
-			toolName:    "any_tool",
-			errorMsg:    "permission denied",
+			name:                "permission denied",
+			toolName:            "any_tool",
+			errorMsg:            "permission denied",
 			expectInSuggestions: []string{"权限"},
 		},
 	}

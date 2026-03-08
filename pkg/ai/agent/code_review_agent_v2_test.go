@@ -8,6 +8,7 @@ import (
 
 	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	"github.com/dswcpp/lazygit/pkg/ai/provider"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 )
 
 // MockProvider 用于测试的模拟Provider
@@ -50,18 +51,19 @@ func (m *MockCodeReviewProvider) ModelID() string {
 	return "mock"
 }
 
-// MockTranslator 用于测试的模拟Translator
-type MockCodeReviewTranslator struct{}
-
-func (m *MockCodeReviewTranslator) SkillCodeReviewSystemPrompt() string {
-	return "You are a code reviewer."
-}
-
+// newMockTranslator 创建一个用于测试的Translator
+// 注意：这是一个简化的实现，只包含CodeReviewAgent需要的方法
 func newMockTranslator() *aii18n.Translator {
-	// 返回nil，因为我们不需要真实的Translator
-	// 但这会导致panic，所以我们需要跳过使用Translator的测试
-	// 或者创建一个真实的Translator实例
-	return nil
+	// 创建一个最小化的TranslationSet
+	mockTr := &i18n.TranslationSet{
+		// 只设置CodeReviewAgent需要的字段
+		AICancel:  "Cancel",
+		AIOK:      "OK",
+		AIConfirm: "Confirm",
+		AIYes:     "Yes",
+		AINo:      "No",
+	}
+	return aii18n.NewTranslator(mockTr)
 }
 
 // TestCodeReviewAgentV2_BasicReview 测试基本评审流程

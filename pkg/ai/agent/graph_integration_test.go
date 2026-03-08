@@ -86,23 +86,23 @@ func newTestAgent(p provider.Provider, registry *tools.Registry, tr *aii18n.Tran
 
 func testTranslator() *aii18n.Translator {
 	return aii18n.NewTranslator(&i18n.TranslationSet{
-		AIAgentStepTimeout:              "⏱️ step timeout: %s\n\nstep: %s",
-		AIAgentCriticalStepFailed:       "critical step failed: %s\nreason: %s",
-		AIAgentPossibleReasons:          "\n\n💡 possible reasons:",
-		AITwoPhaseAgentMaxStepsExceeded: "max steps exceeded (%d)",
-		AITwoPhaseAgentExecutionCancelled: "execution cancelled",
-		AITwoPhaseAgentUserFeedbackPrompt: "user feedback: %s",
-		AITwoPhaseAgentEmptyResponseError: "empty response error",
-		AITwoPhaseAgentContinueAnalysis:   "continue analysis",
-		AITwoPhaseAgentSystemPromptIntro:  "system prompt",
-		AITwoPhaseAgentExecuting:          "already executing",
-		AITwoPhaseAgentToolCallWarning:    "tool %s called %d times",
-		AITwoPhaseAgentSystemPrefix:       "[system] ",
-		AITwoPhaseAgentToolResultPrefix:   "[%s result] %s",
-		AITwoPhaseAgentPlanErrorsIntro:    "plan errors:\n",
+		AIAgentStepTimeout:                  "⏱️ step timeout: %s\n\nstep: %s",
+		AIAgentCriticalStepFailed:           "critical step failed: %s\nreason: %s",
+		AIAgentPossibleReasons:              "\n\n💡 possible reasons:",
+		AITwoPhaseAgentMaxStepsExceeded:     "max steps exceeded (%d)",
+		AITwoPhaseAgentExecutionCancelled:   "execution cancelled",
+		AITwoPhaseAgentUserFeedbackPrompt:   "user feedback: %s",
+		AITwoPhaseAgentEmptyResponseError:   "empty response error",
+		AITwoPhaseAgentContinueAnalysis:     "continue analysis",
+		AITwoPhaseAgentSystemPromptIntro:    "system prompt",
+		AITwoPhaseAgentExecuting:            "already executing",
+		AITwoPhaseAgentToolCallWarning:      "tool %s called %d times",
+		AITwoPhaseAgentSystemPrefix:         "[system] ",
+		AITwoPhaseAgentToolResultPrefix:     "[%s result] %s",
+		AITwoPhaseAgentPlanErrorsIntro:      "plan errors:\n",
 		AITwoPhaseAgentPlanRegeneratePrompt: "please fix the plan",
 		AITwoPhaseAgentPlanValidationFailed: "plan validation failed",
-		AIAgentToolNotAllowedInPlanning:   "tool not allowed in planning: %s",
+		AIAgentToolNotAllowedInPlanning:     "tool not allowed in planning: %s",
 	})
 }
 

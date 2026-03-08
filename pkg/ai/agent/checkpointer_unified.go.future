@@ -1,0 +1,111 @@
+package agent
+
+import "sync"
+
+// ────────────────────────────────────────────────────────────────────────────
+// 统一的Checkpointer接口（使用泛型）
+// ────────────────────────────────────────────────────────────────────────────
+
+// Checkpointer 通用检查点器接口（泛型版本）
+// 支持任意状态类型的持久化和恢复
+//
+// LangGraph analogy: 这是持久化层（MemorySaver / SqliteSaver）
+// 使得人机交互中断点能够跨进程重启恢复
+//
+// 类型参数 T: 状态类型（如 GraphState, CodeReviewState）
+type Checkpointer[T any] interface {
+	// Save 保存指定会话的当前状态
+	Save(threadID string, state T) error
+
+	// Load 加载指定会话的保存状态，如果不存在返回 (zero, false)
+	Load(threadID string) (T, bool)
+
+	// Clear 清除指定会话的检查点
+	// 在执行完成或用户取消后调用，避免过期状态在下次启动时出现
+	Clear(threadID string)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 内存实现（进程内存储，进程退出后丢失）
+// ────────────────────────────────────────────────────────────────────────────
+
+// MemoryCheckpointer 内存检查点器（泛型版本）
+// 状态仅存储在进程内存中，进程退出后丢失
+// 适用于测试和不需要跨重启持久化的场景
+type MemoryCheckpointer[T any] struct {
+	mu     sync.RWMutex
+	states map[string]T
+}
+
+// NewMemoryCheckpointer 创建内存检查点器
+func NewMemoryCheckpointer[T any]() *MemoryCheckpointer[T] {
+	return &MemoryCheckpointer[T]{
+		states: make(map[string]T),
+	}
+}
+
+func (c *MemoryCheckpointer[T]) Save(threadID string, state T) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.states[threadID] = state
+	return nil
+}
+
+func (c *MemoryCheckpointer[T]) Load(threadID string) (T, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	s, ok := c.states[threadID]
+	return s, ok
+}
+
+func (c *MemoryCheckpointer[T]) Clear(threadID string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.states, threadID)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 向后兼容的类型别名
+// ────────────────────────────────────────────────────────────────────────────
+
+// TwoPhaseCheckpointer TwoPhaseAgent的检查点器（向后兼容）
+type TwoPhaseCheckpointer = Checkpointer[GraphState]
+
+// CodeReviewCheckpointerV2 CodeReviewAgent的检查点器（向后兼容）
+type CodeReviewCheckpointerV2 = Checkpointer[CodeReviewState]
+
+// NewMemoryTwoPhaseCheckpointer 创建TwoPhaseAgent的内存检查点器
+func NewMemoryTwoPhaseCheckpointer() *MemoryCheckpointer[GraphState] {
+	return NewMemoryCheckpointer[GraphState]()
+}
+
+// NewMemoryCodeReviewCheckpointerV2 创建CodeReviewAgent的内存检查点器
+func NewMemoryCodeReviewCheckpointerV2() *MemoryCheckpointer[CodeReviewState] {
+	return NewMemoryCheckpointer[CodeReviewState]()
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 使用示例
+// ────────────────────────────────────────────────────────────────────────────
+
+/*
+// 示例1：TwoPhaseAgent使用
+agent := NewTwoPhaseAgent(...)
+checkpointer := NewMemoryTwoPhaseCheckpointer()
+agent.SetCheckpointer(checkpointer, "thread-123")
+
+// 示例2：CodeReviewAgent使用
+reviewAgent := NewCodeReviewAgentV2(...)
+checkpointer := NewMemoryCodeReviewCheckpointerV2()
+reviewAgent.SetCheckpointer(checkpointer, "review-456")
+
+// 示例3：自定义状态类型
+type MyState struct {
+    Phase string
+    Data  string
+}
+
+checkpointer := NewMemoryCheckpointer[MyState]()
+checkpointer.Save("my-thread", MyState{Phase: "init", Data: "test"})
+state, ok := checkpointer.Load("my-thread")
+*/
