@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
@@ -65,7 +66,10 @@ func isDenyMsg(msg string) bool {
 //	  输入其他内容则视为补充说明，重新进入规划循环调整计划。
 //
 // 整个交互完全在聊天窗口中完成，不弹出任何对话框。
+//
+// Thread Safety: Send() is NOT thread-safe. Callers must serialize calls.
 type TwoPhaseAgent struct {
+	mu           sync.Mutex          // protects state
 	provider     provider.Provider
 	fullRegistry *tools.Registry    // 完整注册表（执行阶段使用）
 	readRegistry *tools.Registry    // 只读注册表（规划阶段使用）
@@ -110,6 +114,8 @@ func NewTwoPhaseAgent(
 // If a saved state exists and has a pending ResumeFrom, the agent restores it
 // automatically so the user can pick up the interrupted conversation.
 func (a *TwoPhaseAgent) SetCheckpointer(c Checkpointer, threadID string) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	a.checkpointer = c
 	a.threadID = threadID
 	if saved, ok := c.Load(threadID); ok && saved.ResumeFrom != "" {
@@ -143,14 +149,29 @@ func (a *TwoPhaseAgent) getGraph() *Graph {
 	return a.graph
 }
 
-// Phase returns the current agent phase.
-func (a *TwoPhaseAgent) Phase() AgentPhase { return a.state.Phase }
+// Phase returns the current agent phase (thread-safe).
+func (a *TwoPhaseAgent) Phase() AgentPhase {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.state.Phase
+}
 
-// Plan returns the current execution plan, or nil if not yet produced.
-func (a *TwoPhaseAgent) Plan() *ExecutionPlan { return a.state.Plan }
+// Plan returns the current execution plan, or nil if not yet produced (thread-safe).
+func (a *TwoPhaseAgent) Plan() *ExecutionPlan {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.state.Plan
+}
 
 // Session 返回会话，供 GUI 层读取 UIMessages 进行渲染。
-func (a *TwoPhaseAgent) Session() *Session { return a.session }
+// DEPRECATED: UIMessages 已迁移到 GraphState，此方法同步 state.UIMessages 到 session 以保持向后兼容。
+func (a *TwoPhaseAgent) Session() *Session {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	// 同步 GraphState 的 UIMessages 到 Session（向后兼容）
+	a.session.UIMessages = a.state.UIMessages
+	return a.session
+}
 
 // Send is the unified chat entry point.
 //
@@ -159,7 +180,7 @@ func (a *TwoPhaseAgent) Session() *Session { return a.session }
 //   - state.ResumeFrom != "" → resume graph from the saved checkpoint
 //   - otherwise              → start a fresh planning run
 //
-// Must be called from a non-UI goroutine.
+// Thread Safety: NOT thread-safe. Callers must serialize calls to Send().
 // onUpdate is called after each state change on the same goroutine;
 // the GUI must switch to the UI thread (e.g. gocui.Update) before rendering.
 func (a *TwoPhaseAgent) Send(
@@ -168,9 +189,12 @@ func (a *TwoPhaseAgent) Send(
 	repoCtx repocontext.RepoContext,
 	onUpdate func(),
 ) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
 	// Ignore input while the execution phase is running.
 	if a.state.Phase == PhaseExecuting {
-		a.session.AddSystemNote(a.tr.TwoPhaseAgentExecuting())
+		a.state = a.state.WithSystemNote(a.tr.TwoPhaseAgentExecuting())
 		if onUpdate != nil {
 			onUpdate()
 		}
@@ -179,7 +203,7 @@ func (a *TwoPhaseAgent) Send(
 
 	// Resume from a pending interrupt (e.g. PhaseWaitingConfirm).
 	if a.state.ResumeFrom != "" {
-		a.session.AddUserMessage(userMsg)
+		a.state = a.state.WithUserMessage(userMsg)
 		if onUpdate != nil {
 			onUpdate()
 		}
@@ -199,7 +223,6 @@ func (a *TwoPhaseAgent) startPlan(
 ) error {
 	// 重置状态，清除上一轮检查点
 	a.clearCheckpoint()
-	a.session.Reset()
 	a.state.Reset() // Phase=PhasePlanning, Plan=nil, PlanMessages=nil, ToolCallHistory cleared
 
 	// 构建规划阶段 system prompt（含工具列表）
@@ -213,16 +236,16 @@ func (a *TwoPhaseAgent) startPlan(
 		a.tr.TwoPhaseAgentRepoStatusTitle(), repoCtx.CompactString(a.tr),
 		a.tr.TwoPhaseAgentUserInstructionTitle(), userMsg)
 
-	a.session.AddUserMessage(initMsg)
+	a.state = a.state.WithUserMessage(initMsg)
 	if onUpdate != nil {
 		onUpdate()
 	}
 
-	// 初始化规划消息历史（独立于 session.providerMessages，带专用 system prompt）
-	a.state.PlanMessages = []provider.Message{
+	// 初始化规划消息历史（独立于 ProviderMessages，带专用 system prompt）
+	a.state = a.state.WithPlanMessages([]provider.Message{
 		{Role: provider.RoleSystem, Content: sysPrompt},
 		{Role: provider.RoleUser, Content: initMsg},
-	}
+	})
 
 	return a.planLoop(ctx, onUpdate)
 }
@@ -232,11 +255,14 @@ func (a *TwoPhaseAgent) startPlan(
 // compiled graph from the saved checkpoint (typically NodeHandleConfirmation).
 func (a *TwoPhaseAgent) resume(ctx context.Context, userMsg string, onUpdate func()) error {
 	resumeFrom := a.state.ResumeFrom
-	a.state.ResumeFrom = ""
-	a.state.HumanInput = userMsg
-	newState, err := a.getGraph().Run(ctx, resumeFrom, a.state, onUpdate)
+	// Use temporary state to ensure atomicity: only update a.state on success
+	tempState := a.state.WithResumeFrom("").WithHumanInput(userMsg)
+	newState, err := a.getGraph().Run(ctx, resumeFrom, tempState, onUpdate)
+	if err != nil {
+		return err // a.state unchanged on error
+	}
 	a.state = newState
-	return err
+	return nil
 }
 
 // planLoop drives the planning phase through the compiled agent graph,
@@ -244,29 +270,34 @@ func (a *TwoPhaseAgent) resume(ctx context.Context, userMsg string, onUpdate fun
 // return the agent's state is updated to reflect all node transitions.
 func (a *TwoPhaseAgent) planLoop(ctx context.Context, onUpdate func()) error {
 	newState, err := a.getGraph().Run(ctx, NodePlan, a.state, onUpdate)
+	if err != nil {
+		return err
+	}
 	a.state = newState
-	return err
+	return nil
 }
 
 // getAIResponse 获取 AI 的响应（流式或非流式）。
 // messages 是调用方从 state 中传入的规划历史，不直接访问 a.state。
-func (a *TwoPhaseAgent) getAIResponse(ctx context.Context, messages []provider.Message, onUpdate func()) (string, error) {
+// 纯函数：通过返回 state 更新状态。
+func (a *TwoPhaseAgent) getAIResponse(ctx context.Context, state GraphState, messages []provider.Message, onUpdate func()) (string, GraphState, error) {
 	shouldStream := len(messages) > 1 && !a.hasRecentToolCalls(messages)
 
 	if shouldStream {
-		return a.streamPlanResponse(ctx, messages, onUpdate)
+		return a.streamPlanResponse(ctx, state, messages, onUpdate)
 	}
 
 	result, err := a.provider.Complete(ctx, messages)
 	if err != nil {
-		return "", err
+		return "", state, err
 	}
-	return result.Content, nil
+	return result.Content, state, nil
 }
 
 // handlePlanBlock 处理计划块，验证计划并更新 state。
 // 返回 (handled, updatedState, error)：handled=false 表示验证失败、需重规划。
 // Phase 转换（→ PhaseWaitingConfirm）由 nodeWaitHuman 负责，不在此处设置。
+// 纯函数：所有状态更新通过返回值传递。
 func (a *TwoPhaseAgent) handlePlanBlock(
 	state GraphState,
 	parsed tools.ParsedPlan,
@@ -280,16 +311,16 @@ func (a *TwoPhaseAgent) handlePlanBlock(
 		return false, state, nil
 	}
 
-	state.Plan = plan
-	a.session.AddPlanUIMessage(plan)
+	state = state.WithPlan(plan)
+	state = state.WithPlanUIMessage(plan)
 
 	displayText := tools.StripPlanBlock(rawContent)
 	if displayText == "" {
 		displayText = a.defaultConfirmPrompt(plan)
 	}
-	a.session.AddAssistantMessage(displayText)
+	state = state.WithAssistantMessage(displayText)
 
-	state.AppendPlanMessage(provider.Message{
+	state = state.AppendPlanMessage(provider.Message{
 		Role:    provider.RoleAssistant,
 		Content: rawContent,
 	}, maxPlanMessages)
@@ -301,6 +332,7 @@ func (a *TwoPhaseAgent) handlePlanBlock(
 }
 
 // handlePlanValidationErrors 处理计划验证错误，返回更新后的 state。
+// 纯函数：通过返回值更新状态。
 func (a *TwoPhaseAgent) handlePlanValidationErrors(state GraphState, errors []string, onUpdate func()) GraphState {
 	var sb strings.Builder
 	sb.WriteString(a.tr.TwoPhaseAgentPlanErrorsIntro())
@@ -309,8 +341,8 @@ func (a *TwoPhaseAgent) handlePlanValidationErrors(state GraphState, errors []st
 	}
 	sb.WriteString(a.tr.TwoPhaseAgentPlanRegeneratePrompt())
 
-	a.session.AddSystemNote(a.tr.TwoPhaseAgentPlanValidationFailed())
-	state.AppendPlanMessage(provider.Message{
+	state = state.WithSystemNote(a.tr.TwoPhaseAgentPlanValidationFailed())
+	state = state.AppendPlanMessage(provider.Message{
 		Role:    provider.RoleUser,
 		Content: sb.String(),
 	}, maxPlanMessages)
@@ -323,11 +355,11 @@ func (a *TwoPhaseAgent) handlePlanValidationErrors(state GraphState, errors []st
 
 // handleEmptyResponse 处理空响应（无工具调用也无计划），返回更新后的 state。
 func (a *TwoPhaseAgent) handleEmptyResponse(state GraphState, onUpdate func()) (GraphState, error) {
-	state.EmptyResponseCount++
+	state = state.WithEmptyResponseCount(state.EmptyResponseCount + 1)
 	if state.EmptyResponseCount >= 3 {
 		return state, fmt.Errorf("%s", a.tr.TwoPhaseAgentEmptyResponseError())
 	}
-	state.AppendPlanMessage(provider.Message{
+	state = state.AppendPlanMessage(provider.Message{
 		Role:    provider.RoleUser,
 		Content: a.tr.TwoPhaseAgentContinueAnalysis(),
 	}, maxPlanMessages)
@@ -335,6 +367,7 @@ func (a *TwoPhaseAgent) handleEmptyResponse(state GraphState, onUpdate func()) (
 }
 
 // executeToolCalls 执行工具调用列表，返回更新后的 state。
+// 纯函数：所有状态更新通过返回值传递。
 func (a *TwoPhaseAgent) executeToolCalls(
 	ctx context.Context,
 	state GraphState,
@@ -358,14 +391,14 @@ func (a *TwoPhaseAgent) executeToolCalls(
 			continue
 		}
 
-		a.session.AddToolCall(call)
+		state = state.WithToolCall(call)
 		if onUpdate != nil {
 			onUpdate()
 		}
 
 		toolResult := tool.Execute(ctx, call)
-		a.session.AddToolResult(toolResult, call.Name)
-		state.AppendPlanMessage(provider.Message{
+		state = state.WithToolResult(toolResult, call.Name)
+		state = state.AppendPlanMessage(provider.Message{
 			Role:    provider.RoleUser,
 			Content: a.tr.TwoPhaseAgentToolResultPrefix(call.Name, toolResult.Output),
 		}, maxPlanMessages)
@@ -386,14 +419,15 @@ func toolCallKey(call tools.ToolCall) string {
 
 // checkToolCallLimit 检查工具调用次数限制。
 // 返回 (skip, updatedState)：skip=true 表示调用方应跳过本次调用。
+// 纯函数：通过返回值更新状态（使用不可变 map 更新）。
 func (a *TwoPhaseAgent) checkToolCallLimit(state GraphState, call tools.ToolCall, onUpdate func()) (skip bool, _ GraphState) {
 	callKey := toolCallKey(call)
-	state.ToolCallHistory[callKey]++
+	state = state.WithToolCallIncrement(callKey)
 
 	if state.ToolCallHistory[callKey] > 3 {
 		warnMsg := a.tr.TwoPhaseAgentToolCallWarning(call.Name, state.ToolCallHistory[callKey])
-		a.session.AddSystemNote(warnMsg)
-		state.AppendPlanMessage(provider.Message{
+		state = state.WithSystemNote(warnMsg)
+		state = state.AppendPlanMessage(provider.Message{
 			Role:    provider.RoleUser,
 			Content: a.tr.TwoPhaseAgentSystemPrefix() + warnMsg,
 		}, maxPlanMessages)
@@ -406,10 +440,11 @@ func (a *TwoPhaseAgent) checkToolCallLimit(state GraphState, call tools.ToolCall
 }
 
 // handleToolNotFound 处理工具未找到的情况，返回更新后的 state。
+// 纯函数：通过返回值更新状态。
 func (a *TwoPhaseAgent) handleToolNotFound(state GraphState, toolName string, onUpdate func()) GraphState {
 	errMsg := a.tr.AgentToolNotAllowedInPlanning(toolName)
-	a.session.AddSystemNote(errMsg)
-	state.AppendPlanMessage(provider.Message{
+	state = state.WithSystemNote(errMsg)
+	state = state.AppendPlanMessage(provider.Message{
 		Role:    provider.RoleUser,
 		Content: a.tr.TwoPhaseAgentSystemPrefix() + errMsg,
 	}, maxPlanMessages)
@@ -423,24 +458,29 @@ func (a *TwoPhaseAgent) handleToolNotFound(state GraphState, toolName string, on
 // It uses a.state.Plan set during planning; plan steps are visited one at a
 // time via nodeExecuteStep until all are done or a critical failure occurs.
 func (a *TwoPhaseAgent) execute(ctx context.Context, onUpdate func()) error {
-	a.state.Phase = PhaseExecuting
-	a.state.ExecStepIndex = 0
+	// Update phase immediately so GUI can show execution state
+	a.state = a.state.WithPhase(PhaseExecuting).WithExecStepIndex(0)
 	if onUpdate != nil {
 		onUpdate()
 	}
 	newState, err := a.getGraph().Run(ctx, NodeExecuteStep, a.state, onUpdate)
-	a.state = newState
-	return err
+	if err != nil {
+		return err // Error: a.state keeps PhaseExecuting (user can see error in that phase)
+	}
+	a.state = newState // Success: update to final state (typically PhaseDone)
+	return nil
 }
 
-// executeStep 执行单个步骤
+// executeStep 执行单个步骤。
+// 纯函数：通过返回 state 更新状态。
 func (a *TwoPhaseAgent) executeStep(
 	ctx context.Context,
+	state GraphState,
 	step *PlanStep,
 	onUpdate func(),
-) error {
+) (GraphState, error) {
 	step.Status = StepRunning // agent owns step field mutation; Session only observes
-	a.session.AddStepUpdate(step, StepRunning, "", "")
+	state = state.WithStepUpdate(step, StepRunning, "", "")
 	if onUpdate != nil {
 		onUpdate()
 	}
@@ -454,40 +494,44 @@ func (a *TwoPhaseAgent) executeStep(
 	// 获取工具
 	tool, ok := a.fullRegistry.Get(toolName)
 	if !ok {
-		return a.handleStepToolNotFound(step, toolName, onUpdate)
+		return a.handleStepToolNotFound(state, step, toolName, onUpdate)
 	}
 
 	// 执行工具（带超时）
-	return a.executeStepWithTimeout(ctx, step, tool, toolName, onUpdate)
+	return a.executeStepWithTimeout(ctx, state, step, tool, toolName, onUpdate)
 }
 
-// handleStepToolNotFound 处理步骤中工具未找到的情况
+// handleStepToolNotFound 处理步骤中工具未找到的情况。
+// 纯函数：通过修改 step 字段和返回 state 更新状态。
 func (a *TwoPhaseAgent) handleStepToolNotFound(
+	state GraphState,
 	step *PlanStep,
 	toolName string,
 	onUpdate func(),
-) error {
+) (GraphState, error) {
 	errMsg := a.formatToolNotFoundError(step.ToolName, toolName)
 	step.Status = StepFailed
 	step.Error = errMsg
-	a.session.AddStepUpdate(step, StepFailed, "", errMsg)
+	state = state.WithStepUpdate(step, StepFailed, "", errMsg)
 	if onUpdate != nil {
 		onUpdate()
 	}
 	if step.Critical {
-		return fmt.Errorf("%s", a.tr.AgentCriticalStepFailed(step.Description, errMsg))
+		return state, fmt.Errorf("%s", a.tr.AgentCriticalStepFailed(step.Description, errMsg))
 	}
-	return nil
+	return state, nil
 }
 
-// executeStepWithTimeout 执行步骤（带超时控制）
+// executeStepWithTimeout 执行步骤（带超时控制）。
+// 纯函数：通过返回 state 更新状态。
 func (a *TwoPhaseAgent) executeStepWithTimeout(
 	ctx context.Context,
+	state GraphState,
 	step *PlanStep,
 	tool tools.Tool,
 	toolName string,
 	onUpdate func(),
-) error {
+) (GraphState, error) {
 	// 为每个步骤创建带超时的 context
 	stepCtx, cancel := context.WithTimeout(ctx, a.stepTimeout)
 	defer cancel()
@@ -507,61 +551,65 @@ func (a *TwoPhaseAgent) executeStepWithTimeout(
 	// 等待结果或超时
 	select {
 	case result := <-resultChan:
-		return a.handleStepResult(step, result, onUpdate)
+		return a.handleStepResult(state, step, result, onUpdate)
 	case <-stepCtx.Done():
 		if stepCtx.Err() == context.DeadlineExceeded {
-			return a.handleStepTimeout(step, onUpdate)
+			return a.handleStepTimeout(state, step, onUpdate)
 		}
-		return stepCtx.Err()
+		return state, stepCtx.Err()
 	}
 }
 
-// handleStepResult 处理步骤执行结果
+// handleStepResult 处理步骤执行结果。
+// 纯函数：通过修改 step 字段和返回 state 更新状态。
 func (a *TwoPhaseAgent) handleStepResult(
+	state GraphState,
 	step *PlanStep,
 	result tools.ToolResult,
 	onUpdate func(),
-) error {
+) (GraphState, error) {
 	if result.Success {
 		step.Status = StepDone
 		step.Result = result.Output
-		a.session.AddStepUpdate(step, StepDone, result.Output, "")
+		state = state.WithStepUpdate(step, StepDone, result.Output, "")
 	} else {
 		errMsg := a.formatExecutionError(step, result.Output)
 		step.Status = StepFailed
 		step.Error = errMsg
-		a.session.AddStepUpdate(step, StepFailed, "", errMsg)
+		state = state.WithStepUpdate(step, StepFailed, "", errMsg)
 		if step.Critical {
 			if onUpdate != nil {
 				onUpdate()
 			}
-			return fmt.Errorf("%s", a.tr.AgentCriticalStepFailed(step.Description, errMsg))
+			return state, fmt.Errorf("%s", a.tr.AgentCriticalStepFailed(step.Description, errMsg))
 		}
 	}
 	if onUpdate != nil {
 		onUpdate()
 	}
-	return nil
+	return state, nil
 }
 
-// handleStepTimeout 处理步骤超时
-func (a *TwoPhaseAgent) handleStepTimeout(step *PlanStep, onUpdate func()) error {
+// handleStepTimeout 处理步骤超时。
+// 纯函数：通过修改 step 字段和返回 state 更新状态。
+func (a *TwoPhaseAgent) handleStepTimeout(state GraphState, step *PlanStep, onUpdate func()) (GraphState, error) {
 	errMsg := a.formatTimeoutError(step, a.stepTimeout)
 	step.Status = StepFailed
 	step.Error = errMsg
-	a.session.AddStepUpdate(step, StepFailed, "", errMsg)
+	state = state.WithStepUpdate(step, StepFailed, "", errMsg)
 	if onUpdate != nil {
 		onUpdate()
 	}
 	if step.Critical {
-		return fmt.Errorf("关键步骤超时: %s", step.Description)
+		return state, fmt.Errorf("关键步骤超时: %s", step.Description)
 	}
-	return nil
+	return state, nil
 }
 
 // finishExecution 完成执行阶段，生成总结，返回更新后的 state。
+// 纯函数：通过返回值更新状态。
 func (a *TwoPhaseAgent) finishExecution(state GraphState, onUpdate func()) GraphState {
-	state.Phase = PhaseDone
+	state = state.WithPhase(PhaseDone)
 	plan := state.Plan
 	done := plan.DoneCount()
 	total := len(plan.Steps)
@@ -570,7 +618,7 @@ func (a *TwoPhaseAgent) finishExecution(state GraphState, onUpdate func()) Graph
 	if failed > 0 {
 		summary += fmt.Sprintf("，%d 步失败", failed)
 	}
-	a.session.AddSystemNote(summary)
+	state = state.WithSystemNote(summary)
 	if onUpdate != nil {
 		onUpdate()
 	}
@@ -864,8 +912,9 @@ func (a *TwoPhaseAgent) hasRecentToolCalls(messages []provider.Message) bool {
 
 // streamPlanResponse 使用流式输出获取 LLM 响应。
 // 适用于纯文本回复场景（无需解析 plan/tool 块）。
-func (a *TwoPhaseAgent) streamPlanResponse(ctx context.Context, messages []provider.Message, onUpdate func()) (string, error) {
-	a.session.StartStreamingMessage()
+// 纯函数：通过返回 state 更新状态。
+func (a *TwoPhaseAgent) streamPlanResponse(ctx context.Context, state GraphState, messages []provider.Message, onUpdate func()) (string, GraphState, error) {
+	state = state.StartStreaming()
 
 	lastUpdateTime := time.Now()
 	updateInterval := 50 * time.Millisecond
@@ -877,7 +926,7 @@ func (a *TwoPhaseAgent) streamPlanResponse(ctx context.Context, messages []provi
 			return // context cancelled — stop appending but let provider drain
 		}
 		fullContent.WriteString(chunk)
-		a.session.AppendToStreamingMessage(chunk)
+		state = state.AppendStreamingChunk(chunk)
 
 		now := time.Now()
 		if now.Sub(lastUpdateTime) >= updateInterval {
@@ -888,15 +937,15 @@ func (a *TwoPhaseAgent) streamPlanResponse(ctx context.Context, messages []provi
 		}
 	})
 
-	a.session.FinishStreamingMessage()
+	state = state.FinishStreaming()
 	if onUpdate != nil {
 		onUpdate()
 	}
 
 	if err != nil {
-		return "", err
+		return "", state, err
 	}
-	return fullContent.String(), nil
+	return fullContent.String(), state, nil
 }
 
 // ── Graph nodes ──────────────────────────────────────────────────────────────
@@ -909,20 +958,22 @@ func (a *TwoPhaseAgent) streamPlanResponse(ctx context.Context, messages []provi
 //   - NodeWaitHuman  if a valid plan block was produced
 //   - NodeCallTools  if the LLM emitted tool calls
 //   - NodePlan       to retry on empty or validation-failure responses
+// 纯函数：所有状态更新通过返回值传递。
 func (a *TwoPhaseAgent) nodePlan(ctx context.Context, state GraphState, onUpdate func()) (NodeID, GraphState, error) {
 	if state.PlanStepCount >= a.maxPlanSteps {
 		return NodeEnd, state, fmt.Errorf("%s", a.tr.TwoPhaseAgentMaxStepsExceeded(a.maxPlanSteps))
 	}
-	state.PlanStepCount++
+	state = state.WithPlanStepCount(state.PlanStepCount + 1)
 
-	rawContent, err := a.getAIResponse(ctx, state.PlanMessages, onUpdate)
+	rawContent, newState, err := a.getAIResponse(ctx, state, state.PlanMessages, onUpdate)
+	state = newState
 	if err != nil {
 		return NodeEnd, state, err
 	}
 
 	// Plan block produced → validate, update state, suspend for human confirmation.
 	if parsed, ok := tools.ParsePlan(rawContent); ok {
-		state.EmptyResponseCount = 0
+		state = state.WithEmptyResponseCount(0)
 		handled, newState, err := a.handlePlanBlock(state, parsed, rawContent, onUpdate)
 		if err != nil {
 			return NodeEnd, newState, err
@@ -936,9 +987,9 @@ func (a *TwoPhaseAgent) nodePlan(ctx context.Context, state GraphState, onUpdate
 	// Record the assistant turn regardless of what follows.
 	toolCalls := tools.ParseToolCalls(rawContent)
 	displayText := tools.StripToolBlocks(rawContent)
-	state.AppendPlanMessage(provider.Message{Role: provider.RoleAssistant, Content: rawContent}, maxPlanMessages)
+	state = state.AppendPlanMessage(provider.Message{Role: provider.RoleAssistant, Content: rawContent}, maxPlanMessages)
 	if displayText != "" {
-		a.session.AddAssistantMessage(displayText)
+		state = state.WithAssistantMessage(displayText)
 	}
 	if onUpdate != nil {
 		onUpdate()
@@ -954,8 +1005,8 @@ func (a *TwoPhaseAgent) nodePlan(ctx context.Context, state GraphState, onUpdate
 	}
 
 	// Queue tool calls for nodeCallTools.
-	state.EmptyResponseCount = 0
-	state.PendingToolCalls = toolCalls
+	state = state.WithEmptyResponseCount(0)
+	state = state.WithPendingToolCalls(toolCalls)
 	return NodeCallTools, state, nil
 }
 
@@ -972,6 +1023,7 @@ func (a *TwoPhaseAgent) nodeCallTools(ctx context.Context, state GraphState, onU
 
 // nodeExecuteStep executes the next plan step and loops back to itself until
 // all steps are exhausted, then routes to NodeDone.
+// 纯函数：所有状态更新通过返回值传递。
 func (a *TwoPhaseAgent) nodeExecuteStep(ctx context.Context, state GraphState, onUpdate func()) (NodeID, GraphState, error) {
 	if state.Plan == nil {
 		// Should never happen: execution phase requires a validated plan.
@@ -981,11 +1033,12 @@ func (a *TwoPhaseAgent) nodeExecuteStep(ctx context.Context, state GraphState, o
 		return NodeDone, state, nil
 	}
 	step := state.Plan.Steps[state.ExecStepIndex]
-	state.ExecStepIndex++
-	if err := a.executeStep(ctx, step, onUpdate); err != nil {
-		return NodeEnd, state, err
+	state = state.WithExecStepIndex(state.ExecStepIndex + 1)
+	newState, err := a.executeStep(ctx, state, step, onUpdate)
+	if err != nil {
+		return NodeEnd, newState, err
 	}
-	return NodeExecuteStep, state, nil
+	return NodeExecuteStep, newState, nil
 }
 
 // nodeDone records the execution summary, clears the checkpoint, and terminates
@@ -1006,8 +1059,8 @@ func (a *TwoPhaseAgent) nodeDone(_ context.Context, state GraphState, onUpdate f
 // LangGraph analogy: interrupt point enabling human-in-the-loop confirmation
 // without re-running the planning phase on the next Send().
 func (a *TwoPhaseAgent) nodeWaitHuman(_ context.Context, state GraphState, _ func()) (NodeID, GraphState, error) {
-	state.Phase = PhaseWaitingConfirm
-	state.ResumeFrom = NodeHandleConfirmation
+	state = state.WithPhase(PhaseWaitingConfirm)
+	state = state.WithResumeFrom(NodeHandleConfirmation)
 	a.saveCheckpoint(state) // pass local state directly; never touch a.state inside a node
 	return NodeEnd, state, nil
 }
@@ -1017,22 +1070,23 @@ func (a *TwoPhaseAgent) nodeWaitHuman(_ context.Context, state GraphState, _ fun
 //   - NodeExecuteStep  on confirm (y/Y/yes/Yes/YES / 确认 / …)
 //   - NodeEnd          on deny    (n/N/no/No/NO   / 取消 / …)
 //   - NodePlan         on any other text (user provided feedback → replan)
+// 纯函数：所有状态更新通过返回值传递。
 func (a *TwoPhaseAgent) nodeHandleConfirmation(_ context.Context, state GraphState, onUpdate func()) (NodeID, GraphState, error) {
 	input := state.HumanInput
-	state.HumanInput = ""
+	state = state.WithHumanInput("")
 
 	switch {
 	case isConfirmMsg(input):
-		state.Phase = PhaseExecuting
-		state.ExecStepIndex = 0
+		state = state.WithPhase(PhaseExecuting)
+		state = state.WithExecStepIndex(0)
 		if onUpdate != nil {
 			onUpdate()
 		}
 		return NodeExecuteStep, state, nil
 
 	case isDenyMsg(input):
-		state.Phase = PhaseCancelled
-		a.session.AddSystemNote(a.tr.TwoPhaseAgentExecutionCancelled())
+		state = state.WithPhase(PhaseCancelled)
+		state = state.WithSystemNote(a.tr.TwoPhaseAgentExecutionCancelled())
 		a.clearCheckpoint()
 		if onUpdate != nil {
 			onUpdate()
@@ -1041,13 +1095,13 @@ func (a *TwoPhaseAgent) nodeHandleConfirmation(_ context.Context, state GraphSta
 
 	default:
 		// User provided feedback — reset planning cursors and replan.
-		state.Phase = PhasePlanning
-		state.Plan = nil
-		state.PlanStepCount = 0
-		state.EmptyResponseCount = 0
-		state.PendingToolCalls = nil
+		state = state.WithPhase(PhasePlanning)
+		state = state.WithPlan(nil)
+		state = state.WithPlanStepCount(0)
+		state = state.WithEmptyResponseCount(0)
+		state = state.WithPendingToolCalls(nil)
 		feedbackMsg := a.tr.TwoPhaseAgentUserFeedbackPrompt(input)
-		state.AppendPlanMessage(
+		state = state.AppendPlanMessage(
 			provider.Message{Role: provider.RoleUser, Content: feedbackMsg},
 			maxPlanMessages,
 		)

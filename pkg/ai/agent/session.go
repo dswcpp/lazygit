@@ -9,39 +9,9 @@ import (
 	"github.com/dswcpp/lazygit/pkg/ai/tools"
 )
 
-// MessageKind classifies a message for UI rendering purposes.
-type MessageKind string
-
-const (
-	KindSystem     MessageKind = "system"
-	KindUser       MessageKind = "user"
-	KindAssistant  MessageKind = "assistant"
-	KindToolCall   MessageKind = "tool_call"    // agent called a tool
-	KindToolResult MessageKind = "tool_result"  // tool execution result
-	KindError      MessageKind = "error"
-	KindPlan       MessageKind = "plan"         // 完整执行计划（TwoPhaseAgent 阶段一输出）
-	KindStepUpdate MessageKind = "step_update"  // 单步执行状态更新（TwoPhaseAgent 阶段二）
-)
-
-// UIMessage is a displayable record stored in the session.
-// It is separate from provider.Message to allow richer UI metadata.
-type UIMessage struct {
-	Kind          MessageKind
-	Content       string
-	Timestamp     time.Time
-	// ToolName is set for KindToolCall and KindToolResult.
-	ToolName      string
-	// ToolSuccess is set for KindToolResult.
-	ToolSuccess   bool
-}
-
 // Session manages the conversation state for one agent dialogue.
-// It maintains two parallel views:
-//   - UIMessages: for rendering to the user (includes tool call details, errors…)
-//   - providerMessages: the conversation history sent to the LLM provider
-//
-// Session is intentionally free of agent control-flow state (Phase, Plan).
-// Those live in GraphState, which TwoPhaseAgent owns exclusively.
+// DEPRECATED for TwoPhaseAgent: All state now lives in GraphState.
+// Session is kept for backward compatibility with the legacy Agent implementation.
 type Session struct {
 	systemPrompt     string
 	UIMessages       []UIMessage
@@ -56,7 +26,7 @@ type Session struct {
 func NewSession(systemPrompt string) *Session {
 	return &Session{
 		systemPrompt:          systemPrompt,
-		streamingMessageIndex: -1, // 初始无流式消息
+		streamingMessageIndex: -1,
 	}
 }
 
@@ -84,7 +54,6 @@ func (s *Session) AddAssistantMessage(content string) {
 }
 
 // StartStreamingMessage 开始一条新的流式 Assistant 消息。
-// 返回消息索引，用于后续追加内容。
 func (s *Session) StartStreamingMessage() int {
 	s.streamingBuffer.Reset()
 	s.UIMessages = append(s.UIMessages, UIMessage{
@@ -95,7 +64,6 @@ func (s *Session) StartStreamingMessage() int {
 }
 
 // AppendToStreamingMessage 向当前流式消息追加内容。
-// 必须先调用 StartStreamingMessage。
 func (s *Session) AppendToStreamingMessage(chunk string) {
 	if s.streamingMessageIndex < 0 || s.streamingMessageIndex >= len(s.UIMessages) {
 		return
@@ -149,7 +117,6 @@ func (s *Session) AddToolCall(call tools.ToolCall) {
 }
 
 // AddToolResult records a tool result in both views.
-// The provider sees tool results as a user-role message so it can reason about them.
 func (s *Session) AddToolResult(result tools.ToolResult, toolName string) {
 	s.UIMessages = append(s.UIMessages, UIMessage{
 		Kind:        KindToolResult,
@@ -158,7 +125,6 @@ func (s *Session) AddToolResult(result tools.ToolResult, toolName string) {
 		ToolSuccess: result.Success,
 		Timestamp:   time.Now(),
 	})
-	// Feed result back to the LLM as a user message with structured context.
 	status := "成功"
 	if !result.Success {
 		status = "失败"
@@ -169,8 +135,7 @@ func (s *Session) AddToolResult(result tools.ToolResult, toolName string) {
 	})
 }
 
-// ProviderMessages returns the full message history ready for the provider,
-// with the system prompt prepended as the first message.
+// ProviderMessages returns the full message history ready for the provider.
 func (s *Session) ProviderMessages() []provider.Message {
 	if s.systemPrompt == "" {
 		return s.providerMessages
@@ -192,7 +157,6 @@ func (s *Session) LastAssistantContent() string {
 }
 
 // AddPlanUIMessage adds a KindPlan UIMessage for the given plan.
-// The plan itself is stored in GraphState — Session only records the UI event.
 func (s *Session) AddPlanUIMessage(plan *ExecutionPlan) {
 	var sb strings.Builder
 	sb.WriteString(plan.Summary)
@@ -207,10 +171,6 @@ func (s *Session) AddPlanUIMessage(plan *ExecutionPlan) {
 }
 
 // AddStepUpdate records a step execution event in UIMessages.
-//
-// Responsibility boundary: Session is pure UI — it does NOT mutate step fields.
-// The caller (agent code in two_phase_agent.go) is responsible for setting
-// step.Status, step.Result and step.Error before calling this method.
 func (s *Session) AddStepUpdate(step *PlanStep, status StepStatus, result, errMsg string) {
 	content := fmt.Sprintf("[%s] %s", status, step.Description)
 	if result != "" {
@@ -229,7 +189,6 @@ func (s *Session) AddStepUpdate(step *PlanStep, status StepStatus, result, errMs
 }
 
 // Reset clears all conversation history but preserves the system prompt.
-// Agent control-flow state (Phase, Plan) is managed by GraphState.Reset().
 func (s *Session) Reset() {
 	s.UIMessages = nil
 	s.providerMessages = nil
