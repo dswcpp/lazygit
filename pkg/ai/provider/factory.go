@@ -49,7 +49,7 @@ func NewFromConfig(cfg config.AIConfig) (Provider, error) {
 	if strings.ToLower(profile.Provider) == "anthropic" {
 		return NewAnthropicProvider(apiKey, model, profile.Endpoint, maxTokens, timeoutSecs, profile.CustomHeaders), nil
 	}
-	return NewOpenAIProvider(endpoint, apiKey, model, maxTokens, timeoutSecs, profile.EnableThinking, profile.CustomHeaders), nil
+	return NewOpenAIProvider(endpoint, apiKey, model, maxTokens, timeoutSecs, profile.EnableThinking, profile.CustomHeaders, profile.WireAPI), nil
 }
 
 func resolveEndpoint(profile config.AIProfileConfig) string {

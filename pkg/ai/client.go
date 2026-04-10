@@ -57,7 +57,7 @@ func NewClient(cfg config.AIConfig) (*Client, error) {
 	if strings.ToLower(profile.Provider) == "anthropic" {
 		provider = newAnthropicProvider(apiKey, model, profile.Endpoint, maxTokens, timeout, profile.CustomHeaders)
 	} else {
-		provider = newOpenAIProvider(endpoint, apiKey, model, maxTokens, timeout, profile.EnableThinking, profile.CustomHeaders)
+		provider = newOpenAIProvider(endpoint, apiKey, model, maxTokens, timeout, profile.EnableThinking, profile.CustomHeaders, profile.WireAPI)
 	}
 	return &Client{provider: provider}, nil
 }

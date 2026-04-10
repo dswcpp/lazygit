@@ -65,6 +65,15 @@
           "type": "string",
           "description": "Model name; e.g. \"deepseek-reasoner\", \"gpt-4o-mini\", \"claude-sonnet-4-6\""
         },
+        "wireApi": {
+          "type": "string",
+          "enum": [
+            "chat",
+            "responses",
+            ""
+          ],
+          "description": "Wire API for OpenAI-compatible providers: \"chat\" (default) or \"responses\".\nUse \"responses\" for gateways that require the OpenAI Responses API."
+        },
         "enableThinking": {
           "type": "boolean",
           "description": "Enable thinking mode for supported models (e.g. deepseek-reasoner)."

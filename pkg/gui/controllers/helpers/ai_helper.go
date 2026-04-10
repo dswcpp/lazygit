@@ -13,6 +13,7 @@ import (
 	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/config"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/dswcpp/lazygit/pkg/i18n"
 	"github.com/jesseduffield/gocui"
 )
 
@@ -174,6 +175,14 @@ func (self *AIHelper) openEditProfileMenu(idx int) error {
 			Key: 'u',
 		},
 		{
+			Label: fmt.Sprintf("%s: %s", self.c.Tr.AISettingsSetWireAPI, wireAPIDisplayValue(self.c.Tr, profile.WireAPI)),
+			OnPress: func() error {
+				return self.openWireAPIMenuForProfile(idx)
+			},
+			Key:       'w',
+			OpensMenu: true,
+		},
+		{
 			Label: fmt.Sprintf("%s: %d", self.c.Tr.AISettingsMaxTokens, profile.MaxTokens),
 			OnPress: func() error {
 				current := ""
@@ -261,6 +270,43 @@ func (self *AIHelper) openProviderMenuForProfile(idx int) error {
 	})
 }
 
+func (self *AIHelper) openWireAPIMenuForProfile(idx int) error {
+	options := []struct {
+		label string
+		value string
+		key   rune
+	}{
+		{label: self.c.Tr.AISettingsWireAPIDefault, value: "", key: 'd'},
+		{label: "chat", value: "chat", key: 'c'},
+		{label: "responses", value: "responses", key: 'r'},
+	}
+
+	current := normalizeWireAPIValue(self.c.UserConfig().AI.Profiles[idx].WireAPI)
+	items := make([]*types.MenuItem, len(options))
+	for i, option := range options {
+		wireAPI := option
+		isSelected := current == normalizeWireAPIValue(wireAPI.value)
+		if wireAPI.value == "" {
+			isSelected = self.c.UserConfig().AI.Profiles[idx].WireAPI == ""
+		}
+
+		items[i] = &types.MenuItem{
+			Label: wireAPI.label,
+			OnPress: func() error {
+				self.c.UserConfig().AI.Profiles[idx].WireAPI = wireAPI.value
+				return self.saveAndReloadAI()
+			},
+			Key:    wireAPI.key,
+			Widget: types.MakeMenuRadioButton(isSelected),
+		}
+	}
+
+	return self.c.Menu(types.CreateMenuOptions{
+		Title: self.c.Tr.AISettingsSetWireAPI,
+		Items: items,
+	})
+}
+
 // openAddProfileMenu prompts for a name and creates a new profile with defaults.
 func (self *AIHelper) openAddProfileMenu() error {
 	self.c.Prompt(types.PromptOpts{
@@ -327,6 +373,29 @@ func maskKey(key string) string {
 		return strings.Repeat("*", len(key))
 	}
 	return strings.Repeat("*", len(key)-4) + key[len(key)-4:]
+}
+
+func wireAPIDisplayValue(tr *i18n.TranslationSet, raw string) string {
+	switch normalizeWireAPIValue(raw) {
+	case "responses":
+		return "responses"
+	case "chat":
+		if strings.TrimSpace(raw) == "" {
+			return tr.AISettingsWireAPIDefault
+		}
+		return "chat"
+	default:
+		return tr.AISettingsWireAPIDefault
+	}
+}
+
+func normalizeWireAPIValue(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "responses":
+		return "responses"
+	default:
+		return "chat"
+	}
 }
 
 // saveAndReloadAI persists config to disk and re-initialises the AI manager.

@@ -12,8 +12,13 @@ import (
 	"time"
 )
 
-// openAIProvider implements Provider using the OpenAI chat completions API.
-// Compatible with OpenAI, DeepSeek, Ollama (/v1), and other OpenAI-compatible services.
+const (
+	wireAPIChat      = "chat"
+	wireAPIResponses = "responses"
+)
+
+// openAIProvider implements Provider using OpenAI-compatible HTTP APIs.
+// It supports both the Chat Completions API and the Responses API.
 type openAIProvider struct {
 	endpoint       string
 	apiKey         string
@@ -21,11 +26,11 @@ type openAIProvider struct {
 	maxTokens      int
 	enableThinking bool
 	customHeaders  map[string]string
+	wireAPI        string
 	client         *http.Client
 	streamClient   *http.Client // no total timeout so SSE streams can run indefinitely
 }
 
-// thinkingConfig maps to DeepSeek's {"thinking": {"type": "enabled"}} request field.
 type thinkingConfig struct {
 	Type string `json:"type"`
 }
@@ -34,8 +39,6 @@ type chatRequest struct {
 	Model     string          `json:"model"`
 	Messages  []chatMessage   `json:"messages"`
 	MaxTokens int             `json:"max_tokens,omitempty"`
-	// Thinking enables thinking mode for models that support it via parameter
-	// (e.g. deepseek-chat). Omitted for models with native reasoning (deepseek-reasoner).
 	Thinking  *thinkingConfig `json:"thinking,omitempty"`
 }
 
@@ -48,11 +51,8 @@ type streamRequest struct {
 }
 
 type chatMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-	// ReasoningContent carries the thinking chain in assistant messages.
-	// Must be included when replying within the same turn during tool calls.
-	// Omit (omitempty) when starting a new turn to save bandwidth.
+	Role             string `json:"role"`
+	Content          string `json:"content"`
 	ReasoningContent string `json:"reasoning_content,omitempty"`
 }
 
@@ -76,7 +76,39 @@ type streamChunk struct {
 	} `json:"choices"`
 }
 
-func newOpenAIProvider(endpoint, apiKey, model string, maxTokens, timeoutSecs int, enableThinking bool, customHeaders map[string]string) *openAIProvider {
+type responsesRequest struct {
+	Model           string `json:"model"`
+	Input           string `json:"input"`
+	MaxOutputTokens int    `json:"max_output_tokens,omitempty"`
+	Stream          bool   `json:"stream,omitempty"`
+}
+
+type responsesResponse struct {
+	OutputText string `json:"output_text"`
+	Output     []struct {
+		Type    string `json:"type"`
+		Role    string `json:"role"`
+		Content []struct {
+			Type    string `json:"type"`
+			Text    string `json:"text,omitempty"`
+			Refusal string `json:"refusal,omitempty"`
+		} `json:"content"`
+	} `json:"output"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
+type responsesStreamEvent struct {
+	Type  string `json:"type"`
+	Delta string `json:"delta,omitempty"`
+	Text  string `json:"text,omitempty"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
+func newOpenAIProvider(endpoint, apiKey, model string, maxTokens, timeoutSecs int, enableThinking bool, customHeaders map[string]string, wireAPI string) *openAIProvider {
 	return &openAIProvider{
 		endpoint:       strings.TrimRight(endpoint, "/"),
 		apiKey:         apiKey,
@@ -84,12 +116,12 @@ func newOpenAIProvider(endpoint, apiKey, model string, maxTokens, timeoutSecs in
 		maxTokens:      maxTokens,
 		enableThinking: enableThinking,
 		customHeaders:  customHeaders,
+		wireAPI:        normalizeWireAPI(wireAPI),
 		client:         &http.Client{Timeout: time.Duration(timeoutSecs) * time.Second},
 		streamClient:   &http.Client{Timeout: 0}, // no total timeout; rely on context cancellation
 	}
 }
 
-// applyHeaders sets standard and custom HTTP headers on the request.
 func (p *openAIProvider) applyHeaders(req *http.Request, acceptSSE bool) {
 	req.Header.Set("Content-Type", "application/json")
 	if acceptSSE {
@@ -103,21 +135,33 @@ func (p *openAIProvider) applyHeaders(req *http.Request, acceptSSE bool) {
 	}
 }
 
-// isReasonerModel reports whether the model has native reasoning built in
-// (e.g. deepseek-reasoner). These models do not need the thinking parameter.
+func normalizeWireAPI(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case wireAPIResponses:
+		return wireAPIResponses
+	default:
+		return wireAPIChat
+	}
+}
+
 func isReasonerModel(model string) bool {
 	return strings.Contains(strings.ToLower(model), "reasoner")
 }
 
 func (p *openAIProvider) Complete(ctx context.Context, prompt string) (Result, error) {
+	if p.wireAPI == wireAPIResponses {
+		return p.completeResponses(ctx, prompt)
+	}
+	return p.completeChat(ctx, prompt)
+}
+
+func (p *openAIProvider) completeChat(ctx context.Context, prompt string) (Result, error) {
 	req := chatRequest{
 		Model:     p.model,
 		Messages:  []chatMessage{{Role: "user", Content: prompt}},
 		MaxTokens: p.maxTokens,
 	}
 
-	// Pass the thinking parameter only for non-reasoner models that need it.
-	// deepseek-reasoner always thinks natively; the parameter is unnecessary there.
 	if p.enableThinking && !isReasonerModel(p.model) {
 		req.Thinking = &thinkingConfig{Type: "enabled"}
 	}
@@ -169,9 +213,128 @@ func (p *openAIProvider) Complete(ctx context.Context, prompt string) (Result, e
 	}, nil
 }
 
+func (p *openAIProvider) completeResponses(ctx context.Context, prompt string) (Result, error) {
+	req := responsesRequest{
+		Model:           p.model,
+		Input:           prompt,
+		MaxOutputTokens: p.maxTokens,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return Result{}, fmt.Errorf("AI: failed to marshal request: %w", err)
+	}
+
+	url := p.endpoint + "/responses"
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return Result{}, fmt.Errorf("AI: failed to create request: %w", err)
+	}
+	p.applyHeaders(httpReq, false)
+
+	resp, err := p.client.Do(httpReq)
+	if err != nil {
+		return Result{}, fmt.Errorf("AI: request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return Result{}, fmt.Errorf("AI: failed to read response: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		if shouldRetryResponsesAsStream(resp.StatusCode, respBytes) {
+			return p.completeResponsesViaStream(ctx, prompt)
+		}
+		return Result{}, fmt.Errorf("AI: unexpected status %d: %s", resp.StatusCode, string(respBytes))
+	}
+
+	return parseResponsesResult(respBytes)
+}
+
+func parseResponsesResult(respBytes []byte) (Result, error) {
+	var responsesResp responsesResponse
+	if err := json.Unmarshal(respBytes, &responsesResp); err != nil {
+		return Result{}, fmt.Errorf("AI: failed to parse response: %w", err)
+	}
+
+	if responsesResp.Error != nil {
+		return Result{}, fmt.Errorf("AI: %s", responsesResp.Error.Message)
+	}
+
+	content := strings.TrimSpace(responsesResp.OutputText)
+	if content == "" {
+		content = strings.TrimSpace(extractResponsesOutputText(responsesResp.Output))
+	}
+	if content == "" && len(responsesResp.Output) == 0 {
+		return Result{}, fmt.Errorf("AI: empty response from model")
+	}
+
+	return Result{Content: content}, nil
+}
+
+func shouldRetryResponsesAsStream(statusCode int, respBytes []byte) bool {
+	if statusCode != http.StatusBadRequest {
+		return false
+	}
+	return strings.Contains(strings.ToLower(string(respBytes)), "stream must be set to true")
+}
+
+func (p *openAIProvider) completeResponsesViaStream(ctx context.Context, prompt string) (Result, error) {
+	var content strings.Builder
+	if err := p.completeResponsesStream(ctx, prompt, func(chunk string) {
+		content.WriteString(chunk)
+	}); err != nil {
+		return Result{}, err
+	}
+
+	if content.Len() == 0 {
+		return Result{}, fmt.Errorf("AI: empty response from model")
+	}
+
+	return Result{Content: strings.TrimSpace(content.String())}, nil
+}
+
+func extractResponsesOutputText(output []struct {
+	Type    string `json:"type"`
+	Role    string `json:"role"`
+	Content []struct {
+		Type    string `json:"type"`
+		Text    string `json:"text,omitempty"`
+		Refusal string `json:"refusal,omitempty"`
+	} `json:"content"`
+}) string {
+	var parts []string
+	for _, item := range output {
+		if item.Role != "" && item.Role != "assistant" {
+			continue
+		}
+		for _, content := range item.Content {
+			switch content.Type {
+			case "output_text", "text":
+				if text := strings.TrimSpace(content.Text); text != "" {
+					parts = append(parts, text)
+				}
+			case "refusal":
+				if refusal := strings.TrimSpace(content.Refusal); refusal != "" {
+					parts = append(parts, refusal)
+				}
+			}
+		}
+	}
+	return strings.Join(parts, "\n")
+}
+
 // CompleteStream sends a prompt and streams the response via SSE, calling onChunk
 // for each content fragment received. Uses context for cancellation.
 func (p *openAIProvider) CompleteStream(ctx context.Context, prompt string, onChunk func(string)) error {
+	if p.wireAPI == wireAPIResponses {
+		return p.completeResponsesStream(ctx, prompt, onChunk)
+	}
+	return p.completeChatStream(ctx, prompt, onChunk)
+}
+
+func (p *openAIProvider) completeChatStream(ctx context.Context, prompt string, onChunk func(string)) error {
 	req := streamRequest{
 		Model:     p.model,
 		Messages:  []chatMessage{{Role: "user", Content: prompt}},
@@ -225,6 +388,93 @@ func (p *openAIProvider) CompleteStream(ctx context.Context, prompt string, onCh
 			content := chunk.Choices[0].Delta.Content
 			if content != "" {
 				onChunk(content)
+			}
+		}
+	}
+
+	return scanner.Err()
+}
+
+func (p *openAIProvider) completeResponsesStream(ctx context.Context, prompt string, onChunk func(string)) error {
+	req := responsesRequest{
+		Model:           p.model,
+		Input:           prompt,
+		MaxOutputTokens: p.maxTokens,
+		Stream:          true,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("AI: failed to marshal request: %w", err)
+	}
+
+	url := p.endpoint + "/responses"
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("AI: failed to create request: %w", err)
+	}
+
+	p.applyHeaders(httpReq, true)
+
+	resp, err := p.streamClient.Do(httpReq)
+	if err != nil {
+		return fmt.Errorf("AI: stream request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		respBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("AI: unexpected status %d: %s", resp.StatusCode, string(respBytes))
+	}
+
+	if !strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "text/event-stream") {
+		respBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("AI: failed to read response: %w", err)
+		}
+		result, err := parseResponsesResult(respBytes)
+		if err != nil {
+			return err
+		}
+		if result.Content != "" {
+			onChunk(result.Content)
+		}
+		return nil
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	sawDelta := false
+	for scanner.Scan() {
+		line := scanner.Text()
+		if !strings.HasPrefix(line, "data: ") {
+			continue
+		}
+		data := strings.TrimPrefix(line, "data: ")
+		if data == "[DONE]" {
+			break
+		}
+
+		var event responsesStreamEvent
+		if err := json.Unmarshal([]byte(data), &event); err != nil {
+			continue
+		}
+
+		switch event.Type {
+		case "response.output_text.delta":
+			if event.Delta != "" {
+				sawDelta = true
+				onChunk(event.Delta)
+			}
+		case "response.output_text.done":
+			if !sawDelta && event.Text != "" {
+				onChunk(event.Text)
+			}
+		case "error", "response.error", "response.failed":
+			if event.Error != nil && event.Error.Message != "" {
+				return fmt.Errorf("AI: %s", event.Error.Message)
+			}
+			if event.Text != "" {
+				return fmt.Errorf("AI: %s", event.Text)
 			}
 		}
 	}

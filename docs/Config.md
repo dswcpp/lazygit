@@ -769,6 +769,10 @@ ai:
       provider: openai
       apiKey: ""
       model: gpt-4o-mini
+      # Optional transport for OpenAI-compatible providers:
+      # "chat" (default) or "responses" for gateways that require the
+      # Responses API
+      # wireApi: responses
       maxTokens: 8000
       timeout: 60
 ```

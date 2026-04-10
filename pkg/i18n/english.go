@@ -11,591 +11,593 @@ Todo list when making a new translation
 package i18n
 
 type TranslationSet struct {
-	NotEnoughSpace                        string
-	DiffTitle                             string
-	FilesTitle                            string
-	BranchesTitle                         string
-	CommitsTitle                          string
-	StashTitle                            string
-	SnakeTitle                            string
-	EasterEgg                             string
-	UnstagedChanges                       string
-	StagedChanges                         string
-	StagingTitle                          string
-	MergingTitle                          string
-	NormalTitle                           string
-	LogTitle                              string
-	LogXOfYTitle                          string
-	CommitSummary                         string
-	CredentialsUsername                   string
-	CredentialsPassword                   string
-	CredentialsPassphrase                 string
-	CredentialsPIN                        string
-	CredentialsToken                      string
-	PassUnameWrong                        string
-	Commit                                string
-	CommitTooltip                         string
-	AmendLastCommit                       string
-	AmendLastCommitTitle                  string
-	SureToAmend                           string
-	NoCommitToAmend                       string
-	CommitChangesWithEditor               string
-	FindBaseCommitForFixup                string
-	FindBaseCommitForFixupTooltip         string
-	NoBaseCommitsFound                    string
-	MultipleBaseCommitsFoundStaged        string
-	MultipleBaseCommitsFoundUnstaged      string
-	BaseCommitIsAlreadyOnMainBranch       string
-	BaseCommitIsNotInCurrentView          string
-	HunksWithOnlyAddedLinesWarning        string
-	StatusTitle                           string
-	GlobalTitle                           string
-	Execute                               string
-	Stage                                 string
-	StageTooltip                          string
-	ToggleStagedAll                       string
-	ToggleStagedAllTooltip                string
-	ToggleTreeView                        string
-	ToggleTreeViewTooltip                 string
-	OpenDiffTool                          string
-	OpenMergeTool                         string
-	Refresh                               string
-	RefreshTooltip                        string
-	Push                                  string
-	Pull                                  string
-	PushTooltip                           string
-	PullTooltip                           string
-	FileFilter                            string
-	CopyToClipboardMenu                   string
-	CopyFileName                          string
-	CopyRelativeFilePath                  string
-	CopyAbsoluteFilePath                  string
-	CopyFileDiffTooltip                   string
-	CopySelectedDiff                      string
-	CopyAllFilesDiff                      string
-	CopyFileContent                       string
-	NoContentToCopyError                  string
-	FileNameCopiedToast                   string
-	FilePathCopiedToast                   string
-	FileDiffCopiedToast                   string
-	AllFilesDiffCopiedToast               string
-	FileContentCopiedToast                string
-	FilterStagedFiles                     string
-	FilterUnstagedFiles                   string
-	FilterTrackedFiles                    string
-	FilterUntrackedFiles                  string
-	NoFilter                              string
-	FilterLabelStagedFiles                string
-	FilterLabelUnstagedFiles              string
-	FilterLabelTrackedFiles               string
-	FilterLabelUntrackedFiles             string
-	FilterLabelConflictingFiles           string
-	MergeConflictsTitle                   string
-	MergeConflictDescription_DD           string
-	MergeConflictDescription_AU           string
-	MergeConflictDescription_UA           string
-	MergeConflictDescription_DU           string
-	MergeConflictDescription_UD           string
-	MergeConflictIncomingDiff             string
-	MergeConflictCurrentDiff              string
-	MergeConflictPressEnterToResolve      string
-	MergeConflictKeepFile                 string
-	MergeConflictDeleteFile               string
-	Checkout                              string
-	CheckoutTooltip                       string
-	CantCheckoutBranchWhilePulling        string
-	TagCheckoutTooltip                    string
-	RemoteBranchCheckoutTooltip           string
-	CantPullOrPushSameBranchTwice         string
-	NoChangedFiles                        string
-	SoftReset                             string
-	AlreadyCheckedOutBranch               string
-	SureForceCheckout                     string
-	ForceCheckoutBranch                   string
-	BranchName                            string
-	NewBranchNameBranchOff                string
-	CantDeleteCheckOutBranch              string
-	DeleteBranchTitle                     string
-	DeleteBranchesTitle                   string
-	DeleteLocalBranch                     string
-	DeleteLocalBranches                   string
-	DeleteRemoteBranchPrompt              string
-	DeleteRemoteBranchesPrompt            string
-	DeleteLocalAndRemoteBranchPrompt      string
-	DeleteLocalAndRemoteBranchesPrompt    string
-	ForceDeleteBranchTitle                string
-	ForceDeleteBranchMessage              string
-	ForceDeleteBranchesMessage            string
-	RebaseBranch                          string
-	RebaseBranchTooltip                   string
-	CantRebaseOntoSelf                    string
-	CantMergeBranchIntoItself             string
-	ForceCheckout                         string
-	ForceCheckoutTooltip                  string
-	CheckoutByName                        string
-	CheckoutByNameTooltip                 string
-	CheckoutPreviousBranch                string
-	RemoteBranchCheckoutTitle             string
-	RemoteBranchCheckoutPrompt            string
-	CheckoutTypeNewBranch                 string
-	CheckoutTypeNewBranchTooltip          string
-	CheckoutTypeDetachedHead              string
-	CheckoutTypeDetachedHeadTooltip       string
-	NewBranch                             string
-	NewBranchFromStashTooltip             string
-	MoveCommitsToNewBranch                string
-	MoveCommitsToNewBranchTooltip         string
-	MoveCommitsToNewBranchFromMainPrompt  string
-	MoveCommitsToNewBranchMenuPrompt      string
-	MoveCommitsToNewBranchFromBaseItem    string
-	MoveCommitsToNewBranchStackedItem     string
-	CannotMoveCommitsFromDetachedHead     string
-	CannotMoveCommitsNoUpstream           string
-	CannotMoveCommitsBehindUpstream       string
-	CannotMoveCommitsNoUnpushedCommits    string
-	NoBranchesThisRepo                    string
-	CommitWithoutMessageErr               string
-	Close                                 string
-	CloseCancel                           string
-	Confirm                               string
-	Quit                                  string
-	SquashTooltip                         string
-	CannotSquashOrFixupFirstCommit        string
-	CannotSquashOrFixupMergeCommit        string
-	Fixup                                 string
-	FixupTooltip                          string
-	FixupKeepMessage                      string
-	FixupKeepMessageTooltip               string
-	SetFixupMessage                       string
-	SetFixupMessageTooltip                string
-	FixupDiscardMessage                   string
-	FixupDiscardMessageTooltip            string
-	SureSquashThisCommit                  string
-	Squash                                string
-	PickCommitTooltip                     string
-	Pick                                  string
-	Edit                                  string
-	Revert                                string
-	RevertCommitTooltip                   string
-	Reword                                string
-	CommitRewordTooltip                   string
-	DropCommit                            string
-	DropCommitTooltip                     string
-	MoveDownCommit                        string
-	MoveUpCommit                          string
-	CannotMoveAnyFurther                  string
-	CannotMoveMergeCommit                 string
-	EditCommit                            string
-	EditCommitTooltip                     string
-	AmendCommitTooltip                    string
-	Amend                                 string
-	ResetAuthor                           string
-	ResetAuthorTooltip                    string
-	SetAuthor                             string
-	SetAuthorTooltip                      string
-	AddCoAuthor                           string
-	AmendCommitAttribute                  string
-	AmendCommitAttributeTooltip           string
-	SetAuthorPromptTitle                  string
-	AddCoAuthorPromptTitle                string
-	AddCoAuthorTooltip                    string
-	RewordCommitEditor                    string
-	NoCommitsThisBranch                   string
-	UpdateRefHere                         string
-	ExecCommandHere                       string
-	Error                                 string
-	Undo                                  string
-	UndoReflog                            string
-	RedoReflog                            string
-	UndoTooltip                           string
-	RedoTooltip                           string
-	UndoMergeResolveTooltip               string
-	DiscardAllTooltip                     string
-	DiscardUnstagedTooltip                string
-	DiscardUnstagedDisabled               string
-	Pop                                   string
-	StashPopTooltip                       string
-	Drop                                  string
-	StashDropTooltip                      string
-	Apply                                 string
-	StashApplyTooltip                     string
-	NoStashEntries                        string
-	StashDrop                             string
-	SureDropStashEntry                    string
-	StashPop                              string
-	SurePopStashEntry                     string
-	StashApply                            string
-	SureApplyStashEntry                   string
-	NoTrackedStagedFilesStash             string
-	NoFilesToStash                        string
-	StashChanges                          string
-	RenameStash                           string
-	RenameStashPrompt                     string
-	OpenConfig                            string
-	EditConfig                            string
-	ForcePush                             string
-	ForcePushPrompt                       string
-	ForcePushDisabled                     string
-	UpdatesRejected                       string
-	UpdatesRejectedAndForcePushDisabled   string
-	CheckForUpdate                        string
-	CheckingForUpdates                    string
-	UpdateAvailableTitle                  string
-	UpdateAvailable                       string
-	UpdateInProgressWaitingStatus         string
-	UpdateCompletedTitle                  string
-	UpdateCompleted                       string
-	FailedToRetrieveLatestVersionErr      string
-	OnLatestVersionErr                    string
-	MajorVersionErr                       string
-	CouldNotFindBinaryErr                 string
-	UpdateFailedErr                       string
-	ConfirmQuitDuringUpdateTitle          string
-	ConfirmQuitDuringUpdate               string
-	IntroPopupMessage                     string
-	NonReloadableConfigWarningTitle       string
-	NonReloadableConfigWarning            string
-	GitconfigParseErr                     string
-	EditFile                              string
-	EditFileTooltip                       string
-	OpenFile                              string
-	OpenFileTooltip                       string
-	OpenInEditor                          string
-	IgnoreFile                            string
-	ExcludeFile                           string
-	RefreshFiles                          string
-	FocusMainView                         string
-	Merge                                 string
-	MergeBranchTooltip                    string
-	RegularMergeFastForward               string
-	RegularMergeFastForwardTooltip        string
-	CannotFastForwardMerge                string
-	RegularMergeNonFastForward            string
-	RegularMergeNonFastForwardTooltip     string
-	SquashMergeUncommitted                string
-	SquashMergeUncommittedTooltip         string
-	SquashMergeCommitted                  string
-	SquashMergeCommittedTooltip           string
-	ConfirmQuit                           string
-	SwitchRepo                            string
-	AllBranchesLogGraph                   string
-	UnsupportedGitService                 string
-	CopyPullRequestURL                    string
-	NoBranchOnRemote                      string
-	Fetch                                 string
-	FetchTooltip                          string
-	CollapseAll                           string
-	CollapseAllTooltip                    string
-	ExpandAll                             string
-	ExpandAllTooltip                      string
-	DisabledInFlatView                    string
-	FileEnter                             string
-	FileEnterTooltip                      string
-	StageSelectionTooltip                 string
-	DiscardSelection                      string
-	DiscardSelectionTooltip               string
-	ToggleSelectHunk                      string
-	SelectHunk                            string
-	SelectLineByLine                      string
-	ToggleSelectHunkTooltip               string
-	HunkStagingHint                       string
-	ToggleSelectionForPatch               string
-	EditHunk                              string
-	EditHunkTooltip                       string
-	ToggleStagingView                     string
-	ToggleStagingViewTooltip              string
-	ReturnToFilesPanel                    string
-	FastForward                           string
-	FastForwardTooltip                    string
-	FastForwarding                        string
-	FoundConflictsTitle                   string
-	ViewConflictsMenuItem                 string
-	AbortMenuItem                         string
-	PickHunk                              string
-	PickAllHunks                          string
-	ViewMergeRebaseOptions                string
-	ViewMergeRebaseOptionsTooltip         string
-	ViewMergeOptions                      string
-	ViewRebaseOptions                     string
-	ViewCherryPickOptions                 string
-	ViewRevertOptions                     string
-	NotMergingOrRebasing                  string
-	AlreadyRebasing                       string
-	NotMidRebase                          string
-	MustSelectFixupCommit                 string
-	RecentRepos                           string
-	MergeOptionsTitle                     string
-	RebaseOptionsTitle                    string
-	CherryPickOptionsTitle                string
-	RevertOptionsTitle                    string
-	CommitSummaryTitle                    string
-	CommitDescriptionTitle                string
-	CommitDescriptionSubTitle             string
-	CommitDescriptionFooter               string
-	CommitDescriptionFooterTwoBindings    string
-	CommitHooksDisabledSubTitle           string
-	LocalBranchesTitle                    string
-	SearchTitle                           string
-	TagsTitle                             string
-	MenuTitle                             string
-	CommitMenuTitle                       string
-	RemotesTitle                          string
-	RemoteBranchesTitle                   string
-	PatchBuildingTitle                    string
-	InformationTitle                      string
-	SecondaryTitle                        string
-	ReflogCommitsTitle                    string
-	ConflictsResolved                     string
-	Continue                              string
-	UnstagedFilesAfterConflictsResolved   string
-	RebasingTitle                         string
-	RebasingFromBaseCommitTitle           string
-	SimpleRebase                          string
-	InteractiveRebase                     string
-	RebaseOntoBaseBranch                  string
-	InteractiveRebaseTooltip              string
-	RebaseOntoBaseBranchTooltip           string
-	MustSelectTodoCommits                 string
-	FwdNoUpstream                         string
-	FwdNoLocalUpstream                    string
-	FwdCommitsToPush                      string
-	PullRequestNoUpstream                 string
-	ErrorOccurred                         string
-	ConflictLabel                         string
-	PendingRebaseTodosSectionHeader       string
-	PendingCherryPicksSectionHeader       string
-	PendingRevertsSectionHeader           string
-	CommitsSectionHeader                  string
-	YouDied                               string
-	RewordNotSupported                    string
-	ChangingThisActionIsNotAllowed        string
-	NotAllowedMidCherryPickOrRevert       string
-	PickIsOnlyAllowedDuringRebase         string
-	DroppingMergeRequiresSingleSelection  string
-	CherryPickCopy                        string
-	CherryPickCopyTooltip                 string
-	PasteCommits                          string
-	SureCherryPick                        string
-	CherryPick                            string
-	CannotCherryPickNonCommit             string
-	PrevHunk                              string
-	NextHunk                              string
-	PrevConflict                          string
-	NextConflict                          string
-	SelectPrevHunk                        string
-	SelectNextHunk                        string
-	ScrollDown                            string
-	ScrollUp                              string
-	ScrollUpMainWindow                    string
-	ScrollDownMainWindow                  string
-	SuspendApp                            string
-	CannotSuspendApp                      string
-	AmendCommitTitle                      string
-	AmendCommitPrompt                     string
-	AmendCommitWithConflictsMenuPrompt    string
-	AmendCommitWithConflictsContinue      string
-	AmendCommitWithConflictsAmend         string
-	DropCommitTitle                       string
-	DropCommitPrompt                      string
-	DropUpdateRefPrompt                   string
-	DropMergeCommitPrompt                 string
-	PullingStatus                         string
-	PushingStatus                         string
-	FetchingStatus                        string
-	SquashingStatus                       string
-	FixingStatus                          string
-	DeletingStatus                        string
-	AIGeneratingStatus                    string
-	AIGenerateCommitMessage               string
-	AINotEnabled                          string
-	AINoStagedChanges                     string
-	AIError                               string
-	AISettings                            string
-	AISettingsEnable                      string
-	AISettingsDisable                     string
-	AISettingsSetAPIKey                   string
-	AISettingsAPIKeyPrompt                string
-	AISettingsSetProvider                 string
-	AISettingsSetModel                    string
-	AISettingsModelPrompt                 string
-	AISettingsSetEndpoint                 string
-	AISettingsEndpointPrompt              string
-	AISettingsSaved                       string
-	AISettingsActiveProfile               string
-	AISettingsSwitchProfile               string
-	AISettingsEditProfile                 string
-	AISettingsAddProfile                  string
-	AISettingsNoProfiles                  string
-	AISettingsProfileName                 string
-	AISettingsProfileNamePrompt           string
-	AISettingsNewProfileNamePrompt        string
-	AISettingsMaxTokens                   string
-	AISettingsMaxTokensPrompt             string
-	AISettingsTimeout                     string
-	AISettingsTimeoutPrompt               string
-	AISettingsDeleteProfile               string
-	AISettingsDeleteProfileTitle          string
-	AISettingsDeleteProfilePrompt         string
-	AISettingsCannotDeleteLastProfile     string
-	AIAssistant                           string
-	AIAssistantTitle                      string
-	AIAssistantPrompt                     string
-	AIAssistantStatus                     string
-	AIAssistantConfirmExecute             string
-	AIAssistantNoCommands                 string
-	AIAssistantSilentNoCommands           string
-	AIAssistantConfirmSilentExecute       string
-	AIAssistantExecuting                  string
-	AIAssistantExecuteError               string
-	AICodeReview                          string
-	AICodeReviewTitle                     string
-	AIGenerationCancelled                 string
-	AICommitPromptTruncated               string
-	AICommitEmptyResponse                 string
-	AIPromptCurrentBranch                 string
-	AIPromptRecentCommits                 string
-	AIPromptProjectType                   string
-	AIPromptRole                          string
-	AIPromptTask                          string
-	AIPromptRepoContext                   string
-	AIPromptCodeChanges                   string
-	AIPromptOutputRules                   string
-	AIPromptTypeGuide                     string
-	AIPromptScopeGuide                    string
-	AIPromptSubjectRequirements           string
-	AIPromptBodyOptional                  string
-	AIPromptScenarioGuide                 string
-	AIPromptOutputFormat                  string
-	AIPromptScenarioSmall                 string
-	AIPromptScenarioLarge                 string
-	AIPromptScenarioBugfix                string
-	AIPromptScenarioRefactor              string
-	AIPromptScenarioDocs                  string
-	AIPromptScenarioTest                  string
-	AIPromptScenarioDefault               string
-	AICodeReviewConfirmTitle              string
-	AICodeReviewConfirmPrompt             string
-	AICodeReviewStatus                    string
-	AICodeReviewNoDiff                    string
-	AICodeReviewCopiedToClipboard         string
-	AICodeReviewToggleZoom                string
-	NewBranchWithAI                       string
-	NewBranchWithAITooltip                string
-	AIGeneratingBranchNameStatus          string
-	CreatePRWithAIDescription             string
-	CreatePRWithAIDescriptionTooltip      string
-	CreatePRDirectly                      string
-	AIGeneratingPRDescriptionStatus       string
-	PRDescriptionCopiedToClipboard        string
+	NotEnoughSpace                       string
+	DiffTitle                            string
+	FilesTitle                           string
+	BranchesTitle                        string
+	CommitsTitle                         string
+	StashTitle                           string
+	SnakeTitle                           string
+	EasterEgg                            string
+	UnstagedChanges                      string
+	StagedChanges                        string
+	StagingTitle                         string
+	MergingTitle                         string
+	NormalTitle                          string
+	LogTitle                             string
+	LogXOfYTitle                         string
+	CommitSummary                        string
+	CredentialsUsername                  string
+	CredentialsPassword                  string
+	CredentialsPassphrase                string
+	CredentialsPIN                       string
+	CredentialsToken                     string
+	PassUnameWrong                       string
+	Commit                               string
+	CommitTooltip                        string
+	AmendLastCommit                      string
+	AmendLastCommitTitle                 string
+	SureToAmend                          string
+	NoCommitToAmend                      string
+	CommitChangesWithEditor              string
+	FindBaseCommitForFixup               string
+	FindBaseCommitForFixupTooltip        string
+	NoBaseCommitsFound                   string
+	MultipleBaseCommitsFoundStaged       string
+	MultipleBaseCommitsFoundUnstaged     string
+	BaseCommitIsAlreadyOnMainBranch      string
+	BaseCommitIsNotInCurrentView         string
+	HunksWithOnlyAddedLinesWarning       string
+	StatusTitle                          string
+	GlobalTitle                          string
+	Execute                              string
+	Stage                                string
+	StageTooltip                         string
+	ToggleStagedAll                      string
+	ToggleStagedAllTooltip               string
+	ToggleTreeView                       string
+	ToggleTreeViewTooltip                string
+	OpenDiffTool                         string
+	OpenMergeTool                        string
+	Refresh                              string
+	RefreshTooltip                       string
+	Push                                 string
+	Pull                                 string
+	PushTooltip                          string
+	PullTooltip                          string
+	FileFilter                           string
+	CopyToClipboardMenu                  string
+	CopyFileName                         string
+	CopyRelativeFilePath                 string
+	CopyAbsoluteFilePath                 string
+	CopyFileDiffTooltip                  string
+	CopySelectedDiff                     string
+	CopyAllFilesDiff                     string
+	CopyFileContent                      string
+	NoContentToCopyError                 string
+	FileNameCopiedToast                  string
+	FilePathCopiedToast                  string
+	FileDiffCopiedToast                  string
+	AllFilesDiffCopiedToast              string
+	FileContentCopiedToast               string
+	FilterStagedFiles                    string
+	FilterUnstagedFiles                  string
+	FilterTrackedFiles                   string
+	FilterUntrackedFiles                 string
+	NoFilter                             string
+	FilterLabelStagedFiles               string
+	FilterLabelUnstagedFiles             string
+	FilterLabelTrackedFiles              string
+	FilterLabelUntrackedFiles            string
+	FilterLabelConflictingFiles          string
+	MergeConflictsTitle                  string
+	MergeConflictDescription_DD          string
+	MergeConflictDescription_AU          string
+	MergeConflictDescription_UA          string
+	MergeConflictDescription_DU          string
+	MergeConflictDescription_UD          string
+	MergeConflictIncomingDiff            string
+	MergeConflictCurrentDiff             string
+	MergeConflictPressEnterToResolve     string
+	MergeConflictKeepFile                string
+	MergeConflictDeleteFile              string
+	Checkout                             string
+	CheckoutTooltip                      string
+	CantCheckoutBranchWhilePulling       string
+	TagCheckoutTooltip                   string
+	RemoteBranchCheckoutTooltip          string
+	CantPullOrPushSameBranchTwice        string
+	NoChangedFiles                       string
+	SoftReset                            string
+	AlreadyCheckedOutBranch              string
+	SureForceCheckout                    string
+	ForceCheckoutBranch                  string
+	BranchName                           string
+	NewBranchNameBranchOff               string
+	CantDeleteCheckOutBranch             string
+	DeleteBranchTitle                    string
+	DeleteBranchesTitle                  string
+	DeleteLocalBranch                    string
+	DeleteLocalBranches                  string
+	DeleteRemoteBranchPrompt             string
+	DeleteRemoteBranchesPrompt           string
+	DeleteLocalAndRemoteBranchPrompt     string
+	DeleteLocalAndRemoteBranchesPrompt   string
+	ForceDeleteBranchTitle               string
+	ForceDeleteBranchMessage             string
+	ForceDeleteBranchesMessage           string
+	RebaseBranch                         string
+	RebaseBranchTooltip                  string
+	CantRebaseOntoSelf                   string
+	CantMergeBranchIntoItself            string
+	ForceCheckout                        string
+	ForceCheckoutTooltip                 string
+	CheckoutByName                       string
+	CheckoutByNameTooltip                string
+	CheckoutPreviousBranch               string
+	RemoteBranchCheckoutTitle            string
+	RemoteBranchCheckoutPrompt           string
+	CheckoutTypeNewBranch                string
+	CheckoutTypeNewBranchTooltip         string
+	CheckoutTypeDetachedHead             string
+	CheckoutTypeDetachedHeadTooltip      string
+	NewBranch                            string
+	NewBranchFromStashTooltip            string
+	MoveCommitsToNewBranch               string
+	MoveCommitsToNewBranchTooltip        string
+	MoveCommitsToNewBranchFromMainPrompt string
+	MoveCommitsToNewBranchMenuPrompt     string
+	MoveCommitsToNewBranchFromBaseItem   string
+	MoveCommitsToNewBranchStackedItem    string
+	CannotMoveCommitsFromDetachedHead    string
+	CannotMoveCommitsNoUpstream          string
+	CannotMoveCommitsBehindUpstream      string
+	CannotMoveCommitsNoUnpushedCommits   string
+	NoBranchesThisRepo                   string
+	CommitWithoutMessageErr              string
+	Close                                string
+	CloseCancel                          string
+	Confirm                              string
+	Quit                                 string
+	SquashTooltip                        string
+	CannotSquashOrFixupFirstCommit       string
+	CannotSquashOrFixupMergeCommit       string
+	Fixup                                string
+	FixupTooltip                         string
+	FixupKeepMessage                     string
+	FixupKeepMessageTooltip              string
+	SetFixupMessage                      string
+	SetFixupMessageTooltip               string
+	FixupDiscardMessage                  string
+	FixupDiscardMessageTooltip           string
+	SureSquashThisCommit                 string
+	Squash                               string
+	PickCommitTooltip                    string
+	Pick                                 string
+	Edit                                 string
+	Revert                               string
+	RevertCommitTooltip                  string
+	Reword                               string
+	CommitRewordTooltip                  string
+	DropCommit                           string
+	DropCommitTooltip                    string
+	MoveDownCommit                       string
+	MoveUpCommit                         string
+	CannotMoveAnyFurther                 string
+	CannotMoveMergeCommit                string
+	EditCommit                           string
+	EditCommitTooltip                    string
+	AmendCommitTooltip                   string
+	Amend                                string
+	ResetAuthor                          string
+	ResetAuthorTooltip                   string
+	SetAuthor                            string
+	SetAuthorTooltip                     string
+	AddCoAuthor                          string
+	AmendCommitAttribute                 string
+	AmendCommitAttributeTooltip          string
+	SetAuthorPromptTitle                 string
+	AddCoAuthorPromptTitle               string
+	AddCoAuthorTooltip                   string
+	RewordCommitEditor                   string
+	NoCommitsThisBranch                  string
+	UpdateRefHere                        string
+	ExecCommandHere                      string
+	Error                                string
+	Undo                                 string
+	UndoReflog                           string
+	RedoReflog                           string
+	UndoTooltip                          string
+	RedoTooltip                          string
+	UndoMergeResolveTooltip              string
+	DiscardAllTooltip                    string
+	DiscardUnstagedTooltip               string
+	DiscardUnstagedDisabled              string
+	Pop                                  string
+	StashPopTooltip                      string
+	Drop                                 string
+	StashDropTooltip                     string
+	Apply                                string
+	StashApplyTooltip                    string
+	NoStashEntries                       string
+	StashDrop                            string
+	SureDropStashEntry                   string
+	StashPop                             string
+	SurePopStashEntry                    string
+	StashApply                           string
+	SureApplyStashEntry                  string
+	NoTrackedStagedFilesStash            string
+	NoFilesToStash                       string
+	StashChanges                         string
+	RenameStash                          string
+	RenameStashPrompt                    string
+	OpenConfig                           string
+	EditConfig                           string
+	ForcePush                            string
+	ForcePushPrompt                      string
+	ForcePushDisabled                    string
+	UpdatesRejected                      string
+	UpdatesRejectedAndForcePushDisabled  string
+	CheckForUpdate                       string
+	CheckingForUpdates                   string
+	UpdateAvailableTitle                 string
+	UpdateAvailable                      string
+	UpdateInProgressWaitingStatus        string
+	UpdateCompletedTitle                 string
+	UpdateCompleted                      string
+	FailedToRetrieveLatestVersionErr     string
+	OnLatestVersionErr                   string
+	MajorVersionErr                      string
+	CouldNotFindBinaryErr                string
+	UpdateFailedErr                      string
+	ConfirmQuitDuringUpdateTitle         string
+	ConfirmQuitDuringUpdate              string
+	IntroPopupMessage                    string
+	NonReloadableConfigWarningTitle      string
+	NonReloadableConfigWarning           string
+	GitconfigParseErr                    string
+	EditFile                             string
+	EditFileTooltip                      string
+	OpenFile                             string
+	OpenFileTooltip                      string
+	OpenInEditor                         string
+	IgnoreFile                           string
+	ExcludeFile                          string
+	RefreshFiles                         string
+	FocusMainView                        string
+	Merge                                string
+	MergeBranchTooltip                   string
+	RegularMergeFastForward              string
+	RegularMergeFastForwardTooltip       string
+	CannotFastForwardMerge               string
+	RegularMergeNonFastForward           string
+	RegularMergeNonFastForwardTooltip    string
+	SquashMergeUncommitted               string
+	SquashMergeUncommittedTooltip        string
+	SquashMergeCommitted                 string
+	SquashMergeCommittedTooltip          string
+	ConfirmQuit                          string
+	SwitchRepo                           string
+	AllBranchesLogGraph                  string
+	UnsupportedGitService                string
+	CopyPullRequestURL                   string
+	NoBranchOnRemote                     string
+	Fetch                                string
+	FetchTooltip                         string
+	CollapseAll                          string
+	CollapseAllTooltip                   string
+	ExpandAll                            string
+	ExpandAllTooltip                     string
+	DisabledInFlatView                   string
+	FileEnter                            string
+	FileEnterTooltip                     string
+	StageSelectionTooltip                string
+	DiscardSelection                     string
+	DiscardSelectionTooltip              string
+	ToggleSelectHunk                     string
+	SelectHunk                           string
+	SelectLineByLine                     string
+	ToggleSelectHunkTooltip              string
+	HunkStagingHint                      string
+	ToggleSelectionForPatch              string
+	EditHunk                             string
+	EditHunkTooltip                      string
+	ToggleStagingView                    string
+	ToggleStagingViewTooltip             string
+	ReturnToFilesPanel                   string
+	FastForward                          string
+	FastForwardTooltip                   string
+	FastForwarding                       string
+	FoundConflictsTitle                  string
+	ViewConflictsMenuItem                string
+	AbortMenuItem                        string
+	PickHunk                             string
+	PickAllHunks                         string
+	ViewMergeRebaseOptions               string
+	ViewMergeRebaseOptionsTooltip        string
+	ViewMergeOptions                     string
+	ViewRebaseOptions                    string
+	ViewCherryPickOptions                string
+	ViewRevertOptions                    string
+	NotMergingOrRebasing                 string
+	AlreadyRebasing                      string
+	NotMidRebase                         string
+	MustSelectFixupCommit                string
+	RecentRepos                          string
+	MergeOptionsTitle                    string
+	RebaseOptionsTitle                   string
+	CherryPickOptionsTitle               string
+	RevertOptionsTitle                   string
+	CommitSummaryTitle                   string
+	CommitDescriptionTitle               string
+	CommitDescriptionSubTitle            string
+	CommitDescriptionFooter              string
+	CommitDescriptionFooterTwoBindings   string
+	CommitHooksDisabledSubTitle          string
+	LocalBranchesTitle                   string
+	SearchTitle                          string
+	TagsTitle                            string
+	MenuTitle                            string
+	CommitMenuTitle                      string
+	RemotesTitle                         string
+	RemoteBranchesTitle                  string
+	PatchBuildingTitle                   string
+	InformationTitle                     string
+	SecondaryTitle                       string
+	ReflogCommitsTitle                   string
+	ConflictsResolved                    string
+	Continue                             string
+	UnstagedFilesAfterConflictsResolved  string
+	RebasingTitle                        string
+	RebasingFromBaseCommitTitle          string
+	SimpleRebase                         string
+	InteractiveRebase                    string
+	RebaseOntoBaseBranch                 string
+	InteractiveRebaseTooltip             string
+	RebaseOntoBaseBranchTooltip          string
+	MustSelectTodoCommits                string
+	FwdNoUpstream                        string
+	FwdNoLocalUpstream                   string
+	FwdCommitsToPush                     string
+	PullRequestNoUpstream                string
+	ErrorOccurred                        string
+	ConflictLabel                        string
+	PendingRebaseTodosSectionHeader      string
+	PendingCherryPicksSectionHeader      string
+	PendingRevertsSectionHeader          string
+	CommitsSectionHeader                 string
+	YouDied                              string
+	RewordNotSupported                   string
+	ChangingThisActionIsNotAllowed       string
+	NotAllowedMidCherryPickOrRevert      string
+	PickIsOnlyAllowedDuringRebase        string
+	DroppingMergeRequiresSingleSelection string
+	CherryPickCopy                       string
+	CherryPickCopyTooltip                string
+	PasteCommits                         string
+	SureCherryPick                       string
+	CherryPick                           string
+	CannotCherryPickNonCommit            string
+	PrevHunk                             string
+	NextHunk                             string
+	PrevConflict                         string
+	NextConflict                         string
+	SelectPrevHunk                       string
+	SelectNextHunk                       string
+	ScrollDown                           string
+	ScrollUp                             string
+	ScrollUpMainWindow                   string
+	ScrollDownMainWindow                 string
+	SuspendApp                           string
+	CannotSuspendApp                     string
+	AmendCommitTitle                     string
+	AmendCommitPrompt                    string
+	AmendCommitWithConflictsMenuPrompt   string
+	AmendCommitWithConflictsContinue     string
+	AmendCommitWithConflictsAmend        string
+	DropCommitTitle                      string
+	DropCommitPrompt                     string
+	DropUpdateRefPrompt                  string
+	DropMergeCommitPrompt                string
+	PullingStatus                        string
+	PushingStatus                        string
+	FetchingStatus                       string
+	SquashingStatus                      string
+	FixingStatus                         string
+	DeletingStatus                       string
+	AIGeneratingStatus                   string
+	AIGenerateCommitMessage              string
+	AINotEnabled                         string
+	AINoStagedChanges                    string
+	AIError                              string
+	AISettings                           string
+	AISettingsEnable                     string
+	AISettingsDisable                    string
+	AISettingsSetAPIKey                  string
+	AISettingsAPIKeyPrompt               string
+	AISettingsSetProvider                string
+	AISettingsSetModel                   string
+	AISettingsModelPrompt                string
+	AISettingsSetEndpoint                string
+	AISettingsEndpointPrompt             string
+	AISettingsSetWireAPI                 string
+	AISettingsWireAPIDefault             string
+	AISettingsSaved                      string
+	AISettingsActiveProfile              string
+	AISettingsSwitchProfile              string
+	AISettingsEditProfile                string
+	AISettingsAddProfile                 string
+	AISettingsNoProfiles                 string
+	AISettingsProfileName                string
+	AISettingsProfileNamePrompt          string
+	AISettingsNewProfileNamePrompt       string
+	AISettingsMaxTokens                  string
+	AISettingsMaxTokensPrompt            string
+	AISettingsTimeout                    string
+	AISettingsTimeoutPrompt              string
+	AISettingsDeleteProfile              string
+	AISettingsDeleteProfileTitle         string
+	AISettingsDeleteProfilePrompt        string
+	AISettingsCannotDeleteLastProfile    string
+	AIAssistant                          string
+	AIAssistantTitle                     string
+	AIAssistantPrompt                    string
+	AIAssistantStatus                    string
+	AIAssistantConfirmExecute            string
+	AIAssistantNoCommands                string
+	AIAssistantSilentNoCommands          string
+	AIAssistantConfirmSilentExecute      string
+	AIAssistantExecuting                 string
+	AIAssistantExecuteError              string
+	AICodeReview                         string
+	AICodeReviewTitle                    string
+	AIGenerationCancelled                string
+	AICommitPromptTruncated              string
+	AICommitEmptyResponse                string
+	AIPromptCurrentBranch                string
+	AIPromptRecentCommits                string
+	AIPromptProjectType                  string
+	AIPromptRole                         string
+	AIPromptTask                         string
+	AIPromptRepoContext                  string
+	AIPromptCodeChanges                  string
+	AIPromptOutputRules                  string
+	AIPromptTypeGuide                    string
+	AIPromptScopeGuide                   string
+	AIPromptSubjectRequirements          string
+	AIPromptBodyOptional                 string
+	AIPromptScenarioGuide                string
+	AIPromptOutputFormat                 string
+	AIPromptScenarioSmall                string
+	AIPromptScenarioLarge                string
+	AIPromptScenarioBugfix               string
+	AIPromptScenarioRefactor             string
+	AIPromptScenarioDocs                 string
+	AIPromptScenarioTest                 string
+	AIPromptScenarioDefault              string
+	AICodeReviewConfirmTitle             string
+	AICodeReviewConfirmPrompt            string
+	AICodeReviewStatus                   string
+	AICodeReviewNoDiff                   string
+	AICodeReviewCopiedToClipboard        string
+	AICodeReviewToggleZoom               string
+	NewBranchWithAI                      string
+	NewBranchWithAITooltip               string
+	AIGeneratingBranchNameStatus         string
+	CreatePRWithAIDescription            string
+	CreatePRWithAIDescriptionTooltip     string
+	CreatePRDirectly                     string
+	AIGeneratingPRDescriptionStatus      string
+	PRDescriptionCopiedToClipboard       string
 	// AI Diff Filter
-	AIDiffSkipped                         string
-	AIDiffBinaryFile                      string
-	AIDiffLockOrGeneratedFile             string
-	AIDiffChangeStats                     string
-	AIDiffFilesCount                      string
-	AIDiffFileTypes                       string
-	AIDiffChangeScale                     string
-	AIDiffMajorChanges                    string
-	AIDiffNewFile                         string
-	AIDiffDeletedFile                     string
-	AIDiffRenamedFile                     string
-	AIDiffModifiedFile                    string
-	AIDiffTruncated                       string
-	AIDiffSmartTruncated                  string
+	AIDiffSkipped             string
+	AIDiffBinaryFile          string
+	AIDiffLockOrGeneratedFile string
+	AIDiffChangeStats         string
+	AIDiffFilesCount          string
+	AIDiffFileTypes           string
+	AIDiffChangeScale         string
+	AIDiffMajorChanges        string
+	AIDiffNewFile             string
+	AIDiffDeletedFile         string
+	AIDiffRenamedFile         string
+	AIDiffModifiedFile        string
+	AIDiffTruncated           string
+	AIDiffSmartTruncated      string
 	// AI Helper Messages
-	AICodeReviewCancelled                 string
-	AINotEnabledPleaseConfig              string
-	AITestingConnection                   string
-	AIConnectionTestFailed                string
-	AIEmptyResponse                       string
-	AIConnectionTestSuccess               string
-	AIConnectionTestSuccessDetail         string
-	APIKeyCannotBeEmpty                   string
-	AIConfigComplete                      string
-	AIConfigCompletePrompt                string
-	AIWelcomeWizardTitle                  string
-	UseDeepSeekRecommended                string
-	UseOpenAI                             string
-	UseAnthropicClaude                    string
-	UseOllamaLocal                        string
-	ConfigureLater                        string
-	TestCurrentProfile                    string
-	SetupProviderAPIKey                   string
+	AICodeReviewCancelled         string
+	AINotEnabledPleaseConfig      string
+	AITestingConnection           string
+	AIConnectionTestFailed        string
+	AIEmptyResponse               string
+	AIConnectionTestSuccess       string
+	AIConnectionTestSuccessDetail string
+	APIKeyCannotBeEmpty           string
+	AIConfigComplete              string
+	AIConfigCompletePrompt        string
+	AIWelcomeWizardTitle          string
+	UseDeepSeekRecommended        string
+	UseOpenAI                     string
+	UseAnthropicClaude            string
+	UseOllamaLocal                string
+	ConfigureLater                string
+	TestCurrentProfile            string
+	SetupProviderAPIKey           string
 	// AI Diff Filter Additional
-	AIDiffSkippedFilesNote                string
+	AIDiffSkippedFilesNote string
 	// AI Assistant Prompts
-	AIAssistantSystemPrompt               string
-	AIAssistantRules                      string
-	AIAssistantRepoState                  string
-	AIAssistantUserRequest                string
+	AIAssistantSystemPrompt string
+	AIAssistantRules        string
+	AIAssistantRepoState    string
+	AIAssistantUserRequest  string
 	// AI Branch Naming Prompts
-	AIBranchNameSystemPrompt              string
-	AIBranchNameTask                      string
-	AIBranchNameRules                     string
-	AIBranchNameChanges                   string
-	AIBranchNameDiffSummary               string
-	AIBranchNameRequirements              string
+	AIBranchNameSystemPrompt string
+	AIBranchNameTask         string
+	AIBranchNameRules        string
+	AIBranchNameChanges      string
+	AIBranchNameDiffSummary  string
+	AIBranchNameRequirements string
 	// AI PR Description Prompts
-	AIPRDescSystemPrompt                  string
-	AIPRDescTask                          string
-	AIPRDescCommitHistory                 string
-	AIPRDescCodeChanges                   string
-	AIPRDescFormatRequirements            string
-	AIPRDescSummarySection                string
-	AIPRDescChangesSection                string
-	AIPRDescTechDetailsSection            string
-	AIPRDescTestingSection                string
-	AIPRDescOutputRequirements            string
-	AIPRDescBranchInfo                    string
-	AIPRDescDiffUnavailable               string
-	AIPRDescDiffTruncated                 string
-	AIPRDescMoreCommits                   string
+	AIPRDescSystemPrompt       string
+	AIPRDescTask               string
+	AIPRDescCommitHistory      string
+	AIPRDescCodeChanges        string
+	AIPRDescFormatRequirements string
+	AIPRDescSummarySection     string
+	AIPRDescChangesSection     string
+	AIPRDescTechDetailsSection string
+	AIPRDescTestingSection     string
+	AIPRDescOutputRequirements string
+	AIPRDescBranchInfo         string
+	AIPRDescDiffUnavailable    string
+	AIPRDescDiffTruncated      string
+	AIPRDescMoreCommits        string
 	// AI Code Review Prompts
-	AICodeReviewSystemPrompt              string
-	AICodeReviewFile                      string
-	AICodeReviewCorePrinciples            string
-	AICodeReviewConservative              string
-	AICodeReviewRespectContext            string
-	AICodeReviewFocusNewLines             string
-	AICodeReviewRejectFalsePositives      string
-	AICodeReviewSeverityLevels            string
-	AICodeReviewCritical                  string
-	AICodeReviewMajor                     string
-	AICodeReviewMinor                     string
-	AICodeReviewNit                       string
-	AICodeReviewOutputFormat              string
-	AICodeReviewSummarySection            string
-	AICodeReviewIssuesSection            string
-	AICodeReviewIssueFormat               string
-	AICodeReviewNoIssues                  string
-	AICodeReviewConclusionSection         string
-	AICodeReviewConclusionLGTM            string
-	AICodeReviewConclusionHasIssues       string
-	AICodeReviewDiffSection               string
-	AICodeReviewLanguageHint              string
-	AICodeReviewLanguageChecks            string
+	AICodeReviewSystemPrompt         string
+	AICodeReviewFile                 string
+	AICodeReviewCorePrinciples       string
+	AICodeReviewConservative         string
+	AICodeReviewRespectContext       string
+	AICodeReviewFocusNewLines        string
+	AICodeReviewRejectFalsePositives string
+	AICodeReviewSeverityLevels       string
+	AICodeReviewCritical             string
+	AICodeReviewMajor                string
+	AICodeReviewMinor                string
+	AICodeReviewNit                  string
+	AICodeReviewOutputFormat         string
+	AICodeReviewSummarySection       string
+	AICodeReviewIssuesSection        string
+	AICodeReviewIssueFormat          string
+	AICodeReviewNoIssues             string
+	AICodeReviewConclusionSection    string
+	AICodeReviewConclusionLGTM       string
+	AICodeReviewConclusionHasIssues  string
+	AICodeReviewDiffSection          string
+	AICodeReviewLanguageHint         string
+	AICodeReviewLanguageChecks       string
 	// AI Error Messages
-	AIRequestTimeout                      string
-	APIKeyInvalid                         string
-	APIRateLimitExceeded                  string
-	NetworkConnectionFailed               string
-	ModelNotAvailable                     string
-	APIQuotaExhausted                     string
-	InputTooLong                          string
+	AIRequestTimeout        string
+	APIKeyInvalid           string
+	APIRateLimitExceeded    string
+	NetworkConnectionFailed string
+	ModelNotAvailable       string
+	APIQuotaExhausted       string
+	InputTooLong            string
 	// AI Context Messages
-	CurrentBranch                         string
-	TrackingRemoteBranchAheadBehind       string
-	TrackingRemoteBranchAhead             string
-	TrackingRemoteBranchBehind            string
-	TrackingRemoteBranchSynced            string
-	NotTrackingRemoteBranch               string
-	WorkingTreeState                      string
-	ChangeStats                           string
-	RecentCommits                         string
-	ChangedFiles                          string
-	MoreFiles                             string
-	StashList                             string
-	MoreStashes                           string
+	CurrentBranch                   string
+	TrackingRemoteBranchAheadBehind string
+	TrackingRemoteBranchAhead       string
+	TrackingRemoteBranchBehind      string
+	TrackingRemoteBranchSynced      string
+	NotTrackingRemoteBranch         string
+	WorkingTreeState                string
+	ChangeStats                     string
+	RecentCommits                   string
+	ChangedFiles                    string
+	MoreFiles                       string
+	StashList                       string
+	MoreStashes                     string
 	// AI Branch and PR Messages
 	AINotEnabledConfigFirst               string
 	NoChangesForBranchName                string
@@ -957,7 +959,7 @@ type TranslationSet struct {
 	ToggleShowCommandLog                     string
 	FocusCommandLog                          string
 	CopyCommandLog                           string
-	CommandLogCopiedToClipboard             string
+	CommandLogCopiedToClipboard              string
 	CommandLogHeader                         string
 	RandomTip                                string
 	ToggleWhitespaceInDiffView               string
@@ -1133,68 +1135,68 @@ type TranslationSet struct {
 	UseBothChanges                           string
 
 	// AI Common
-	AICancel                                 string
-	AIOK                                     string
-	AIConfirm                                string
-	AIYes                                    string
-	AINo                                     string
-	AISuccess                                string
-	AIFailed                                 string
-	AIWarning                                string
-	AIUnknown                                string
-	AIExecuting                              string
-	AIThinking                               string
-	AIIdle                                   string
-	AICancelled                              string
-	AIThinkingInProgress                     string
+	AICancel             string
+	AIOK                 string
+	AIConfirm            string
+	AIYes                string
+	AINo                 string
+	AISuccess            string
+	AIFailed             string
+	AIWarning            string
+	AIUnknown            string
+	AIExecuting          string
+	AIThinking           string
+	AIIdle               string
+	AICancelled          string
+	AIThinkingInProgress string
 
 	// AI Agent
-	AIAgentToolNotAllowedInPlanning          string
-	AIAgentCriticalStepFailed                string
-	AIAgentStepTimeout                       string
-	AIAgentUserRejectedTool                  string
-	AIAgentResolveConflictManually           string
-	AIAgentSetUpstreamBranch                 string
-	AIAgentConflict                          string
-	AIAgentToolName                          string
-	AIAgentStageFilesFirst                   string
-	AIAgentPossibleReasons                   string
-	AIAgentExampleCommitMsg                  string
-	AIAgentDont                              string
-	AIAgentRepoStatusAndUserInstruction      string
-	AIAgentUnknownTool                       string
-	AIAgentUserRejectedExecution             string
-	AIAgentMaxStepsReached                   string
-	AIAgentToolLabel                         string
-	AIAgentDescriptionLabel                  string
-	AIAgentPermissionLabel                   string
-	AIAgentParamsLabel                       string
+	AIAgentToolNotAllowedInPlanning     string
+	AIAgentCriticalStepFailed           string
+	AIAgentStepTimeout                  string
+	AIAgentUserRejectedTool             string
+	AIAgentResolveConflictManually      string
+	AIAgentSetUpstreamBranch            string
+	AIAgentConflict                     string
+	AIAgentToolName                     string
+	AIAgentStageFilesFirst              string
+	AIAgentPossibleReasons              string
+	AIAgentExampleCommitMsg             string
+	AIAgentDont                         string
+	AIAgentRepoStatusAndUserInstruction string
+	AIAgentUnknownTool                  string
+	AIAgentUserRejectedExecution        string
+	AIAgentMaxStepsReached              string
+	AIAgentToolLabel                    string
+	AIAgentDescriptionLabel             string
+	AIAgentPermissionLabel              string
+	AIAgentParamsLabel                  string
 
 	// AI Tools
-	AIToolMissingParam                       string
-	AIToolMissingNameParam                   string
-	AIToolMissingPathParam                   string
-	AIToolMissingMessageParam                string
-	AIToolMissingHashParam                   string
-	AIToolFilePath                           string
-	AIToolBranchName                         string
-	AIToolTagName                            string
-	AIToolCommitMessage                      string
-	AIToolNoChanges                          string
-	AIToolWorkingDir                         string
-	AIToolStagingArea                        string
-	AIToolTargetRefOrHash                    string
-	AIToolResetSteps                         string
-	AIToolStashIndex                         string
-	AIToolMaxLines                           string
-	AIToolOffset                             string
-	AIToolTargetRef                          string
-	AIToolPushConfigError                    string
-	AIToolRebasedTo                          string
-	AIToolRenameFailed                       string
-	AIToolDiscardChangesFailed               string
-	AIToolParam                              string
-	AIToolValue                              string
+	AIToolMissingParam         string
+	AIToolMissingNameParam     string
+	AIToolMissingPathParam     string
+	AIToolMissingMessageParam  string
+	AIToolMissingHashParam     string
+	AIToolFilePath             string
+	AIToolBranchName           string
+	AIToolTagName              string
+	AIToolCommitMessage        string
+	AIToolNoChanges            string
+	AIToolWorkingDir           string
+	AIToolStagingArea          string
+	AIToolTargetRefOrHash      string
+	AIToolResetSteps           string
+	AIToolStashIndex           string
+	AIToolMaxLines             string
+	AIToolOffset               string
+	AIToolTargetRef            string
+	AIToolPushConfigError      string
+	AIToolRebasedTo            string
+	AIToolRenameFailed         string
+	AIToolDiscardChangesFailed string
+	AIToolParam                string
+	AIToolValue                string
 
 	// AI Tools - Schema descriptions
 	AIToolGetStatusDesc              string
@@ -1346,341 +1348,341 @@ type TranslationSet struct {
 	AIToolUnknownOperationType  string
 
 	// AI Skills
-	AISkillCurrentBranch                     string
-	AISkillBranchNameOnly                    string
-	AISkillBranchNameFormat                  string
-	AISkillWindowsGitBash                    string
-	AISkillRuntime                           string
-	AISkillOutputJSONArray                   string
-	AISkillExplanation                       string
-	AISkillCommitSubject                     string
-	AISkillTestScenario                      string
-	AISkillOutputCommitMsg                   string
-	AISkillRefactorScenario                  string
-	AISkillGeneratePRDesc                    string
-	AISkillPRSummary                         string
-	AISkillPRTesting                         string
-	AISkillCodeChanges                       string
-	AISkillDiffSummary                       string
-	AISkillRepoContext                       string
-	AISkillCodeChangesTitle                  string
-	AISkillBranchInfo                        string
-	AISkillCommitHistory                     string
+	AISkillCurrentBranch    string
+	AISkillBranchNameOnly   string
+	AISkillBranchNameFormat string
+	AISkillWindowsGitBash   string
+	AISkillRuntime          string
+	AISkillOutputJSONArray  string
+	AISkillExplanation      string
+	AISkillCommitSubject    string
+	AISkillTestScenario     string
+	AISkillOutputCommitMsg  string
+	AISkillRefactorScenario string
+	AISkillGeneratePRDesc   string
+	AISkillPRSummary        string
+	AISkillPRTesting        string
+	AISkillCodeChanges      string
+	AISkillDiffSummary      string
+	AISkillRepoContext      string
+	AISkillCodeChangesTitle string
+	AISkillBranchInfo       string
+	AISkillCommitHistory    string
 
 	// AI Chat (GUI)
-	AIChatNotEnabled                         string
-	AIChatCanInputNext                       string
-	AIChatGeneratingPlan                     string
-	AIChatTemplateBranchName                 string
-	AIChatTemplateTagName                    string
-	AIChatTemplateMessage                    string
-	AIChatPushingToRemote                    string
-	AIChatAbortMerge                         string
-	AIChatResolveConflict                    string
-	AIChatConflictFiles                      string
-	AIChatMergeConflict                      string
-	AIChatUncommittedChanges                 string
-	AIChatDeleteSuccess                      string
-	AIChatConfirmSuffix                      string
+	AIChatNotEnabled         string
+	AIChatCanInputNext       string
+	AIChatGeneratingPlan     string
+	AIChatTemplateBranchName string
+	AIChatTemplateTagName    string
+	AIChatTemplateMessage    string
+	AIChatPushingToRemote    string
+	AIChatAbortMerge         string
+	AIChatResolveConflict    string
+	AIChatConflictFiles      string
+	AIChatMergeConflict      string
+	AIChatUncommittedChanges string
+	AIChatDeleteSuccess      string
+	AIChatConfirmSuffix      string
 
 	// AI Repository Context
-	AIMoreItems                              string
-	AIRepoWorkingDirClean                    string
-	AIRepoInProgress                         string
-	AIRepoRemoteSynced                       string
-	AIRepoChanges                            string
-	AIRepoRemoteAheadBehind                  string
-	AIRepoBranch                             string
-	AIRepoRecentCommits                      string
-	AIRepoStashCount                         string
+	AIMoreItems             string
+	AIRepoWorkingDirClean   string
+	AIRepoInProgress        string
+	AIRepoRemoteSynced      string
+	AIRepoChanges           string
+	AIRepoRemoteAheadBehind string
+	AIRepoBranch            string
+	AIRepoRecentCommits     string
+	AIRepoStashCount        string
 
 	// AI Manager
-	AIManagerGenerateBranchName              string
-	AIManagerParam                           string
-	AIManagerValue                           string
-	AIManagerStagedDiff                      string
-	AIManagerFeatureDesc                     string
-	AIManagerGenerateCommitMsg               string
+	AIManagerGenerateBranchName string
+	AIManagerParam              string
+	AIManagerValue              string
+	AIManagerStagedDiff         string
+	AIManagerFeatureDesc        string
+	AIManagerGenerateCommitMsg  string
 
 	// AI Analyze Tool
-	AIAnalyzeToolDescription                 string
-	AIAnalyzeToolStagedParam                 string
-	AIAnalyzeToolFocusParam                  string
-	AIAnalyzeWorkingDirClean                 string
-	AIAnalyzeNoChanges                       string
-	AIAnalyzeCancelled                       string
-	AIAnalyzeFailed                          string
-	AIAnalyzeReportTitle                     string
-	AIAnalyzeReportTitleWithFocus            string
-	AIAnalyzeFileCount                       string
-	AIAnalyzeTotalLines                      string
-	AIAnalyzeDetailedAnalysis                string
-	AIAnalyzeAnalysisFailed                  string
-	AIAnalyzeNoChangesInfo                   string
-	AIAnalyzeOverallSuggestions              string
-	AIAnalyzeSuggestion1                     string
-	AIAnalyzeSuggestion2                     string
-	AIAnalyzeSuggestion3                     string
-	AIAnalyzeCodeReviewExpert                string
-	AIAnalyzeFileLabel                       string
-	AIAnalyzePromptIntro                     string
-	AIAnalyzeFocusLabel                      string
-	AIAnalyzeMainChanges                     string
-	AIAnalyzePotentialIssues                 string
-	AIAnalyzeImprovementSuggestions          string
+	AIAnalyzeToolDescription        string
+	AIAnalyzeToolStagedParam        string
+	AIAnalyzeToolFocusParam         string
+	AIAnalyzeWorkingDirClean        string
+	AIAnalyzeNoChanges              string
+	AIAnalyzeCancelled              string
+	AIAnalyzeFailed                 string
+	AIAnalyzeReportTitle            string
+	AIAnalyzeReportTitleWithFocus   string
+	AIAnalyzeFileCount              string
+	AIAnalyzeTotalLines             string
+	AIAnalyzeDetailedAnalysis       string
+	AIAnalyzeAnalysisFailed         string
+	AIAnalyzeNoChangesInfo          string
+	AIAnalyzeOverallSuggestions     string
+	AIAnalyzeSuggestion1            string
+	AIAnalyzeSuggestion2            string
+	AIAnalyzeSuggestion3            string
+	AIAnalyzeCodeReviewExpert       string
+	AIAnalyzeFileLabel              string
+	AIAnalyzePromptIntro            string
+	AIAnalyzeFocusLabel             string
+	AIAnalyzeMainChanges            string
+	AIAnalyzePotentialIssues        string
+	AIAnalyzeImprovementSuggestions string
 
 	// Command Completion
-	CompletionBranch                         string
-	CompletionRemote                         string
-	CompletionCommitRef                      string
-	CompletionTag                            string
-	CompletionGitDesc                        string
-	CompletionCdDesc                         string
-	CompletionLsDesc                         string
-	CompletionPwdDesc                        string
-	CompletionCatDesc                        string
-	CompletionGrepDesc                       string
-	CompletionFindDesc                       string
-	CompletionGitAddDesc                     string
-	CompletionGitCommitDesc                  string
-	CompletionGitPushDesc                    string
-	CompletionGitPullDesc                    string
-	CompletionGitCheckoutDesc                string
-	CompletionGitSwitchDesc                  string
-	CompletionGitBranchDesc                  string
-	CompletionGitMergeDesc                   string
-	CompletionGitRebaseDesc                  string
-	CompletionGitResetDesc                   string
-	CompletionGitRevertDesc                  string
-	CompletionGitStashDesc                   string
-	CompletionGitLogDesc                     string
-	CompletionGitDiffDesc                    string
-	CompletionGitStatusDesc                  string
-	CompletionGitTagDesc                     string
-	CompletionGitFetchDesc                   string
-	CompletionGitCloneDesc                   string
-	CompletionGitInitDesc                    string
-	CompletionGitCleanDesc                   string
-	CompletionGitCherryPickDesc              string
-	CompletionGitShowDesc                    string
-	CompletionGitRmDesc                      string
-	CompletionGitMvDesc                      string
-	CompletionGitGrepDesc                    string
-	CompletionGitBisectDesc                  string
-	CompletionFlagAmendDesc                  string
-	CompletionFlagNoEditDesc                 string
-	CompletionFlagMDesc                      string
-	CompletionFlagADesc                      string
-	CompletionFlagAllDesc                    string
-	CompletionFlagFixupDesc                  string
-	CompletionFlagSignoffDesc                string
-	CompletionFlagSDesc                      string
-	CompletionFlagNoVerifyDesc               string
-	CompletionFlagAllowEmptyDesc             string
-	CompletionFlagForceDesc                  string
-	CompletionFlagForceWithLeaseDesc         string
-	CompletionFlagSetUpstreamDesc            string
-	CompletionFlagUDesc                      string
-	CompletionFlagTagsDesc                   string
-	CompletionFlagDeleteDesc                 string
-	CompletionFlagDryRunDesc                 string
-	CompletionFlagAllBranchesDesc            string
-	CompletionFlagSoftDesc                   string
-	CompletionFlagMixedDesc                  string
-	CompletionFlagHardDesc                   string
-	CompletionStatusConflicted               string
-	CompletionStatusPartiallyStaged          string
-	CompletionStatusStaged                   string
-	CompletionStatusModified                 string
-	CompletionStatusUntracked                string
-	CompletionStatusTracked                  string
+	CompletionBranch                 string
+	CompletionRemote                 string
+	CompletionCommitRef              string
+	CompletionTag                    string
+	CompletionGitDesc                string
+	CompletionCdDesc                 string
+	CompletionLsDesc                 string
+	CompletionPwdDesc                string
+	CompletionCatDesc                string
+	CompletionGrepDesc               string
+	CompletionFindDesc               string
+	CompletionGitAddDesc             string
+	CompletionGitCommitDesc          string
+	CompletionGitPushDesc            string
+	CompletionGitPullDesc            string
+	CompletionGitCheckoutDesc        string
+	CompletionGitSwitchDesc          string
+	CompletionGitBranchDesc          string
+	CompletionGitMergeDesc           string
+	CompletionGitRebaseDesc          string
+	CompletionGitResetDesc           string
+	CompletionGitRevertDesc          string
+	CompletionGitStashDesc           string
+	CompletionGitLogDesc             string
+	CompletionGitDiffDesc            string
+	CompletionGitStatusDesc          string
+	CompletionGitTagDesc             string
+	CompletionGitFetchDesc           string
+	CompletionGitCloneDesc           string
+	CompletionGitInitDesc            string
+	CompletionGitCleanDesc           string
+	CompletionGitCherryPickDesc      string
+	CompletionGitShowDesc            string
+	CompletionGitRmDesc              string
+	CompletionGitMvDesc              string
+	CompletionGitGrepDesc            string
+	CompletionGitBisectDesc          string
+	CompletionFlagAmendDesc          string
+	CompletionFlagNoEditDesc         string
+	CompletionFlagMDesc              string
+	CompletionFlagADesc              string
+	CompletionFlagAllDesc            string
+	CompletionFlagFixupDesc          string
+	CompletionFlagSignoffDesc        string
+	CompletionFlagSDesc              string
+	CompletionFlagNoVerifyDesc       string
+	CompletionFlagAllowEmptyDesc     string
+	CompletionFlagForceDesc          string
+	CompletionFlagForceWithLeaseDesc string
+	CompletionFlagSetUpstreamDesc    string
+	CompletionFlagUDesc              string
+	CompletionFlagTagsDesc           string
+	CompletionFlagDeleteDesc         string
+	CompletionFlagDryRunDesc         string
+	CompletionFlagAllBranchesDesc    string
+	CompletionFlagSoftDesc           string
+	CompletionFlagMixedDesc          string
+	CompletionFlagHardDesc           string
+	CompletionStatusConflicted       string
+	CompletionStatusPartiallyStaged  string
+	CompletionStatusStaged           string
+	CompletionStatusModified         string
+	CompletionStatusUntracked        string
+	CompletionStatusTracked          string
 
 	// AI Command Helper
-	AICommandNotEnabled                      string
-	AICommandGenerationCancelled             string
-	AICommandInvalidFormat                   string
-	AICommandExplainPrompt                   string
-	AICommandExplainCancelled                string
-	AICommandRiskHardReset                   string
-	AICommandRiskCleanFdx                    string
-	AICommandRiskCleanFd                     string
-	AICommandRiskForcePush1                  string
-	AICommandRiskForcePush2                  string
-	AICommandRiskReflogExpire                string
-	AICommandRiskRmRf                        string
-	AICommandRiskBranchD                     string
-	AICommandRiskRebaseI                     string
-	AICommandRiskGcAggressive                string
-	AICommandSuggestionHardReset             string
-	AICommandSuggestionCleanFdx              string
-	AICommandSuggestionCleanFd               string
-	AICommandSuggestionForcePush1            string
-	AICommandSuggestionForcePush2            string
-	AICommandSuggestionBranchD               string
+	AICommandNotEnabled           string
+	AICommandGenerationCancelled  string
+	AICommandInvalidFormat        string
+	AICommandExplainPrompt        string
+	AICommandExplainCancelled     string
+	AICommandRiskHardReset        string
+	AICommandRiskCleanFdx         string
+	AICommandRiskCleanFd          string
+	AICommandRiskForcePush1       string
+	AICommandRiskForcePush2       string
+	AICommandRiskReflogExpire     string
+	AICommandRiskRmRf             string
+	AICommandRiskBranchD          string
+	AICommandRiskRebaseI          string
+	AICommandRiskGcAggressive     string
+	AICommandSuggestionHardReset  string
+	AICommandSuggestionCleanFdx   string
+	AICommandSuggestionCleanFd    string
+	AICommandSuggestionForcePush1 string
+	AICommandSuggestionForcePush2 string
+	AICommandSuggestionBranchD    string
 
 	// AI Skills - Commit Message
-	AISkillCommitMsgSystemPrompt             string
-	AISkillCommitMsgRepoBackground           string
-	AISkillCommitMsgCodeChanges              string
-	AISkillCommitMsgOutputRules              string
-	AISkillCommitMsgFormatExample            string
-	AISkillCommitMsgTypeList                 string
-	AISkillCommitMsgSubjectRules             string
-	AISkillCommitMsgScopeOptional            string
-	AISkillCommitMsgBodyRequired             string
-	AISkillCommitMsgScenarioBugfix           string
-	AISkillCommitMsgScenarioRefactor         string
-	AISkillCommitMsgScenarioDocs             string
-	AISkillCommitMsgScenarioTest             string
-	AISkillCommitMsgScenarioDefault          string
-	AISkillCommitMsgScenarioLarge            string
-	AISkillCommitMsgProjectType              string
+	AISkillCommitMsgSystemPrompt     string
+	AISkillCommitMsgRepoBackground   string
+	AISkillCommitMsgCodeChanges      string
+	AISkillCommitMsgOutputRules      string
+	AISkillCommitMsgFormatExample    string
+	AISkillCommitMsgTypeList         string
+	AISkillCommitMsgSubjectRules     string
+	AISkillCommitMsgScopeOptional    string
+	AISkillCommitMsgBodyRequired     string
+	AISkillCommitMsgScenarioBugfix   string
+	AISkillCommitMsgScenarioRefactor string
+	AISkillCommitMsgScenarioDocs     string
+	AISkillCommitMsgScenarioTest     string
+	AISkillCommitMsgScenarioDefault  string
+	AISkillCommitMsgScenarioLarge    string
+	AISkillCommitMsgProjectType      string
 
 	// AI Skills - Branch Name
-	AISkillBranchNamePromptIntro             string
-	AISkillBranchNameStagedFiles             string
-	AISkillBranchNameUnstagedFiles           string
-	AISkillBranchNameMoreFiles               string
-	AISkillBranchNameDiffSummaryTitle        string
-	AISkillBranchNameRules                   string
-	AISkillBranchNameFormatRule              string
-	AISkillBranchNameTypeRule                string
-	AISkillBranchNameDescRule                string
-	AISkillBranchNameOutputRule              string
-	AISkillBranchNameDescriptionHint        string
-	AISkillBranchNameSystemPrompt            string
+	AISkillBranchNamePromptIntro      string
+	AISkillBranchNameStagedFiles      string
+	AISkillBranchNameUnstagedFiles    string
+	AISkillBranchNameMoreFiles        string
+	AISkillBranchNameDiffSummaryTitle string
+	AISkillBranchNameRules            string
+	AISkillBranchNameFormatRule       string
+	AISkillBranchNameTypeRule         string
+	AISkillBranchNameDescRule         string
+	AISkillBranchNameOutputRule       string
+	AISkillBranchNameDescriptionHint  string
+	AISkillBranchNameSystemPrompt     string
 
 	// AI Skills - PR Description
-	AISkillPRDescSystemPrompt                string
-	AISkillPRDescBranchInfo                  string
-	AISkillPRDescCommitHistory               string
-	AISkillPRDescCodeChangesSection          string
-	AISkillPRDescGeneratePrompt              string
-	AISkillPRDescSummarySection              string
-	AISkillPRDescChangesSection              string
-	AISkillPRDescBreakingSection             string
-	AISkillPRDescTestingSection              string
-	AISkillPRDescChecklistSection            string
+	AISkillPRDescSystemPrompt       string
+	AISkillPRDescBranchInfo         string
+	AISkillPRDescCommitHistory      string
+	AISkillPRDescCodeChangesSection string
+	AISkillPRDescGeneratePrompt     string
+	AISkillPRDescSummarySection     string
+	AISkillPRDescChangesSection     string
+	AISkillPRDescBreakingSection    string
+	AISkillPRDescTestingSection     string
+	AISkillPRDescChecklistSection   string
 
 	// AI Skills - Shell Command
-	AISkillShellCmdSystemPrompt              string
-	AISkillShellCmdRuntime                   string
-	AISkillShellCmdRepoStatus                string
-	AISkillShellCmdUserIntent                string
-	AISkillShellCmdOutputFormat              string
-	AISkillShellCmdCommandField              string
-	AISkillShellCmdExplanationField          string
-	AISkillShellCmdRiskLevelField            string
-	AISkillShellCmdAlternativesField         string
-	AISkillShellCmdOutputNote                string
-	AISkillShellCmdWindowsHint               string
-	AISkillShellCmdMacOSHint                 string
-	AISkillShellCmdLinuxHint                 string
+	AISkillShellCmdSystemPrompt      string
+	AISkillShellCmdRuntime           string
+	AISkillShellCmdRepoStatus        string
+	AISkillShellCmdUserIntent        string
+	AISkillShellCmdOutputFormat      string
+	AISkillShellCmdCommandField      string
+	AISkillShellCmdExplanationField  string
+	AISkillShellCmdRiskLevelField    string
+	AISkillShellCmdAlternativesField string
+	AISkillShellCmdOutputNote        string
+	AISkillShellCmdWindowsHint       string
+	AISkillShellCmdMacOSHint         string
+	AISkillShellCmdLinuxHint         string
 
 	// AI Skills - Code Review
-	AISkillCodeReviewSystemPrompt            string
+	AISkillCodeReviewSystemPrompt string
 
 	// AI Skills - Explain Diff
-	AISkillExplainDiffSystemPrompt           string
+	AISkillExplainDiffSystemPrompt string
 
 	// AI Skills - Release Notes
-	AISkillReleaseNotesSystemPrompt          string
+	AISkillReleaseNotesSystemPrompt string
 
 	// AI Skills - Stash Name
-	AISkillStashNameSystemPrompt             string
+	AISkillStashNameSystemPrompt string
 
 	// AI Chat Helper
-	AIChatWelcomeSystem                      string
-	AIChatWelcomeMessage                     string
-	AIChatConfigPrompt                       string
-	AIChatPreviousContext                    string
-	AIChatNoContentToCopy                    string
-	AIChatNoExecutableReply                  string
-	AIChatConfirmExecution                   string
-	AIChatExecutionPlan                      string
-	AIChatNotInitialized                     string
-	AIChatRequestFailed                      string
-	AIChatCopyFailed                         string
-	AIChatCopiedToClipboard                  string
-	AIChatNoCommandsFound                    string
-	AIChatClearHistoryTitle                  string
-	AIChatClearHistoryPrompt                 string
-	AIChatHistoryCleared                     string
-	AIChatHowCanIHelp                        string
-	AIChatGenerationStopped                  string
-	AIChatCompleted                          string
-	AIChatWaitingConfirm                     string
-	AIChatConfirmPrompt                      string
-	AIChatExecutingPlan                      string
-	AIChatGeneratingReply                    string
-	AIChatCallingTool                        string
-	AIChatToolCompleted                      string
-	AIChatToolFailed                         string
-	AIChatPlanGenerated                      string
-	AIChatStatusLabel                        string
-	AIChatActionLabel                        string
-	AIChatGreeting                           string
-	AIChatCapabilities                       string
-	AIChatInputPrompt                        string
-	AIChatStoppedGeneration                  string
-	AIChatCallingToolPrefix                  string
-	AIChatToolCompletedPrefix                string
-	AIChatToolFailedPrefix                   string
+	AIChatWelcomeSystem       string
+	AIChatWelcomeMessage      string
+	AIChatConfigPrompt        string
+	AIChatPreviousContext     string
+	AIChatNoContentToCopy     string
+	AIChatNoExecutableReply   string
+	AIChatConfirmExecution    string
+	AIChatExecutionPlan       string
+	AIChatNotInitialized      string
+	AIChatRequestFailed       string
+	AIChatCopyFailed          string
+	AIChatCopiedToClipboard   string
+	AIChatNoCommandsFound     string
+	AIChatClearHistoryTitle   string
+	AIChatClearHistoryPrompt  string
+	AIChatHistoryCleared      string
+	AIChatHowCanIHelp         string
+	AIChatGenerationStopped   string
+	AIChatCompleted           string
+	AIChatWaitingConfirm      string
+	AIChatConfirmPrompt       string
+	AIChatExecutingPlan       string
+	AIChatGeneratingReply     string
+	AIChatCallingTool         string
+	AIChatToolCompleted       string
+	AIChatToolFailed          string
+	AIChatPlanGenerated       string
+	AIChatStatusLabel         string
+	AIChatActionLabel         string
+	AIChatGreeting            string
+	AIChatCapabilities        string
+	AIChatInputPrompt         string
+	AIChatStoppedGeneration   string
+	AIChatCallingToolPrefix   string
+	AIChatToolCompletedPrefix string
+	AIChatToolFailedPrefix    string
 
 	// AI Two Phase Agent
-	AITwoPhaseAgentSystemPromptIntro         string
-	AITwoPhaseAgentWorkflowTitle             string
-	AITwoPhaseAgentWorkflowStep1             string
-	AITwoPhaseAgentWorkflowStep2             string
-	AITwoPhaseAgentWorkflowStep2Sub1         string
-	AITwoPhaseAgentWorkflowStep2Sub2         string
-	AITwoPhaseAgentWorkflowStep2Sub3         string
-	AITwoPhaseAgentWorkflowStep3             string
-	AITwoPhaseAgentWorkflowStep3Sub1         string
-	AITwoPhaseAgentWorkflowStep3Sub2         string
-	AITwoPhaseAgentWorkflowStep4             string
-	AITwoPhaseAgentWorkflowStep5             string
-	AITwoPhaseAgentWorkflowStep6             string
-	AITwoPhaseAgentToolNameTitle             string
-	AITwoPhaseAgentToolNameIntro             string
-	AITwoPhaseAgentToolNameStageFile         string
-	AITwoPhaseAgentToolNameDontUseAdd        string
-	AITwoPhaseAgentToolNameCommit            string
-	AITwoPhaseAgentToolNameDontUseGitCommit  string
-	AITwoPhaseAgentToolNameCheckout          string
-	AITwoPhaseAgentToolNameDontUseSwitch     string
-	AITwoPhaseAgentToolNameCreateBranch      string
-	AITwoPhaseAgentToolNameDontUseBranch     string
-	AITwoPhaseAgentSpecialToolTitle          string
-	AITwoPhaseAgentSpecialToolIntro          string
-	AITwoPhaseAgentSpecialToolUsage1         string
-	AITwoPhaseAgentSpecialToolUsage2         string
-	AITwoPhaseAgentSpecialToolUsage3         string
-	AITwoPhaseAgentSpecialToolExample        string
-	AITwoPhaseAgentSpecialToolExampleReturn  string
-	AITwoPhaseAgentSpecialToolExamplePlan    string
-	AITwoPhaseAgentPlanFormatTitle           string
-	AITwoPhaseAgentPlanFormatExample         string
-	AITwoPhaseAgentNotesTitle                string
-	AITwoPhaseAgentNotesParam                string
-	AITwoPhaseAgentNotesCriticalTrue         string
-	AITwoPhaseAgentNotesCriticalFalse        string
-	AITwoPhaseAgentNotesMinimal              string
-	AITwoPhaseAgentExecuting                 string
-	AITwoPhaseAgentRepoStatusTitle           string
-	AITwoPhaseAgentUserInstructionTitle      string
-	AITwoPhaseAgentPlanAdjustment            string
-	AITwoPhaseAgentExecutionCancelled        string
-	AITwoPhaseAgentPlanValidationFailed      string
-	AITwoPhaseAgentPlanErrorsIntro           string
-	AITwoPhaseAgentPlanRegeneratePrompt      string
-	AITwoPhaseAgentContinueAnalysis          string
-	AITwoPhaseAgentToolCallWarning           string
-	AITwoPhaseAgentSystemPrefix              string
-	AITwoPhaseAgentUserFeedbackPrompt        string
-	AITwoPhaseAgentToolResultPrefix          string
-	AITwoPhaseAgentMaxStepsExceeded          string
-	AITwoPhaseAgentEmptyResponseError        string
+	AITwoPhaseAgentSystemPromptIntro        string
+	AITwoPhaseAgentWorkflowTitle            string
+	AITwoPhaseAgentWorkflowStep1            string
+	AITwoPhaseAgentWorkflowStep2            string
+	AITwoPhaseAgentWorkflowStep2Sub1        string
+	AITwoPhaseAgentWorkflowStep2Sub2        string
+	AITwoPhaseAgentWorkflowStep2Sub3        string
+	AITwoPhaseAgentWorkflowStep3            string
+	AITwoPhaseAgentWorkflowStep3Sub1        string
+	AITwoPhaseAgentWorkflowStep3Sub2        string
+	AITwoPhaseAgentWorkflowStep4            string
+	AITwoPhaseAgentWorkflowStep5            string
+	AITwoPhaseAgentWorkflowStep6            string
+	AITwoPhaseAgentToolNameTitle            string
+	AITwoPhaseAgentToolNameIntro            string
+	AITwoPhaseAgentToolNameStageFile        string
+	AITwoPhaseAgentToolNameDontUseAdd       string
+	AITwoPhaseAgentToolNameCommit           string
+	AITwoPhaseAgentToolNameDontUseGitCommit string
+	AITwoPhaseAgentToolNameCheckout         string
+	AITwoPhaseAgentToolNameDontUseSwitch    string
+	AITwoPhaseAgentToolNameCreateBranch     string
+	AITwoPhaseAgentToolNameDontUseBranch    string
+	AITwoPhaseAgentSpecialToolTitle         string
+	AITwoPhaseAgentSpecialToolIntro         string
+	AITwoPhaseAgentSpecialToolUsage1        string
+	AITwoPhaseAgentSpecialToolUsage2        string
+	AITwoPhaseAgentSpecialToolUsage3        string
+	AITwoPhaseAgentSpecialToolExample       string
+	AITwoPhaseAgentSpecialToolExampleReturn string
+	AITwoPhaseAgentSpecialToolExamplePlan   string
+	AITwoPhaseAgentPlanFormatTitle          string
+	AITwoPhaseAgentPlanFormatExample        string
+	AITwoPhaseAgentNotesTitle               string
+	AITwoPhaseAgentNotesParam               string
+	AITwoPhaseAgentNotesCriticalTrue        string
+	AITwoPhaseAgentNotesCriticalFalse       string
+	AITwoPhaseAgentNotesMinimal             string
+	AITwoPhaseAgentExecuting                string
+	AITwoPhaseAgentRepoStatusTitle          string
+	AITwoPhaseAgentUserInstructionTitle     string
+	AITwoPhaseAgentPlanAdjustment           string
+	AITwoPhaseAgentExecutionCancelled       string
+	AITwoPhaseAgentPlanValidationFailed     string
+	AITwoPhaseAgentPlanErrorsIntro          string
+	AITwoPhaseAgentPlanRegeneratePrompt     string
+	AITwoPhaseAgentContinueAnalysis         string
+	AITwoPhaseAgentToolCallWarning          string
+	AITwoPhaseAgentSystemPrefix             string
+	AITwoPhaseAgentUserFeedbackPrompt       string
+	AITwoPhaseAgentToolResultPrefix         string
+	AITwoPhaseAgentMaxStepsExceeded         string
+	AITwoPhaseAgentEmptyResponseError       string
 }
 
 type Bisect struct {
@@ -2288,6 +2290,8 @@ func EnglishTranslationSet() *TranslationSet {
 		AISettingsModelPrompt:                "Enter model name (e.g. deepseek-reasoner, gpt-4o-mini)",
 		AISettingsSetEndpoint:                "Set Endpoint",
 		AISettingsEndpointPrompt:             "Enter API endpoint URL (e.g. http://localhost:11434/v1)",
+		AISettingsSetWireAPI:                 "Set Wire API",
+		AISettingsWireAPIDefault:             "default (chat)",
 		AISettingsSaved:                      "AI settings saved",
 		AISettingsActiveProfile:              "Active profile",
 		AISettingsSwitchProfile:              "Switch active profile",
@@ -2356,114 +2360,114 @@ func EnglishTranslationSet() *TranslationSet {
 		AIGeneratingPRDescriptionStatus:      "AI generating PR description...",
 		PRDescriptionCopiedToClipboard:       "PR description copied to clipboard! You can paste it when the PR page opens.",
 		// AI Diff Filter
-		AIDiffSkipped:                        "Skipped %s: %s",
-		AIDiffBinaryFile:                     "binary file",
-		AIDiffLockOrGeneratedFile:            "lock/generated file",
-		AIDiffChangeStats:                    "# Change Statistics",
-		AIDiffFilesCount:                     "- Files: %d",
-		AIDiffFileTypes:                      "- File types: ",
-		AIDiffChangeScale:                    "- Change scale: +%d/-%d lines",
-		AIDiffMajorChanges:                   "- Major changes: ",
-		AIDiffNewFile:                        "[New]",
-		AIDiffDeletedFile:                    "[Deleted]",
-		AIDiffRenamedFile:                    "[Renamed]",
-		AIDiffModifiedFile:                   "[Modified]",
-		AIDiffTruncated:                      "[%s diff is large, %d lines total, truncated to first %d lines]",
-		AIDiffSmartTruncated:                 "[%s smart truncated: preserved %d/%d lines of key code (function signatures, important comments, etc.)]",
+		AIDiffSkipped:             "Skipped %s: %s",
+		AIDiffBinaryFile:          "binary file",
+		AIDiffLockOrGeneratedFile: "lock/generated file",
+		AIDiffChangeStats:         "# Change Statistics",
+		AIDiffFilesCount:          "- Files: %d",
+		AIDiffFileTypes:           "- File types: ",
+		AIDiffChangeScale:         "- Change scale: +%d/-%d lines",
+		AIDiffMajorChanges:        "- Major changes: ",
+		AIDiffNewFile:             "[New]",
+		AIDiffDeletedFile:         "[Deleted]",
+		AIDiffRenamedFile:         "[Renamed]",
+		AIDiffModifiedFile:        "[Modified]",
+		AIDiffTruncated:           "[%s diff is large, %d lines total, truncated to first %d lines]",
+		AIDiffSmartTruncated:      "[%s smart truncated: preserved %d/%d lines of key code (function signatures, important comments, etc.)]",
 		// AI Helper Messages
-		AICodeReviewCancelled:                "AI code review cancelled",
-		AINotEnabledPleaseConfig:             "AI is not enabled. Please enable AI and configure a profile first",
-		AITestingConnection:                  "Testing AI connection...",
-		AIConnectionTestFailed:               "AI connection test failed",
-		AIEmptyResponse:                      "AI returned an empty response",
-		AIConnectionTestSuccess:              "✓ AI connection test successful!",
-		AIConnectionTestSuccessDetail:        "✓ AI connection test successful!\nProfile: %s\nResponse: %s",
-		APIKeyCannotBeEmpty:                  "API Key cannot be empty",
-		AIConfigComplete:                     "AI Configuration Complete",
-		AIConfigCompletePrompt:               "✓ %s Profile created and activated!\n\nTest connection now?",
-		AIWelcomeWizardTitle:                 "Welcome to AI Features - First Time Setup Wizard",
-		UseDeepSeekRecommended:               "Use DeepSeek",
-		UseOpenAI:                             "Use OpenAI (Recommended)",
-		UseAnthropicClaude:                   "Use Anthropic Claude",
-		UseOllamaLocal:                       "Use Ollama (Local Model)",
-		ConfigureLater:                       "Configure Later (Go to AI Settings)",
-		TestCurrentProfile:                   "Test Current Profile Connection",
-		SetupProviderAPIKey:                  "Setup %s API Key",
+		AICodeReviewCancelled:         "AI code review cancelled",
+		AINotEnabledPleaseConfig:      "AI is not enabled. Please enable AI and configure a profile first",
+		AITestingConnection:           "Testing AI connection...",
+		AIConnectionTestFailed:        "AI connection test failed",
+		AIEmptyResponse:               "AI returned an empty response",
+		AIConnectionTestSuccess:       "✓ AI connection test successful!",
+		AIConnectionTestSuccessDetail: "✓ AI connection test successful!\nProfile: %s\nResponse: %s",
+		APIKeyCannotBeEmpty:           "API Key cannot be empty",
+		AIConfigComplete:              "AI Configuration Complete",
+		AIConfigCompletePrompt:        "✓ %s Profile created and activated!\n\nTest connection now?",
+		AIWelcomeWizardTitle:          "Welcome to AI Features - First Time Setup Wizard",
+		UseDeepSeekRecommended:        "Use DeepSeek",
+		UseOpenAI:                     "Use OpenAI (Recommended)",
+		UseAnthropicClaude:            "Use Anthropic Claude",
+		UseOllamaLocal:                "Use Ollama (Local Model)",
+		ConfigureLater:                "Configure Later (Go to AI Settings)",
+		TestCurrentProfile:            "Test Current Profile Connection",
+		SetupProviderAPIKey:           "Setup %s API Key",
 		// AI Diff Filter Additional
-		AIDiffSkippedFilesNote:               " (plus %d lock/binary/generated files skipped)",
+		AIDiffSkippedFilesNote: " (plus %d lock/binary/generated files skipped)",
 		// AI Assistant Prompts
-		AIAssistantSystemPrompt:              "You are a git command generator. Based on user requirements and repository status, generate shell/git commands that need to be executed.\n\n",
-		AIAssistantRules:                     "Rules:\n- Output only directly executable commands, one per line\n- Do not output any explanations, comments (starting with #), or markdown\n- Commands should be in execution order\n- If the requirement cannot be safely completed with git commands, output on the first line: CANNOT_EXECUTE: <reason>\n\n",
-		AIAssistantRepoState:                 "Current repository status:\n%s\n",
-		AIAssistantUserRequest:               "User requirement: %s",
+		AIAssistantSystemPrompt: "You are a git command generator. Based on user requirements and repository status, generate shell/git commands that need to be executed.\n\n",
+		AIAssistantRules:        "Rules:\n- Output only directly executable commands, one per line\n- Do not output any explanations, comments (starting with #), or markdown\n- Commands should be in execution order\n- If the requirement cannot be safely completed with git commands, output on the first line: CANNOT_EXECUTE: <reason>\n\n",
+		AIAssistantRepoState:    "Current repository status:\n%s\n",
+		AIAssistantUserRequest:  "User requirement: %s",
 		// AI Branch Naming Prompts
-		AIBranchNameSystemPrompt:             "You are a git branch naming assistant.\n\n",
-		AIBranchNameTask:                     "Task: Based on the following changes, suggest a standard git branch name.\n\n",
-		AIBranchNameRules:                    "Branch naming rules:\n- Format: <type>/<short-description>\n- Type: feature (new feature), bugfix (fix bug), refactor (refactoring), docs (documentation), test (testing), chore (miscellaneous)\n- Description: use kebab-case (lowercase letters and hyphens), concise and clear, no more than 50 characters\n- Examples: feature/user-authentication, bugfix/login-crash, refactor/api-client\n\n",
-		AIBranchNameChanges:                  "Changes:\n%s\n",
-		AIBranchNameDiffSummary:              "Diff summary:\n```diff\n%s\n```\n\n",
-		AIBranchNameRequirements:             "Requirements:\n- Output only one branch name (do not include any explanations or quotes)\n- Must conform to the above format and rules\n- Use English naming\n",
+		AIBranchNameSystemPrompt: "You are a git branch naming assistant.\n\n",
+		AIBranchNameTask:         "Task: Based on the following changes, suggest a standard git branch name.\n\n",
+		AIBranchNameRules:        "Branch naming rules:\n- Format: <type>/<short-description>\n- Type: feature (new feature), bugfix (fix bug), refactor (refactoring), docs (documentation), test (testing), chore (miscellaneous)\n- Description: use kebab-case (lowercase letters and hyphens), concise and clear, no more than 50 characters\n- Examples: feature/user-authentication, bugfix/login-crash, refactor/api-client\n\n",
+		AIBranchNameChanges:      "Changes:\n%s\n",
+		AIBranchNameDiffSummary:  "Diff summary:\n```diff\n%s\n```\n\n",
+		AIBranchNameRequirements: "Requirements:\n- Output only one branch name (do not include any explanations or quotes)\n- Must conform to the above format and rules\n- Use English naming\n",
 		// AI PR Description Prompts
-		AIPRDescSystemPrompt:                 "You are a Pull Request description generation assistant.\n\n",
-		AIPRDescTask:                         "Task: Based on the following commit history and code changes, generate a professional PR description.\n\n",
-		AIPRDescCommitHistory:                "Commit history:\n",
-		AIPRDescCodeChanges:                  "Code changes:\n```diff\n%s\n```\n\n",
-		AIPRDescFormatRequirements:           "PR description format requirements:\n",
-		AIPRDescSummarySection:               "## Summary\nSummarize the main purpose and value of this PR in one sentence.\n\n",
-		AIPRDescChangesSection:               "## Changes\n- List main feature changes, bug fixes, or refactoring (3-5 points)\n\n",
-		AIPRDescTechDetailsSection:           "## Technical Details (optional)\n- If there are important technical implementation details or architectural changes, briefly explain\n\n",
-		AIPRDescTestingSection:               "## Testing\n- [ ] Unit tests passed\n- [ ] Manual testing completed\n- [ ] Code review ready\n\n",
-		AIPRDescOutputRequirements:           "Output requirements:\n- Use Simplified Chinese (except for code and technical terms)\n- Use Markdown format\n- Concise and professional, highlight key points\n- Do not include title (# Pull Request), start directly from summary\n",
-		AIPRDescBranchInfo:                   "Source branch: %s/%s\nTarget branch: %s\n",
-		AIPRDescDiffUnavailable:              "[Unable to get complete diff: %v]\nNumber of commits: %d\n",
-		AIPRDescDiffTruncated:                "\n[diff truncated, showing only first 15000 characters]",
-		AIPRDescMoreCommits:                  "\n... %d more commits\n",
+		AIPRDescSystemPrompt:       "You are a Pull Request description generation assistant.\n\n",
+		AIPRDescTask:               "Task: Based on the following commit history and code changes, generate a professional PR description.\n\n",
+		AIPRDescCommitHistory:      "Commit history:\n",
+		AIPRDescCodeChanges:        "Code changes:\n```diff\n%s\n```\n\n",
+		AIPRDescFormatRequirements: "PR description format requirements:\n",
+		AIPRDescSummarySection:     "## Summary\nSummarize the main purpose and value of this PR in one sentence.\n\n",
+		AIPRDescChangesSection:     "## Changes\n- List main feature changes, bug fixes, or refactoring (3-5 points)\n\n",
+		AIPRDescTechDetailsSection: "## Technical Details (optional)\n- If there are important technical implementation details or architectural changes, briefly explain\n\n",
+		AIPRDescTestingSection:     "## Testing\n- [ ] Unit tests passed\n- [ ] Manual testing completed\n- [ ] Code review ready\n\n",
+		AIPRDescOutputRequirements: "Output requirements:\n- Use Simplified Chinese (except for code and technical terms)\n- Use Markdown format\n- Concise and professional, highlight key points\n- Do not include title (# Pull Request), start directly from summary\n",
+		AIPRDescBranchInfo:         "Source branch: %s/%s\nTarget branch: %s\n",
+		AIPRDescDiffUnavailable:    "[Unable to get complete diff: %v]\nNumber of commits: %d\n",
+		AIPRDescDiffTruncated:      "\n[diff truncated, showing only first 15000 characters]",
+		AIPRDescMoreCommits:        "\n... %d more commits\n",
 		// AI Code Review Prompts
-		AICodeReviewSystemPrompt:             "You are a senior software engineer conducting a code review on the following git diff.\n\n",
-		AICodeReviewFile:                     "**File:** %s\n\n",
-		AICodeReviewCorePrinciples:           "## Core Principles\n",
-		AICodeReviewConservative:             "- **Conservative review**: Only report issues you are **certain** exist. When uncertain, prefer not to report rather than guess.\n",
-		AICodeReviewRespectContext:           "- **Respect context limitations**: You can only see the diff, not the complete file. If an issue requires full file context to judge (such as whether an error is already handled elsewhere), skip it and do not assume.\n",
-		AICodeReviewFocusNewLines:            "- **Focus on new lines**: Focus on reviewing new lines starting with `+`; `-` deleted lines and context lines are only for understanding intent, do not comment on them.\n",
-		AICodeReviewRejectFalsePositives:     "- **Reject false positives**: Do not flag correct idiomatic code as issues; do not mark code as problematic just because it's \"not how you would write it\".\n",
-		AICodeReviewSeverityLevels:           "\n## Severity Levels (only use when confirmed)\n",
-		AICodeReviewCritical:                 "- **CRITICAL**: Bugs that will cause crashes, data corruption, security vulnerabilities, or clear logic errors.\n",
-		AICodeReviewMajor:                    "- **MAJOR**: Resource leaks, clear missing error handling (visible in diff), API usage errors.\n",
-		AICodeReviewMinor:                    "- **MINOR**: Edge cases that might cause problems, code that could be more robust but currently works.\n",
-		AICodeReviewNit:                      "- **NIT**: Pure style issues, only report when it truly affects readability.\n",
-		AICodeReviewOutputFormat:             "\n## Output Format (output in Simplified Chinese, keep code snippets in original language)\n\n",
-		AICodeReviewSummarySection:           "### Summary\nOne sentence explaining the purpose of this change and whether it is overall correct.\n\n",
-		AICodeReviewIssuesSection:            "### Issue List\nUse the following format for each issue, with blank lines between issues:\n\n",
-		AICodeReviewIssueFormat:              "**[Level] Category — Title**\nCode: `<problematic code snippet>`\nIssue: <issue description and impact>\nSuggestion: <specific fix or code>\n\n",
-		AICodeReviewNoIssues:                 "If no issues, write directly: No issues\n\n",
-		AICodeReviewConclusionSection:        "### Conclusion\n",
-		AICodeReviewConclusionLGTM:           "No issues: LGTM, one sentence explaining it can be merged.\n",
-		AICodeReviewConclusionHasIssues:      "Has issues: List CRITICAL/MAJOR items that must be fixed; MINOR/NIT can be summarized in one sentence.\n\n",
-		AICodeReviewDiffSection:              "---\n\n## Diff\n",
-		AICodeReviewLanguageHint:             " (%s)",
-		AICodeReviewLanguageChecks:           "\n## Language-Specific Checks%s\n%s\n",
+		AICodeReviewSystemPrompt:         "You are a senior software engineer conducting a code review on the following git diff.\n\n",
+		AICodeReviewFile:                 "**File:** %s\n\n",
+		AICodeReviewCorePrinciples:       "## Core Principles\n",
+		AICodeReviewConservative:         "- **Conservative review**: Only report issues you are **certain** exist. When uncertain, prefer not to report rather than guess.\n",
+		AICodeReviewRespectContext:       "- **Respect context limitations**: You can only see the diff, not the complete file. If an issue requires full file context to judge (such as whether an error is already handled elsewhere), skip it and do not assume.\n",
+		AICodeReviewFocusNewLines:        "- **Focus on new lines**: Focus on reviewing new lines starting with `+`; `-` deleted lines and context lines are only for understanding intent, do not comment on them.\n",
+		AICodeReviewRejectFalsePositives: "- **Reject false positives**: Do not flag correct idiomatic code as issues; do not mark code as problematic just because it's \"not how you would write it\".\n",
+		AICodeReviewSeverityLevels:       "\n## Severity Levels (only use when confirmed)\n",
+		AICodeReviewCritical:             "- **CRITICAL**: Bugs that will cause crashes, data corruption, security vulnerabilities, or clear logic errors.\n",
+		AICodeReviewMajor:                "- **MAJOR**: Resource leaks, clear missing error handling (visible in diff), API usage errors.\n",
+		AICodeReviewMinor:                "- **MINOR**: Edge cases that might cause problems, code that could be more robust but currently works.\n",
+		AICodeReviewNit:                  "- **NIT**: Pure style issues, only report when it truly affects readability.\n",
+		AICodeReviewOutputFormat:         "\n## Output Format (output in Simplified Chinese, keep code snippets in original language)\n\n",
+		AICodeReviewSummarySection:       "### Summary\nOne sentence explaining the purpose of this change and whether it is overall correct.\n\n",
+		AICodeReviewIssuesSection:        "### Issue List\nUse the following format for each issue, with blank lines between issues:\n\n",
+		AICodeReviewIssueFormat:          "**[Level] Category — Title**\nCode: `<problematic code snippet>`\nIssue: <issue description and impact>\nSuggestion: <specific fix or code>\n\n",
+		AICodeReviewNoIssues:             "If no issues, write directly: No issues\n\n",
+		AICodeReviewConclusionSection:    "### Conclusion\n",
+		AICodeReviewConclusionLGTM:       "No issues: LGTM, one sentence explaining it can be merged.\n",
+		AICodeReviewConclusionHasIssues:  "Has issues: List CRITICAL/MAJOR items that must be fixed; MINOR/NIT can be summarized in one sentence.\n\n",
+		AICodeReviewDiffSection:          "---\n\n## Diff\n",
+		AICodeReviewLanguageHint:         " (%s)",
+		AICodeReviewLanguageChecks:       "\n## Language-Specific Checks%s\n%s\n",
 		// AI Error Messages
-		AIRequestTimeout:                     "AI request timed out. Please try again later or adjust timeout in AI settings (Ctrl+A → Edit Profile → Timeout)",
-		APIKeyInvalid:                        "API key is invalid. Please check the key in AI settings (Ctrl+A → Edit Profile → API Key)",
-		APIRateLimitExceeded:                 "API rate limit exceeded. Please try again later or consider switching providers (Ctrl+A → Switch Profile)",
-		NetworkConnectionFailed:              "Network connection failed. Please check your network connection or Endpoint configuration in AI settings (Ctrl+A → Edit Profile → Endpoint)",
-		ModelNotAvailable:                    "Model is not available. Please select another model in AI settings (Ctrl+A → Edit Profile → Model)",
-		APIQuotaExhausted:                    "API quota exhausted. Please check your account balance or switch providers (Ctrl+A → Switch Profile)",
-		InputTooLong:                         "Input is too long and exceeds model limits. Please reduce the number of staged files or increase MaxTokens in AI settings (Ctrl+A → Edit Profile → MaxTokens)",
+		AIRequestTimeout:        "AI request timed out. Please try again later or adjust timeout in AI settings (Ctrl+A → Edit Profile → Timeout)",
+		APIKeyInvalid:           "API key is invalid. Please check the key in AI settings (Ctrl+A → Edit Profile → API Key)",
+		APIRateLimitExceeded:    "API rate limit exceeded. Please try again later or consider switching providers (Ctrl+A → Switch Profile)",
+		NetworkConnectionFailed: "Network connection failed. Please check your network connection or Endpoint configuration in AI settings (Ctrl+A → Edit Profile → Endpoint)",
+		ModelNotAvailable:       "Model is not available. Please select another model in AI settings (Ctrl+A → Edit Profile → Model)",
+		APIQuotaExhausted:       "API quota exhausted. Please check your account balance or switch providers (Ctrl+A → Switch Profile)",
+		InputTooLong:            "Input is too long and exceeds model limits. Please reduce the number of staged files or increase MaxTokens in AI settings (Ctrl+A → Edit Profile → MaxTokens)",
 		// AI Context Messages
-		CurrentBranch:                        "Current branch: %s",
-		TrackingRemoteBranchAheadBehind:      "  Tracking remote branch: %s (local ahead %s commits, behind %s commits)",
-		TrackingRemoteBranchAhead:            "  Tracking remote branch: %s (local ahead %s commits, not pushed)",
-		TrackingRemoteBranchBehind:           "  Tracking remote branch: %s (local behind %s commits, need to pull)",
-		TrackingRemoteBranchSynced:           "  Tracking remote branch: %s (synced)",
-		NotTrackingRemoteBranch:              "  Not tracking remote branch (local branch)",
-		WorkingTreeState:                     "\nWorking tree state: %s",
-		ChangeStats:                          "\nChange stats: staged %d, unstaged %d, untracked %d",
-		RecentCommits:                        "\nRecent commits:",
-		ChangedFiles:                         "\nChanged files:",
-		MoreFiles:                            "  ... (%d more files)",
-		StashList:                            "\nStash list: %d stashes",
-		MoreStashes:                          "  ... (%d more stashes)",
+		CurrentBranch:                   "Current branch: %s",
+		TrackingRemoteBranchAheadBehind: "  Tracking remote branch: %s (local ahead %s commits, behind %s commits)",
+		TrackingRemoteBranchAhead:       "  Tracking remote branch: %s (local ahead %s commits, not pushed)",
+		TrackingRemoteBranchBehind:      "  Tracking remote branch: %s (local behind %s commits, need to pull)",
+		TrackingRemoteBranchSynced:      "  Tracking remote branch: %s (synced)",
+		NotTrackingRemoteBranch:         "  Not tracking remote branch (local branch)",
+		WorkingTreeState:                "\nWorking tree state: %s",
+		ChangeStats:                     "\nChange stats: staged %d, unstaged %d, untracked %d",
+		RecentCommits:                   "\nRecent commits:",
+		ChangedFiles:                    "\nChanged files:",
+		MoreFiles:                       "  ... (%d more files)",
+		StashList:                       "\nStash list: %d stashes",
+		MoreStashes:                     "  ... (%d more stashes)",
 		// AI Branch and PR Messages
 		AINotEnabledConfigFirst:              "AI is not enabled. Press Ctrl+A to configure AI settings",
 		NoChangesForBranchName:               "No changes in working tree. Please make some changes before using AI branch name suggestion",
@@ -2823,7 +2827,7 @@ func EnglishTranslationSet() *TranslationSet {
 		ToggleShowCommandLog:                     "Toggle show/hide command log",
 		FocusCommandLog:                          "Focus command log",
 		CopyCommandLog:                           "Copy command log to clipboard",
-		CommandLogCopiedToClipboard:             "Command log copied to clipboard",
+		CommandLogCopiedToClipboard:              "Command log copied to clipboard",
 		CommandLogHeader:                         "You can hide/focus this panel by pressing '%s'\n",
 		RandomTip:                                "Random tip",
 		ToggleWhitespaceInDiffView:               "Toggle whitespace",
@@ -3202,20 +3206,20 @@ keybinding:
 		},
 
 		// AI Common
-		AICancel:                            "Cancel",
-		AIOK:                                "OK",
-		AIConfirm:                           "Confirm",
-		AIYes:                               "Yes",
-		AINo:                                "No",
-		AISuccess:                           "Success",
-		AIFailed:                            "Failed",
-		AIWarning:                           "Warning",
-		AIUnknown:                           "Unknown",
-		AIExecuting:                         "Executing",
-		AIThinking:                          "Thinking",
-		AIIdle:                              "Idle",
-		AICancelled:                         "Cancelled",
-		AIThinkingInProgress:                "Thinking...",
+		AICancel:             "Cancel",
+		AIOK:                 "OK",
+		AIConfirm:            "Confirm",
+		AIYes:                "Yes",
+		AINo:                 "No",
+		AISuccess:            "Success",
+		AIFailed:             "Failed",
+		AIWarning:            "Warning",
+		AIUnknown:            "Unknown",
+		AIExecuting:          "Executing",
+		AIThinking:           "Thinking",
+		AIIdle:               "Idle",
+		AICancelled:          "Cancelled",
+		AIThinkingInProgress: "Thinking...",
 
 		// AI Agent
 		AIAgentToolNotAllowedInPlanning:     "Tool not allowed in planning phase: %s",
@@ -3240,30 +3244,30 @@ keybinding:
 		AIAgentParamsLabel:                  "Parameters",
 
 		// AI Tools
-		AIToolMissingParam:          "Missing %s parameter",
-		AIToolMissingNameParam:      "Missing name parameter",
-		AIToolMissingPathParam:      "Missing path parameter",
-		AIToolMissingMessageParam:   "Missing message parameter",
-		AIToolMissingHashParam:      "Missing hash parameter",
-		AIToolFilePath:              "File path",
-		AIToolBranchName:            "Branch name",
-		AIToolTagName:               "Tag name",
-		AIToolCommitMessage:         "Commit message",
-		AIToolNoChanges:             "No changes",
-		AIToolWorkingDir:            "Working directory",
-		AIToolStagingArea:           "Staging area",
-		AIToolTargetRefOrHash:       "Target ref or hash (preferred)",
-		AIToolResetSteps:            "Reset steps (used when ref is empty, default 1)",
-		AIToolStashIndex:            "Stash index, default 0",
-		AIToolMaxLines:              "Maximum lines to return (default 300, 0 for unlimited)",
-		AIToolOffset:                "Starting line offset for pagination (0-based, default 0)",
-		AIToolTargetRef:             "Target ref (default HEAD)",
-		AIToolPushConfigError:       "Push configuration error: %v",
-		AIToolRebasedTo:             "Rebased current branch to %s",
-		AIToolRenameFailed:          "Rename failed: %v",
-		AIToolDiscardChangesFailed:  "Discard changes failed: %v",
-		AIToolParam:                 "Parameter",
-		AIToolValue:                 "Value",
+		AIToolMissingParam:         "Missing %s parameter",
+		AIToolMissingNameParam:     "Missing name parameter",
+		AIToolMissingPathParam:     "Missing path parameter",
+		AIToolMissingMessageParam:  "Missing message parameter",
+		AIToolMissingHashParam:     "Missing hash parameter",
+		AIToolFilePath:             "File path",
+		AIToolBranchName:           "Branch name",
+		AIToolTagName:              "Tag name",
+		AIToolCommitMessage:        "Commit message",
+		AIToolNoChanges:            "No changes",
+		AIToolWorkingDir:           "Working directory",
+		AIToolStagingArea:          "Staging area",
+		AIToolTargetRefOrHash:      "Target ref or hash (preferred)",
+		AIToolResetSteps:           "Reset steps (used when ref is empty, default 1)",
+		AIToolStashIndex:           "Stash index, default 0",
+		AIToolMaxLines:             "Maximum lines to return (default 300, 0 for unlimited)",
+		AIToolOffset:               "Starting line offset for pagination (0-based, default 0)",
+		AIToolTargetRef:            "Target ref (default HEAD)",
+		AIToolPushConfigError:      "Push configuration error: %v",
+		AIToolRebasedTo:            "Rebased current branch to %s",
+		AIToolRenameFailed:         "Rename failed: %v",
+		AIToolDiscardChangesFailed: "Discard changes failed: %v",
+		AIToolParam:                "Parameter",
+		AIToolValue:                "Value",
 
 		// AI Tools - Schema descriptions
 		AIToolGetStatusDesc:              "Get current repository status (branch, working tree files, rebase/merge progress)",
@@ -3282,10 +3286,10 @@ keybinding:
 		AIToolGetStashDiffIndexParam:     "Stash index, default 0 (most recent stash)",
 		AIToolGetCommitDiffDesc:          "Get diff for a specific commit (default HEAD)",
 		AIToolGetCommitDiffHashParam:     "Commit hash; leave empty for HEAD",
-		AIToolGetBranchDiffDesc:        "Get diff between two branches or commits. Uses three-dot syntax (A...B): shows changes on target since it diverged from base",
-		AIToolGetBranchDiffBaseParam:   "Base ref: branch name, tag, or commit hash (e.g. main, v1.0)",
-		AIToolGetBranchDiffTargetParam: "Target ref to diff against base (default HEAD)",
-		AIToolGetBranchDiffEmpty:       "No differences between %s and %s",
+		AIToolGetBranchDiffDesc:          "Get diff between two branches or commits. Uses three-dot syntax (A...B): shows changes on target since it diverged from base",
+		AIToolGetBranchDiffBaseParam:     "Base ref: branch name, tag, or commit hash (e.g. main, v1.0)",
+		AIToolGetBranchDiffTargetParam:   "Target ref to diff against base (default HEAD)",
+		AIToolGetBranchDiffEmpty:         "No differences between %s and %s",
 		AIToolStageAllDesc:               "Stage all working tree changes",
 		AIToolStageFileDesc:              "Stage a specific file",
 		AIToolUnstageAllDesc:             "Unstage all staged changes (git reset HEAD)",
@@ -3415,26 +3419,26 @@ keybinding:
 		AIToolUnknownOperationType:  `Unknown operation type: %q, supported: %s`,
 
 		// AI Skills
-		AISkillCurrentBranch:     "Current branch: %s\n",
-		AISkillBranchNameOnly:    "- Output branch name only, no explanation\n",
-		AISkillBranchNameFormat:  "- description: lowercase kebab-case, 2-5 words\n",
-		AISkillWindowsGitBash:    "Windows + Git Bash, use && to connect commands",
-		AISkillRuntime:           "Runtime environment: %s\n\n",
-		AISkillOutputJSONArray:   "Output JSON array, each element contains:\n",
-		AISkillExplanation:       "- explanation: Chinese explanation (1-2 sentences)\n",
-		AISkillCommitSubject:     "- subject: Chinese, verb-first, imperative, max 72 chars\n",
-		AISkillTestScenario:      "Scenario hint: This is test-related change, use test type.\n",
-		AISkillOutputCommitMsg:   "\nPlease output commit message directly:",
-		AISkillRefactorScenario:  "Scenario hint: This is refactoring, prefer refactor type.\n",
-		AISkillGeneratePRDesc:    "## Please generate PR description with the following sections\n",
-		AISkillPRSummary:         "### Summary\nOne sentence describing the purpose of this PR.\n\n",
-		AISkillPRTesting:         "### Testing\n- Explain how to verify these changes\n",
-		AISkillCodeChanges:       "## Code Changes\n```diff\n",
-		AISkillDiffSummary:       "\nDiff summary:\n```diff\n",
-		AISkillRepoContext:       "## Repository Context\n",
-		AISkillCodeChangesTitle:  "## Code Changes\n",
-		AISkillBranchInfo:        "## Branch Info\nMerging from `%s` to `%s`\n\n",
-		AISkillCommitHistory:     "## Commit History\n",
+		AISkillCurrentBranch:    "Current branch: %s\n",
+		AISkillBranchNameOnly:   "- Output branch name only, no explanation\n",
+		AISkillBranchNameFormat: "- description: lowercase kebab-case, 2-5 words\n",
+		AISkillWindowsGitBash:   "Windows + Git Bash, use && to connect commands",
+		AISkillRuntime:          "Runtime environment: %s\n\n",
+		AISkillOutputJSONArray:  "Output JSON array, each element contains:\n",
+		AISkillExplanation:      "- explanation: Chinese explanation (1-2 sentences)\n",
+		AISkillCommitSubject:    "- subject: Chinese, verb-first, imperative, max 72 chars\n",
+		AISkillTestScenario:     "Scenario hint: This is test-related change, use test type.\n",
+		AISkillOutputCommitMsg:  "\nPlease output commit message directly:",
+		AISkillRefactorScenario: "Scenario hint: This is refactoring, prefer refactor type.\n",
+		AISkillGeneratePRDesc:   "## Please generate PR description with the following sections\n",
+		AISkillPRSummary:        "### Summary\nOne sentence describing the purpose of this PR.\n\n",
+		AISkillPRTesting:        "### Testing\n- Explain how to verify these changes\n",
+		AISkillCodeChanges:      "## Code Changes\n```diff\n",
+		AISkillDiffSummary:      "\nDiff summary:\n```diff\n",
+		AISkillRepoContext:      "## Repository Context\n",
+		AISkillCodeChangesTitle: "## Code Changes\n",
+		AISkillBranchInfo:       "## Branch Info\nMerging from `%s` to `%s`\n\n",
+		AISkillCommitHistory:    "## Commit History\n",
 
 		// AI Chat (GUI)
 		AIChatNotEnabled:         "AI not enabled",
@@ -3472,138 +3476,138 @@ keybinding:
 		AIManagerGenerateCommitMsg:  "Generate commit message following Conventional Commits specification based on staged diff",
 
 		// AI Analyze Tool
-		AIAnalyzeToolDescription:          "Intelligently analyze current changes: analyze diff file by file and integrate results (suitable for large change scenarios)",
-		AIAnalyzeToolStagedParam:          "true=analyze staging area, false=analyze working directory (default false)",
-		AIAnalyzeToolFocusParam:           "Analysis focus (e.g.: security issues, performance optimization, code quality, etc.), leave empty for comprehensive analysis",
-		AIAnalyzeWorkingDirClean:          "Working directory is clean, no changed files",
-		AIAnalyzeNoChanges:                "No changes in %s",
-		AIAnalyzeCancelled:                "Analysis cancelled",
-		AIAnalyzeFailed:                   "AI analysis failed: %w",
-		AIAnalyzeReportTitle:              "# Change Analysis Report\n\n",
-		AIAnalyzeReportTitleWithFocus:     "# Change Analysis Report (Focus: %s)\n\n",
-		AIAnalyzeFileCount:                "**File count**: %d files (successfully analyzed %d, failed %d)\n",
-		AIAnalyzeTotalLines:               "**Total changed lines**: approximately %d lines\n\n",
-		AIAnalyzeDetailedAnalysis:         "## Detailed Analysis\n\n",
-		AIAnalyzeAnalysisFailed:           "❌ **Analysis failed**: %s\n\n",
-		AIAnalyzeNoChangesInfo:            "ℹ️ No changes\n\n",
-		AIAnalyzeOverallSuggestions:       "## Overall Suggestions\n\n",
-		AIAnalyzeSuggestion1:              "1. Confirm all changes meet expectations\n",
-		AIAnalyzeSuggestion2:              "2. Run tests to ensure functionality is normal\n",
-		AIAnalyzeSuggestion3:              "3. Check for any missing files\n",
-		AIAnalyzeCodeReviewExpert:         "You are a code review expert, skilled at analyzing code changes. Please analyze the diff content concisely and accurately.",
-		AIAnalyzeFileLabel:                "## File: %s\n\n",
-		AIAnalyzePromptIntro:              "Please analyze the following diff and summarize in 2-3 sentences:\n",
-		AIAnalyzeFocusLabel:               "**Analysis focus**: %s\n\n",
-		AIAnalyzeMainChanges:              "- Main changes\n",
-		AIAnalyzePotentialIssues:          "- Potential issues (if any)\n",
-		AIAnalyzeImprovementSuggestions:   "- Improvement suggestions (if any)\n\n",
+		AIAnalyzeToolDescription:        "Intelligently analyze current changes: analyze diff file by file and integrate results (suitable for large change scenarios)",
+		AIAnalyzeToolStagedParam:        "true=analyze staging area, false=analyze working directory (default false)",
+		AIAnalyzeToolFocusParam:         "Analysis focus (e.g.: security issues, performance optimization, code quality, etc.), leave empty for comprehensive analysis",
+		AIAnalyzeWorkingDirClean:        "Working directory is clean, no changed files",
+		AIAnalyzeNoChanges:              "No changes in %s",
+		AIAnalyzeCancelled:              "Analysis cancelled",
+		AIAnalyzeFailed:                 "AI analysis failed: %w",
+		AIAnalyzeReportTitle:            "# Change Analysis Report\n\n",
+		AIAnalyzeReportTitleWithFocus:   "# Change Analysis Report (Focus: %s)\n\n",
+		AIAnalyzeFileCount:              "**File count**: %d files (successfully analyzed %d, failed %d)\n",
+		AIAnalyzeTotalLines:             "**Total changed lines**: approximately %d lines\n\n",
+		AIAnalyzeDetailedAnalysis:       "## Detailed Analysis\n\n",
+		AIAnalyzeAnalysisFailed:         "❌ **Analysis failed**: %s\n\n",
+		AIAnalyzeNoChangesInfo:          "ℹ️ No changes\n\n",
+		AIAnalyzeOverallSuggestions:     "## Overall Suggestions\n\n",
+		AIAnalyzeSuggestion1:            "1. Confirm all changes meet expectations\n",
+		AIAnalyzeSuggestion2:            "2. Run tests to ensure functionality is normal\n",
+		AIAnalyzeSuggestion3:            "3. Check for any missing files\n",
+		AIAnalyzeCodeReviewExpert:       "You are a code review expert, skilled at analyzing code changes. Please analyze the diff content concisely and accurately.",
+		AIAnalyzeFileLabel:              "## File: %s\n\n",
+		AIAnalyzePromptIntro:            "Please analyze the following diff and summarize in 2-3 sentences:\n",
+		AIAnalyzeFocusLabel:             "**Analysis focus**: %s\n\n",
+		AIAnalyzeMainChanges:            "- Main changes\n",
+		AIAnalyzePotentialIssues:        "- Potential issues (if any)\n",
+		AIAnalyzeImprovementSuggestions: "- Improvement suggestions (if any)\n\n",
 
 		// Command Completion
-		CompletionBranch:                  "Branch",
-		CompletionRemote:                  "Remote",
-		CompletionCommitRef:               "Commit reference",
-		CompletionTag:                     "Tag",
-		CompletionGitDesc:                 "Version control system",
-		CompletionCdDesc:                  "Change directory",
-		CompletionLsDesc:                  "List files",
-		CompletionPwdDesc:                 "Print working directory",
-		CompletionCatDesc:                 "Display file content",
-		CompletionGrepDesc:                "Search text",
-		CompletionFindDesc:                "Find files",
-		CompletionGitAddDesc:              "Add files to staging area",
-		CompletionGitCommitDesc:           "Commit changes",
-		CompletionGitPushDesc:             "Push to remote",
-		CompletionGitPullDesc:             "Pull from remote",
-		CompletionGitCheckoutDesc:         "Switch branch",
-		CompletionGitSwitchDesc:           "Switch branch (new)",
-		CompletionGitBranchDesc:           "Manage branches",
-		CompletionGitMergeDesc:            "Merge branches",
-		CompletionGitRebaseDesc:           "Rebase",
-		CompletionGitResetDesc:            "Reset commits",
-		CompletionGitRevertDesc:           "Revert commits",
-		CompletionGitStashDesc:            "Stash working directory",
-		CompletionGitLogDesc:              "View commit history",
-		CompletionGitDiffDesc:             "View differences",
-		CompletionGitStatusDesc:           "View status",
-		CompletionGitTagDesc:              "Manage tags",
-		CompletionGitFetchDesc:            "Fetch remote updates",
-		CompletionGitCloneDesc:            "Clone repository",
-		CompletionGitInitDesc:             "Initialize repository",
-		CompletionGitCleanDesc:            "Clean untracked files",
-		CompletionGitCherryPickDesc:       "Cherry-pick commits",
-		CompletionGitShowDesc:             "Show commit details",
-		CompletionGitRmDesc:               "Remove files",
-		CompletionGitMvDesc:               "Move files",
-		CompletionGitGrepDesc:             "Search content",
-		CompletionGitBisectDesc:           "Binary search for problematic commit",
-		CompletionFlagAmendDesc:           "Amend last commit",
-		CompletionFlagNoEditDesc:          "Don't edit commit message",
-		CompletionFlagMDesc:               "Specify commit message",
-		CompletionFlagADesc:               "Commit all tracked files",
-		CompletionFlagAllDesc:             "Commit all tracked files",
-		CompletionFlagFixupDesc:           "Create fixup commit",
-		CompletionFlagSignoffDesc:         "Add Signed-off-by line",
-		CompletionFlagSDesc:               "GPG sign",
-		CompletionFlagNoVerifyDesc:        "Skip pre-commit hooks",
-		CompletionFlagAllowEmptyDesc:      "Allow empty commit",
-		CompletionFlagForceDesc:           "Force push",
-		CompletionFlagForceWithLeaseDesc:  "Safe force push",
-		CompletionFlagSetUpstreamDesc:     "Set upstream branch",
-		CompletionFlagUDesc:               "Set upstream branch",
-		CompletionFlagTagsDesc:            "Push tags",
-		CompletionFlagDeleteDesc:          "Delete remote branch",
-		CompletionFlagDryRunDesc:          "Preview push",
-		CompletionFlagAllBranchesDesc:     "Push all branches",
-		CompletionFlagSoftDesc:            "Keep staging area and working directory",
-		CompletionFlagMixedDesc:           "Keep working directory",
-		CompletionFlagHardDesc:            "Discard all changes",
-		CompletionStatusConflicted:        "Conflicted",
-		CompletionStatusPartiallyStaged:   "Partially staged",
-		CompletionStatusStaged:            "Staged",
-		CompletionStatusModified:          "Modified",
-		CompletionStatusUntracked:         "Untracked",
-		CompletionStatusTracked:           "Tracked",
+		CompletionBranch:                 "Branch",
+		CompletionRemote:                 "Remote",
+		CompletionCommitRef:              "Commit reference",
+		CompletionTag:                    "Tag",
+		CompletionGitDesc:                "Version control system",
+		CompletionCdDesc:                 "Change directory",
+		CompletionLsDesc:                 "List files",
+		CompletionPwdDesc:                "Print working directory",
+		CompletionCatDesc:                "Display file content",
+		CompletionGrepDesc:               "Search text",
+		CompletionFindDesc:               "Find files",
+		CompletionGitAddDesc:             "Add files to staging area",
+		CompletionGitCommitDesc:          "Commit changes",
+		CompletionGitPushDesc:            "Push to remote",
+		CompletionGitPullDesc:            "Pull from remote",
+		CompletionGitCheckoutDesc:        "Switch branch",
+		CompletionGitSwitchDesc:          "Switch branch (new)",
+		CompletionGitBranchDesc:          "Manage branches",
+		CompletionGitMergeDesc:           "Merge branches",
+		CompletionGitRebaseDesc:          "Rebase",
+		CompletionGitResetDesc:           "Reset commits",
+		CompletionGitRevertDesc:          "Revert commits",
+		CompletionGitStashDesc:           "Stash working directory",
+		CompletionGitLogDesc:             "View commit history",
+		CompletionGitDiffDesc:            "View differences",
+		CompletionGitStatusDesc:          "View status",
+		CompletionGitTagDesc:             "Manage tags",
+		CompletionGitFetchDesc:           "Fetch remote updates",
+		CompletionGitCloneDesc:           "Clone repository",
+		CompletionGitInitDesc:            "Initialize repository",
+		CompletionGitCleanDesc:           "Clean untracked files",
+		CompletionGitCherryPickDesc:      "Cherry-pick commits",
+		CompletionGitShowDesc:            "Show commit details",
+		CompletionGitRmDesc:              "Remove files",
+		CompletionGitMvDesc:              "Move files",
+		CompletionGitGrepDesc:            "Search content",
+		CompletionGitBisectDesc:          "Binary search for problematic commit",
+		CompletionFlagAmendDesc:          "Amend last commit",
+		CompletionFlagNoEditDesc:         "Don't edit commit message",
+		CompletionFlagMDesc:              "Specify commit message",
+		CompletionFlagADesc:              "Commit all tracked files",
+		CompletionFlagAllDesc:            "Commit all tracked files",
+		CompletionFlagFixupDesc:          "Create fixup commit",
+		CompletionFlagSignoffDesc:        "Add Signed-off-by line",
+		CompletionFlagSDesc:              "GPG sign",
+		CompletionFlagNoVerifyDesc:       "Skip pre-commit hooks",
+		CompletionFlagAllowEmptyDesc:     "Allow empty commit",
+		CompletionFlagForceDesc:          "Force push",
+		CompletionFlagForceWithLeaseDesc: "Safe force push",
+		CompletionFlagSetUpstreamDesc:    "Set upstream branch",
+		CompletionFlagUDesc:              "Set upstream branch",
+		CompletionFlagTagsDesc:           "Push tags",
+		CompletionFlagDeleteDesc:         "Delete remote branch",
+		CompletionFlagDryRunDesc:         "Preview push",
+		CompletionFlagAllBranchesDesc:    "Push all branches",
+		CompletionFlagSoftDesc:           "Keep staging area and working directory",
+		CompletionFlagMixedDesc:          "Keep working directory",
+		CompletionFlagHardDesc:           "Discard all changes",
+		CompletionStatusConflicted:       "Conflicted",
+		CompletionStatusPartiallyStaged:  "Partially staged",
+		CompletionStatusStaged:           "Staged",
+		CompletionStatusModified:         "Modified",
+		CompletionStatusUntracked:        "Untracked",
+		CompletionStatusTracked:          "Tracked",
 
 		// AI Command Helper
-		AICommandNotEnabled:               "AI feature is not enabled",
-		AICommandGenerationCancelled:      "AI command generation cancelled",
-		AICommandInvalidFormat:            "Invalid format returned by AI: %v\nResponse content: %s",
-		AICommandExplainPrompt:            "Explain what this shell command does, in concise Chinese:\n\nCommand: %s\n\nPlease explain:\n1. What this command does (1 line)\n2. What impact it will have (1-2 lines)\n3. Whether there are risks (if any, explain the risk points, 1 line)\n4. Suggestions or notes (optional, 1 line)\n\nKeep the answer concise (3-5 lines total).",
-		AICommandExplainCancelled:         "Command explanation cancelled",
-		AICommandRiskHardReset:            "⚠️ Will lose all uncommitted changes",
-		AICommandRiskCleanFdx:             "⚠️ Will delete all untracked and ignored files (including files in .gitignore)",
-		AICommandRiskCleanFd:              "⚠️ Will delete all untracked files and directories",
-		AICommandRiskForcePush1:           "⚠️ May overwrite remote branch history, affecting other collaborators",
-		AICommandRiskForcePush2:           "⚠️ May overwrite remote branch history, affecting other collaborators",
-		AICommandRiskReflogExpire:         "⚠️ Will permanently delete reflog records, cannot be recovered",
-		AICommandRiskRmRf:                 "⚠️ Dangerous: recursive file deletion, may delete important data",
-		AICommandRiskBranchD:              "⚠️ Force delete branch, even if branch is not merged",
-		AICommandRiskRebaseI:              "⚠️ Rewrite history, may cause collaboration issues",
-		AICommandRiskGcAggressive:         "⚠️ Aggressive garbage collection, may delete recent objects",
-		AICommandSuggestionHardReset:      "Suggestion: Use 'git stash' to save changes first, or use 'git reset --soft' to keep changes",
-		AICommandSuggestionCleanFdx:       "Suggestion: Use 'git clean -fdn' to preview files to be deleted first",
-		AICommandSuggestionCleanFd:        "Suggestion: Use 'git clean -fdn' to preview files to be deleted first",
-		AICommandSuggestionForcePush1:     "Suggestion: Use 'git push --force-with-lease' for safe force push",
-		AICommandSuggestionForcePush2:     "Suggestion: Use 'git push --force-with-lease' for safe force push",
-		AICommandSuggestionBranchD:        "Suggestion: Check if branch is merged first, use 'git branch -d' for safe deletion",
+		AICommandNotEnabled:           "AI feature is not enabled",
+		AICommandGenerationCancelled:  "AI command generation cancelled",
+		AICommandInvalidFormat:        "Invalid format returned by AI: %v\nResponse content: %s",
+		AICommandExplainPrompt:        "Explain what this shell command does, in concise Chinese:\n\nCommand: %s\n\nPlease explain:\n1. What this command does (1 line)\n2. What impact it will have (1-2 lines)\n3. Whether there are risks (if any, explain the risk points, 1 line)\n4. Suggestions or notes (optional, 1 line)\n\nKeep the answer concise (3-5 lines total).",
+		AICommandExplainCancelled:     "Command explanation cancelled",
+		AICommandRiskHardReset:        "⚠️ Will lose all uncommitted changes",
+		AICommandRiskCleanFdx:         "⚠️ Will delete all untracked and ignored files (including files in .gitignore)",
+		AICommandRiskCleanFd:          "⚠️ Will delete all untracked files and directories",
+		AICommandRiskForcePush1:       "⚠️ May overwrite remote branch history, affecting other collaborators",
+		AICommandRiskForcePush2:       "⚠️ May overwrite remote branch history, affecting other collaborators",
+		AICommandRiskReflogExpire:     "⚠️ Will permanently delete reflog records, cannot be recovered",
+		AICommandRiskRmRf:             "⚠️ Dangerous: recursive file deletion, may delete important data",
+		AICommandRiskBranchD:          "⚠️ Force delete branch, even if branch is not merged",
+		AICommandRiskRebaseI:          "⚠️ Rewrite history, may cause collaboration issues",
+		AICommandRiskGcAggressive:     "⚠️ Aggressive garbage collection, may delete recent objects",
+		AICommandSuggestionHardReset:  "Suggestion: Use 'git stash' to save changes first, or use 'git reset --soft' to keep changes",
+		AICommandSuggestionCleanFdx:   "Suggestion: Use 'git clean -fdn' to preview files to be deleted first",
+		AICommandSuggestionCleanFd:    "Suggestion: Use 'git clean -fdn' to preview files to be deleted first",
+		AICommandSuggestionForcePush1: "Suggestion: Use 'git push --force-with-lease' for safe force push",
+		AICommandSuggestionForcePush2: "Suggestion: Use 'git push --force-with-lease' for safe force push",
+		AICommandSuggestionBranchD:    "Suggestion: Check if branch is merged first, use 'git branch -d' for safe deletion",
 
 		// AI Skills - Commit Message
-		AISkillCommitMsgSystemPrompt:      "You are an experienced software engineer specializing in writing high-quality Git commit messages.\nFollow the Conventional Commits specification (https://www.conventionalcommits.org/).\nOnly output the commit message itself, without any additional explanations, prefixes, or quotes.\nCommit messages (subject and body) must be in Chinese.",
-		AISkillCommitMsgRepoBackground:    "## Repository Background\n",
-		AISkillCommitMsgCodeChanges:       "## Code Changes\n",
-		AISkillCommitMsgOutputRules:       "## Output Rules\n",
-		AISkillCommitMsgFormatExample:     "- Format:\n  ```\n  <type>(<scope>): <subject>\n  \n  <body>\n  ```\n",
-		AISkillCommitMsgTypeList:          "- type: feat | fix | refactor | docs | test | chore | perf | style | ci | revert\n",
-		AISkillCommitMsgSubjectRules:      "- subject: Chinese, verb-first, imperative, max 72 characters\n",
-		AISkillCommitMsgScopeOptional:     "- scope is optional\n",
-		AISkillCommitMsgBodyRequired:      "- body: Required, leave one blank line between subject and body, explain the reason and main content of this change in Chinese (1-4 lines)\n\n",
-		AISkillCommitMsgScenarioBugfix:    "Scenario hint: This is a bug fix, prefer fix type.\n",
-		AISkillCommitMsgScenarioRefactor:  "Scenario hint: This is refactoring, prefer refactor type.\n",
-		AISkillCommitMsgScenarioDocs:      "Scenario hint: This is documentation update, use docs type.\n",
-		AISkillCommitMsgScenarioTest:      "Scenario hint: This is test-related change, use test type.\n",
-		AISkillCommitMsgScenarioDefault:   "Please output the commit message directly:",
-		AISkillCommitMsgScenarioLarge:     "Scenario hint: This is a large changeset. Focus on the primary intent, mention key modules affected in the body. Be comprehensive but concise. Please output the commit message:\n",
-		AISkillCommitMsgProjectType:       "Project type: %s\n",
+		AISkillCommitMsgSystemPrompt:     "You are an experienced software engineer specializing in writing high-quality Git commit messages.\nFollow the Conventional Commits specification (https://www.conventionalcommits.org/).\nOnly output the commit message itself, without any additional explanations, prefixes, or quotes.\nCommit messages (subject and body) must be in Chinese.",
+		AISkillCommitMsgRepoBackground:   "## Repository Background\n",
+		AISkillCommitMsgCodeChanges:      "## Code Changes\n",
+		AISkillCommitMsgOutputRules:      "## Output Rules\n",
+		AISkillCommitMsgFormatExample:    "- Format:\n  ```\n  <type>(<scope>): <subject>\n  \n  <body>\n  ```\n",
+		AISkillCommitMsgTypeList:         "- type: feat | fix | refactor | docs | test | chore | perf | style | ci | revert\n",
+		AISkillCommitMsgSubjectRules:     "- subject: Chinese, verb-first, imperative, max 72 characters\n",
+		AISkillCommitMsgScopeOptional:    "- scope is optional\n",
+		AISkillCommitMsgBodyRequired:     "- body: Required, leave one blank line between subject and body, explain the reason and main content of this change in Chinese (1-4 lines)\n\n",
+		AISkillCommitMsgScenarioBugfix:   "Scenario hint: This is a bug fix, prefer fix type.\n",
+		AISkillCommitMsgScenarioRefactor: "Scenario hint: This is refactoring, prefer refactor type.\n",
+		AISkillCommitMsgScenarioDocs:     "Scenario hint: This is documentation update, use docs type.\n",
+		AISkillCommitMsgScenarioTest:     "Scenario hint: This is test-related change, use test type.\n",
+		AISkillCommitMsgScenarioDefault:  "Please output the commit message directly:",
+		AISkillCommitMsgScenarioLarge:    "Scenario hint: This is a large changeset. Focus on the primary intent, mention key modules affected in the body. Be comprehensive but concise. Please output the commit message:\n",
+		AISkillCommitMsgProjectType:      "Project type: %s\n",
 
 		// AI Skills - Branch Name
 		AISkillBranchNamePromptIntro:      "Recommend a branch name based on the following working directory changes.\n\n",
@@ -3620,81 +3624,81 @@ keybinding:
 		AISkillBranchNameSystemPrompt:     "You are a Git branch naming expert. Recommend concise, descriptive branch names based on change content. Only output the branch name itself.",
 
 		// AI Skills - PR Description
-		AISkillPRDescSystemPrompt:         "You are a senior software engineer responsible for writing clear, professional Pull Request descriptions.\nOutput in Markdown format, including Summary, Changes, and Testing sections.\nUse concise Chinese.",
-		AISkillPRDescBranchInfo:           "## Branch Info\nMerging from `%s` to `%s`\n\n",
-		AISkillPRDescCommitHistory:        "## Commit History\n",
-		AISkillPRDescCodeChangesSection:   "## Code Changes\n```diff\n",
-		AISkillPRDescGeneratePrompt:       "## Please generate a PR description with the following sections\n\n",
-		AISkillPRDescSummarySection:       "### Summary\nOne sentence describing the purpose and motivation of this PR.\n\n",
-		AISkillPRDescChangesSection:       "### Changes\n- List main changes (3-5 items, be specific)\n\n",
-		AISkillPRDescBreakingSection:      "### Breaking Changes\nIf there are breaking changes, describe them and the migration steps. Otherwise write: None.\n\n",
-		AISkillPRDescTestingSection:       "### Testing\n- Describe how to verify these changes (manual steps or test commands)\n\n",
-		AISkillPRDescChecklistSection:     "### Checklist\n- [ ] Tests added or updated\n- [ ] Documentation updated\n- [ ] No breaking changes (or documented above)\n",
+		AISkillPRDescSystemPrompt:       "You are a senior software engineer responsible for writing clear, professional Pull Request descriptions.\nOutput in Markdown format, including Summary, Changes, and Testing sections.\nUse concise Chinese.",
+		AISkillPRDescBranchInfo:         "## Branch Info\nMerging from `%s` to `%s`\n\n",
+		AISkillPRDescCommitHistory:      "## Commit History\n",
+		AISkillPRDescCodeChangesSection: "## Code Changes\n```diff\n",
+		AISkillPRDescGeneratePrompt:     "## Please generate a PR description with the following sections\n\n",
+		AISkillPRDescSummarySection:     "### Summary\nOne sentence describing the purpose and motivation of this PR.\n\n",
+		AISkillPRDescChangesSection:     "### Changes\n- List main changes (3-5 items, be specific)\n\n",
+		AISkillPRDescBreakingSection:    "### Breaking Changes\nIf there are breaking changes, describe them and the migration steps. Otherwise write: None.\n\n",
+		AISkillPRDescTestingSection:     "### Testing\n- Describe how to verify these changes (manual steps or test commands)\n\n",
+		AISkillPRDescChecklistSection:   "### Checklist\n- [ ] Tests added or updated\n- [ ] Documentation updated\n- [ ] No breaking changes (or documented above)\n",
 
 		// AI Skills - Shell Command
-		AISkillShellCmdSystemPrompt:       "You are a Git command expert. Generate precise shell commands based on user intent.\n\n",
-		AISkillShellCmdRuntime:            "Runtime environment: %s\n\n",
-		AISkillShellCmdRepoStatus:         "Repository status:\n%s\n\n",
-		AISkillShellCmdUserIntent:         "User intent: %s\n\n",
-		AISkillShellCmdOutputFormat:       "Output JSON array, each element contains:\n",
-		AISkillShellCmdCommandField:       "- command: Complete executable command\n",
-		AISkillShellCmdExplanationField:   "- explanation: Chinese explanation (1-2 sentences)\n",
-		AISkillShellCmdRiskLevelField:     "- risk_level: \"safe\" | \"medium\" | \"dangerous\"\n",
-		AISkillShellCmdAlternativesField:  "- alternatives: Alternative commands (optional)\n\n",
-		AISkillShellCmdOutputNote:         "Return 1-3 suggestions, sorted by recommendation. Only output JSON, no other content.",
-		AISkillShellCmdWindowsHint:        "Windows + Git Bash, use && to connect commands",
-		AISkillShellCmdMacOSHint:          "macOS + zsh/bash, use && to connect commands",
-		AISkillShellCmdLinuxHint:          "Linux + bash, use && to connect commands",
+		AISkillShellCmdSystemPrompt:      "You are a Git command expert. Generate precise shell commands based on user intent.\n\n",
+		AISkillShellCmdRuntime:           "Runtime environment: %s\n\n",
+		AISkillShellCmdRepoStatus:        "Repository status:\n%s\n\n",
+		AISkillShellCmdUserIntent:        "User intent: %s\n\n",
+		AISkillShellCmdOutputFormat:      "Output JSON array, each element contains:\n",
+		AISkillShellCmdCommandField:      "- command: Complete executable command\n",
+		AISkillShellCmdExplanationField:  "- explanation: Chinese explanation (1-2 sentences)\n",
+		AISkillShellCmdRiskLevelField:    "- risk_level: \"safe\" | \"medium\" | \"dangerous\"\n",
+		AISkillShellCmdAlternativesField: "- alternatives: Alternative commands (optional)\n\n",
+		AISkillShellCmdOutputNote:        "Return 1-3 suggestions, sorted by recommendation. Only output JSON, no other content.",
+		AISkillShellCmdWindowsHint:       "Windows + Git Bash, use && to connect commands",
+		AISkillShellCmdMacOSHint:         "macOS + zsh/bash, use && to connect commands",
+		AISkillShellCmdLinuxHint:         "Linux + bash, use && to connect commands",
 
 		// AI Skills - Code Review
-		AISkillCodeReviewSystemPrompt:     "You are a senior software engineer conducting a thorough code review.\nFocus on correctness, security, and maintainability.\nBe conservative: only report issues you are certain exist.\nOutput in Simplified Chinese.",
+		AISkillCodeReviewSystemPrompt: "You are a senior software engineer conducting a thorough code review.\nFocus on correctness, security, and maintainability.\nBe conservative: only report issues you are certain exist.\nOutput in Simplified Chinese.",
 
 		// AI Skills - Explain Diff
-		AISkillExplainDiffSystemPrompt:    "You are a technical writer who explains code changes clearly.\nDescribe what changed and why it matters — do not judge or assign severity.\nUse Simplified Chinese. Be concise: 2–4 sentences per section.",
+		AISkillExplainDiffSystemPrompt: "You are a technical writer who explains code changes clearly.\nDescribe what changed and why it matters — do not judge or assign severity.\nUse Simplified Chinese. Be concise: 2–4 sentences per section.",
 
 		// AI Skills - Release Notes
-		AISkillReleaseNotesSystemPrompt:   "You are a release manager writing a professional changelog.\nGroup commits by type, rewrite them as user-facing descriptions.\nUse Simplified Chinese. Output clean Markdown only.",
+		AISkillReleaseNotesSystemPrompt: "You are a release manager writing a professional changelog.\nGroup commits by type, rewrite them as user-facing descriptions.\nUse Simplified Chinese. Output clean Markdown only.",
 
 		// AI Skills - Stash Name
-		AISkillStashNameSystemPrompt:      "You are a Git expert generating descriptive stash messages.\nOutput exactly one line: a concise stash message in Simplified Chinese.\nFormat: `<type>: <description>` — no quotes, no extra text.",
+		AISkillStashNameSystemPrompt: "You are a Git expert generating descriptive stash messages.\nOutput exactly one line: a concise stash message in Simplified Chinese.\nFormat: `<type>: <description>` — no quotes, no extra text.",
 
 		// AI Chat Helper
-		AIChatWelcomeSystem:               "Welcome to AI Assistant!",
-		AIChatWelcomeMessage:              "Hello! I'm your Git Agent\n\nI can directly help you operate the repository, for example:\n  • \"Help me commit current changes\"\n  • \"Create a feature/login branch\"\n  • \"View recent commit history\"\n  • \"Stash these changes and switch to main branch\"\n\nTell me what you want to do, and I'll execute it.",
-		AIChatConfigPrompt:                "Please enable and configure AI features in settings first.\nTip: Press 'o' to open settings menu",
-		AIChatPreviousContext:             "─── The following content is from the previous AI analysis, you can continue asking ───",
-		AIChatNoContentToCopy:             "No content to copy",
-		AIChatNoExecutableReply:           "No executable AI reply",
-		AIChatConfirmExecution:            "Confirm execution",
-		AIChatExecutionPlan:               "Execution plan",
-		AIChatNotInitialized:              "AI not initialized, please configure AI features first.",
-		AIChatRequestFailed:               "AI request failed, you can enter the next instruction",
-		AIChatCopyFailed:                  "Copy failed",
-		AIChatCopiedToClipboard:           "Copied to clipboard",
-		AIChatNoCommandsFound:             "No executable commands found in the last AI reply",
-		AIChatClearHistoryTitle:           "Confirm clear",
-		AIChatClearHistoryPrompt:          "Are you sure you want to clear the conversation history? This action cannot be undone.",
-		AIChatHistoryCleared:              "Conversation history cleared",
-		AIChatHowCanIHelp:                 "How can I help you?",
-		AIChatGenerationStopped:           "Generation stopped, you can enter the next instruction",
-		AIChatCompleted:                   "Completed",
-		AIChatWaitingConfirm:              "Waiting for confirmation",
-		AIChatConfirmPrompt:               "Enter Y to execute, N to cancel, or enter additional instructions to adjust the plan",
-		AIChatExecutingPlan:               "Executing plan",
-		AIChatGeneratingReply:             "Generating reply",
-		AIChatCallingTool:                 "Calling",
-		AIChatToolCompleted:               "Completed tool",
-		AIChatToolFailed:                  "Tool failed",
-		AIChatPlanGenerated:               "Execution plan generated, waiting for confirmation",
-		AIChatStatusLabel:                 "Status:",
-		AIChatActionLabel:                 "Action:",
-		AIChatGreeting:                    "Welcome to AI Assistant!",
-		AIChatCapabilities:                "I can directly help you operate the repository",
-		AIChatInputPrompt:                 "▶ Enter Y to confirm execution, N to cancel, or enter additional instructions to adjust the plan",
-		AIChatStoppedGeneration:           "Generation stopped",
-		AIChatCallingToolPrefix:           "Calling",
-		AIChatToolCompletedPrefix:         "Completed tool",
-		AIChatToolFailedPrefix:            "Tool",
+		AIChatWelcomeSystem:       "Welcome to AI Assistant!",
+		AIChatWelcomeMessage:      "Hello! I'm your Git Agent\n\nI can directly help you operate the repository, for example:\n  • \"Help me commit current changes\"\n  • \"Create a feature/login branch\"\n  • \"View recent commit history\"\n  • \"Stash these changes and switch to main branch\"\n\nTell me what you want to do, and I'll execute it.",
+		AIChatConfigPrompt:        "Please enable and configure AI features in settings first.\nTip: Press 'o' to open settings menu",
+		AIChatPreviousContext:     "─── The following content is from the previous AI analysis, you can continue asking ───",
+		AIChatNoContentToCopy:     "No content to copy",
+		AIChatNoExecutableReply:   "No executable AI reply",
+		AIChatConfirmExecution:    "Confirm execution",
+		AIChatExecutionPlan:       "Execution plan",
+		AIChatNotInitialized:      "AI not initialized, please configure AI features first.",
+		AIChatRequestFailed:       "AI request failed, you can enter the next instruction",
+		AIChatCopyFailed:          "Copy failed",
+		AIChatCopiedToClipboard:   "Copied to clipboard",
+		AIChatNoCommandsFound:     "No executable commands found in the last AI reply",
+		AIChatClearHistoryTitle:   "Confirm clear",
+		AIChatClearHistoryPrompt:  "Are you sure you want to clear the conversation history? This action cannot be undone.",
+		AIChatHistoryCleared:      "Conversation history cleared",
+		AIChatHowCanIHelp:         "How can I help you?",
+		AIChatGenerationStopped:   "Generation stopped, you can enter the next instruction",
+		AIChatCompleted:           "Completed",
+		AIChatWaitingConfirm:      "Waiting for confirmation",
+		AIChatConfirmPrompt:       "Enter Y to execute, N to cancel, or enter additional instructions to adjust the plan",
+		AIChatExecutingPlan:       "Executing plan",
+		AIChatGeneratingReply:     "Generating reply",
+		AIChatCallingTool:         "Calling",
+		AIChatToolCompleted:       "Completed tool",
+		AIChatToolFailed:          "Tool failed",
+		AIChatPlanGenerated:       "Execution plan generated, waiting for confirmation",
+		AIChatStatusLabel:         "Status:",
+		AIChatActionLabel:         "Action:",
+		AIChatGreeting:            "Welcome to AI Assistant!",
+		AIChatCapabilities:        "I can directly help you operate the repository",
+		AIChatInputPrompt:         "▶ Enter Y to confirm execution, N to cancel, or enter additional instructions to adjust the plan",
+		AIChatStoppedGeneration:   "Generation stopped",
+		AIChatCallingToolPrefix:   "Calling",
+		AIChatToolCompletedPrefix: "Completed tool",
+		AIChatToolFailedPrefix:    "Tool",
 
 		// AI Two Phase Agent
 		AITwoPhaseAgentSystemPromptIntro:        "You are the built-in AI for lazygit, responsible for analyzing user requirements and creating Git operation plans.\n\n",

@@ -819,6 +819,9 @@ type AIProfileConfig struct {
 	APIKey string `yaml:"apiKey"`
 	// Model name; e.g. "deepseek-reasoner", "gpt-4o-mini", "claude-sonnet-4-6"
 	Model string `yaml:"model"`
+	// Wire API for OpenAI-compatible providers: "chat" (default) or "responses".
+	// Use "responses" for gateways that require the OpenAI Responses API.
+	WireAPI string `yaml:"wireApi,omitempty" jsonschema:"enum=chat,enum=responses,enum="`
 	// Enable thinking mode for supported models (e.g. deepseek-reasoner).
 	EnableThinking bool `yaml:"enableThinking,omitempty"`
 	// Custom API endpoint (required for ollama and custom providers; optional proxy override for others)
