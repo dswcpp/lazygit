@@ -813,7 +813,7 @@ type IconProperties struct {
 type AIProfileConfig struct {
 	// Display name for this profile (used in the profile switcher)
 	Name string `yaml:"name"`
-	// AI provider: "deepseek" (default), "openai", "ollama", "anthropic", or "custom"
+	// AI provider: "openai" (default), "deepseek", "ollama", "anthropic", or "custom"
 	Provider string `yaml:"provider" jsonschema:"enum=deepseek,enum=openai,enum=ollama,enum=anthropic,enum=custom"`
 	// API key; supports env var references like ${DEEPSEEK_API_KEY} or ${OPENAI_API_KEY}
 	APIKey string `yaml:"apiKey"`
@@ -1187,15 +1187,15 @@ func GetDefaultConfig() *UserConfig {
 		},
 		AI: AIConfig{
 			Enabled:       false,
-			ActiveProfile: "deepseek-reasoner",
+			ActiveProfile: "gpt-4o-mini",
 			Profiles: []AIProfileConfig{
 				{
-					Name:           "deepseek-reasoner",
-					Provider:       "deepseek",
-					Model:          "deepseek-reasoner",
-					EnableThinking: true,
+					Name:           "gpt-4o-mini",
+					Provider:       "openai",
+					Model:          "gpt-4o-mini",
+					EnableThinking: false,
 					MaxTokens:      8000,
-					Timeout:        300,
+					Timeout:        60,
 				},
 			},
 		},

@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jesseduffield/gocui"
 	"github.com/dswcpp/lazygit/pkg/ai"
 	aii18n "github.com/dswcpp/lazygit/pkg/ai/i18n"
 	aiprovider "github.com/dswcpp/lazygit/pkg/ai/provider"
 	"github.com/dswcpp/lazygit/pkg/config"
 	"github.com/dswcpp/lazygit/pkg/gui/types"
+	"github.com/jesseduffield/gocui"
 )
 
 type AIHelper struct {
@@ -272,8 +272,8 @@ func (self *AIHelper) openAddProfileMenu() error {
 			}
 			newProfile := config.AIProfileConfig{
 				Name:      name,
-				Provider:  "deepseek",
-				Model:     "deepseek-chat",
+				Provider:  "openai",
+				Model:     "gpt-4o-mini",
 				MaxTokens: 500,
 				Timeout:   60,
 			}
@@ -641,18 +641,18 @@ func (self *AIHelper) ShowFirstTimeWizard() error {
 		Title: self.c.Tr.AIWelcomeWizardTitle,
 		Items: []*types.MenuItem{
 			{
-				Label: self.c.Tr.UseDeepSeekRecommended,
-				OnPress: func() error {
-					return self.setupProvider("deepseek", "deepseek-reasoner", "https://api.deepseek.com/v1")
-				},
-				Key: 'd',
-			},
-			{
 				Label: self.c.Tr.UseOpenAI,
 				OnPress: func() error {
 					return self.setupProvider("openai", "gpt-4o-mini", "https://api.openai.com/v1")
 				},
 				Key: 'o',
+			},
+			{
+				Label: self.c.Tr.UseDeepSeekRecommended,
+				OnPress: func() error {
+					return self.setupProvider("deepseek", "deepseek-reasoner", "https://api.deepseek.com/v1")
+				},
+				Key: 'd',
 			},
 			{
 				Label: self.c.Tr.UseAnthropicClaude,

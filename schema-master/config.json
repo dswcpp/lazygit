@@ -10,16 +10,52 @@
           "description": "Whether AI features are enabled",
           "default": false
         },
+        "activeProfile": {
+          "type": "string",
+          "description": "Name of the currently active profile (must match a profile Name in Profiles)",
+          "default": "gpt-4o-mini"
+        },
+        "profiles": {
+          "items": {
+            "$ref": "#/$defs/AIProfileConfig"
+          },
+          "type": "array",
+          "description": "Named AI provider profiles",
+          "default": [
+            {
+              "name": "gpt-4o-mini",
+              "provider": "openai",
+              "apiKey": "",
+              "model": "gpt-4o-mini",
+              "enableThinking": false,
+              "endpoint": "",
+              "maxTokens": 8000,
+              "timeout": 60,
+              "customHeaders": null
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "AI integration settings"
+    },
+    "AIProfileConfig": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name for this profile (used in the profile switcher)"
+        },
         "provider": {
           "type": "string",
           "enum": [
             "deepseek",
             "openai",
             "ollama",
+            "anthropic",
             "custom"
           ],
-          "description": "AI provider: \"deepseek\" (default), \"openai\", \"ollama\", or \"custom\"",
-          "default": "deepseek"
+          "description": "AI provider: \"openai\" (default), \"deepseek\", \"ollama\", \"anthropic\", or \"custom\""
         },
         "apiKey": {
           "type": "string",
@@ -27,32 +63,35 @@
         },
         "model": {
           "type": "string",
-          "description": "Model name; deepseek-reasoner is recommended for git analysis tasks.\nOther options: \"deepseek-chat\", \"gpt-4o-mini\"",
-          "default": "deepseek-reasoner"
+          "description": "Model name; e.g. \"deepseek-reasoner\", \"gpt-4o-mini\", \"claude-sonnet-4-6\""
         },
         "enableThinking": {
           "type": "boolean",
-          "description": "Enable thinking mode. Automatically true for deepseek-reasoner.\nSet to true with deepseek-chat to enable thinking via the thinking parameter.",
-          "default": true
+          "description": "Enable thinking mode for supported models (e.g. deepseek-reasoner)."
         },
         "endpoint": {
           "type": "string",
-          "description": "Custom API endpoint (required for ollama and custom providers)"
+          "description": "Custom API endpoint (required for ollama and custom providers; optional proxy override for others)"
         },
         "maxTokens": {
           "type": "integer",
-          "description": "Maximum tokens for AI response (includes reasoning chain when thinking is enabled)",
-          "default": 8000
+          "description": "Maximum tokens for AI response (includes reasoning chain when thinking is enabled)"
         },
         "timeout": {
           "type": "integer",
-          "description": "Request timeout in seconds; increase when using reasoning models",
-          "default": 60
+          "description": "Request timeout in seconds. Reasoning models can take several minutes;\nset this high enough to avoid premature cancellation. Default is 300."
+        },
+        "customHeaders": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "CustomHeaders are extra HTTP headers sent with every API request.\nUseful for proxy authentication or to satisfy proxy-specific checks.\nExample: {\"User-Agent\": \"claude-code/1.0\", \"X-My-Header\": \"value\"}"
         }
       },
       "additionalProperties": false,
       "type": "object",
-      "description": "AI integration settings"
+      "description": "AIProfileConfig holds the settings for a single named AI provider profile."
     },
     "CommitConfig": {
       "properties": {

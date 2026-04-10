@@ -760,28 +760,17 @@ ai:
   # Whether AI features are enabled
   enabled: false
 
-  # AI provider: "deepseek" (default), "openai", "ollama", or "custom"
-  provider: deepseek
+  # Name of the currently active profile (must match a profile Name in Profiles)
+  activeProfile: gpt-4o-mini
 
-  # API key; supports env var references like ${DEEPSEEK_API_KEY} or ${OPENAI_API_KEY}
-  apiKey: ""
-
-  # Model name; deepseek-reasoner is recommended for git analysis tasks.
-  # Other options: "deepseek-chat", "gpt-4o-mini"
-  model: deepseek-reasoner
-
-  # Enable thinking mode. Automatically true for deepseek-reasoner.
-  # Set to true with deepseek-chat to enable thinking via the thinking parameter.
-  enableThinking: true
-
-  # Custom API endpoint (required for ollama and custom providers)
-  endpoint: ""
-
-  # Maximum tokens for AI response (includes reasoning chain when thinking is enabled)
-  maxTokens: 8000
-
-  # Request timeout in seconds; increase when using reasoning models
-  timeout: 60
+  # Named AI provider profiles
+  profiles:
+    - name: gpt-4o-mini
+      provider: openai
+      apiKey: ""
+      model: gpt-4o-mini
+      maxTokens: 8000
+      timeout: 60
 ```
 <!-- END CONFIG YAML -->
 
