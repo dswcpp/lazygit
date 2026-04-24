@@ -190,6 +190,9 @@ func (p *openAIProvider) completeChat(ctx context.Context, prompt string) (Resul
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		if shouldRetryAsStream(resp.StatusCode, respBytes) {
+			return p.completeChatViaStream(ctx, prompt)
+		}
 		return Result{}, fmt.Errorf("AI: unexpected status %d: %s", resp.StatusCode, string(respBytes))
 	}
 
@@ -211,6 +214,21 @@ func (p *openAIProvider) completeChat(ctx context.Context, prompt string) (Resul
 		Content:          strings.TrimSpace(msg.Content),
 		ReasoningContent: msg.ReasoningContent,
 	}, nil
+}
+
+func (p *openAIProvider) completeChatViaStream(ctx context.Context, prompt string) (Result, error) {
+	var content strings.Builder
+	if err := p.completeChatStream(ctx, prompt, func(chunk string) {
+		content.WriteString(chunk)
+	}); err != nil {
+		return Result{}, err
+	}
+
+	if content.Len() == 0 {
+		return Result{}, fmt.Errorf("AI: empty response from model")
+	}
+
+	return Result{Content: strings.TrimSpace(content.String())}, nil
 }
 
 func (p *openAIProvider) completeResponses(ctx context.Context, prompt string) (Result, error) {
@@ -243,7 +261,7 @@ func (p *openAIProvider) completeResponses(ctx context.Context, prompt string) (
 		return Result{}, fmt.Errorf("AI: failed to read response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		if shouldRetryResponsesAsStream(resp.StatusCode, respBytes) {
+		if shouldRetryAsStream(resp.StatusCode, respBytes) {
 			return p.completeResponsesViaStream(ctx, prompt)
 		}
 		return Result{}, fmt.Errorf("AI: unexpected status %d: %s", resp.StatusCode, string(respBytes))
@@ -273,7 +291,7 @@ func parseResponsesResult(respBytes []byte) (Result, error) {
 	return Result{Content: content}, nil
 }
 
-func shouldRetryResponsesAsStream(statusCode int, respBytes []byte) bool {
+func shouldRetryAsStream(statusCode int, respBytes []byte) bool {
 	if statusCode != http.StatusBadRequest {
 		return false
 	}

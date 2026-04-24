@@ -188,3 +188,64 @@ func TestOpenAIProviderCompleteRetriesResponsesAsStreamWhenRequired(t *testing.T
 		t.Fatalf("expected 2 requests, got %d", requestCount)
 	}
 }
+
+func TestOpenAIProviderCompleteRetriesChatAsStreamWhenRequired(t *testing.T) {
+	t.Parallel()
+
+	var mu sync.Mutex
+	requestCount := 0
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/chat/completions" {
+			t.Fatalf("expected /chat/completions, got %s", r.URL.Path)
+		}
+
+		var req struct {
+			Stream bool `json:"stream"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+
+		mu.Lock()
+		requestCount++
+		current := requestCount
+		mu.Unlock()
+
+		if current == 1 {
+			if req.Stream {
+				t.Fatalf("expected first request to be non-streaming")
+			}
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"detail":"Stream must be set to true"}`))
+			return
+		}
+
+		if !req.Stream {
+			t.Fatalf("expected retry request to be streaming")
+		}
+
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("data: {\"choices\":[{\"delta\":{\"content\":\"O\"}}]}\n\n"))
+		_, _ = w.Write([]byte("data: {\"choices\":[{\"delta\":{\"content\":\"K\"}}]}\n\n"))
+		_, _ = w.Write([]byte("data: [DONE]\n\n"))
+	}))
+	defer server.Close()
+
+	provider := NewOpenAIProvider(server.URL, "test-key", "gpt-5.4", 128, 30, false, nil, "")
+	result, err := provider.Complete(context.Background(), []Message{
+		{Role: RoleUser, Content: "hello"},
+	})
+	if err != nil {
+		t.Fatalf("Complete returned error: %v", err)
+	}
+	if result.Content != "OK" {
+		t.Fatalf("unexpected content: %q", result.Content)
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+	if requestCount != 2 {
+		t.Fatalf("expected 2 requests, got %d", requestCount)
+	}
+}
